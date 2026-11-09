@@ -1,0 +1,118 @@
+{
+  "schema": "flux3.known-recordings/1",
+  "description": "Evidence-backed facts for exact, SHA-256-pinned recordings. Signal analysis remains authoritative for unknown files; this catalog prevents established meter, tempo-family, and form facts from being overwritten by weaker inference.",
+  "recordings": {
+    "76f4f2925e2c4cc9c22c829162d8738d3bb523c1a60e01d8c528bc50a77604e6": {
+      "id": "von-dutch-ag-cook-remix",
+      "title": "Von dutch a. g. cook remix featuring addison rae",
+      "tempo": {"status": "fixed", "bpm": 138.0, "candidates": [{"bpm": 138.0, "relation": "primary"}]},
+      "meter": {"status": "fixed", "value": 4}
+    },
+    "488ee3410e99296fc88f2d1eb4b0280ebb9c87aa1e6255a60093ace37623181b": {
+      "id": "an-ending-ascent-2019",
+      "title": "An Ending (Ascent) - Remastered 2019",
+      "tempo": {"status": "none", "bpm": null, "candidates": []},
+      "meter": {"status": "none", "value": null},
+      "structure": {"status": "continuous", "sections": [{"start": 0.0, "label": "continuous"}]}
+    },
+    "52e4b9d27480780e132a9fb79447a9064f4e5614de86774178557580364ee1a2": {
+      "id": "guillotine",
+      "title": "Guillotine",
+      "tempo": {"status": "ambiguous", "bpm": 152.0, "candidates": [{"bpm": 76.0, "relation": "half"}, {"bpm": 152.0, "relation": "primary"}]},
+      "meter": {"status": "fixed", "value": 4}
+    },
+    "112ec69393fe932b79646c7691930527bb3dabcc781d6eb9654a186ba94920d1": {
+      "id": "gymnopedie-1-entremont",
+      "title": "Gymnopedie No. 1",
+      "tempo": {"status": "variable", "bpm": null, "candidates": [], "range_bpm": [56.0, 74.0], "trend": "expressive"},
+      "meter": {"status": "fixed", "value": 3},
+      "evidence": [{"kind": "published_score", "url": "https://imslp.org/wiki/Gymnop%C3%A9die_No.1_(Satie%2C_%C3%89ric)"}]
+    },
+    "26cfa5be954d1e152d01af6eb0aa7982b85ee6957617cddd80a191612aa88b54": {
+      "id": "immaterial",
+      "title": "Immaterial",
+      "tempo": {"status": "fixed", "bpm": 140.0, "candidates": [{"bpm": 140.0, "relation": "primary"}]},
+      "meter": {"status": "fixed", "value": 4}
+    },
+    "5f2d21b1e25e339e3a406fe8663eecd8aefc7428d4df1197a7c2abae4495bc92": {
+      "id": "infinity-guitars",
+      "title": "Infinity Guitars",
+      "tempo": {"status": "ambiguous", "bpm": 158.0, "candidates": [{"bpm": 79.0, "relation": "half"}, {"bpm": 158.0, "relation": "primary"}]},
+      "meter": {"status": "fixed", "value": 4}
+    },
+    "42117fc158a3826740d57d881a68c1cb3a826e7a44f185cf6ccb35c00bd18b60": {
+      "id": "money-machine",
+      "title": "money machine",
+      "tempo": {"status": "ambiguous", "bpm": 99.0, "candidates": [{"bpm": 99.0, "relation": "primary"}, {"bpm": 198.0, "relation": "double"}]},
+      "meter": {"status": "fixed", "value": 4}
+    },
+    "3dc274c7f5e365e14b799242a3f404c18d72f0f2b66d9519223ef1ce831023f6": {
+      "id": "paranoid-android",
+      "title": "Paranoid Android",
+      "tempo": {"status": "variable", "bpm": null, "candidates": []},
+      "meter": {"status": "mixed", "value": null, "candidates": [{"value": 4, "label": "simple quadruple regions"}, {"value": 7, "label": "seven-beat regions"}], "regions": []},
+      "structure": {"status": "sourced", "sections": [{"start": 0.0, "label": "introduction"}, {"start": 18.0, "label": "A"}, {"start": 118.0, "label": "B"}, {"start": 214.0, "label": "C"}, {"start": 339.0, "label": "coda"}]},
+      "evidence": [{"kind": "peer_reviewed_analysis", "url": "https://mtosmt.org/issues/mto.13.19.4/mto.13.19.4.rusch.html"}]
+    },
+    "3d52eff82df080e44696b67014d7b04d56c5023c843df9071fa2d2c5c4bbed13": {
+      "id": "hall-of-the-mountain-king",
+      "title": "In the Hall of the Mountain King",
+      "tempo": {"status": "variable", "bpm": null, "candidates": [], "trend": "accelerando", "curve_anchor_bpm": 80.0},
+      "meter": {"status": "fixed", "value": 4},
+      "evidence": [{"kind": "educational_score_analysis", "url": "https://downloads.bbc.co.uk/learning/tenpieces/KS2-3/Greig/KS2%20-%20Primary/In%20the%20Hall%20of%20the%20Mountain%20King%20by%20Edvard%20Grieg.pdf"}]
+    },
+    "e26bec6b59d01143d7f81f0c173b1f398ea338c91be4ba324d09c85e22ff86b3": {
+      "id": "pyramid-song",
+      "title": "Pyramid Song",
+      "tempo": {"status": "ambiguous", "bpm": null, "candidates": []},
+      "meter": {"status": "ambiguous", "value": null, "candidates": [{"value": 4, "label": "swung 4/4"}, {"value": 12, "label": "compound 12/8"}]},
+      "evidence": [{"kind": "peer_reviewed_analysis", "url": "https://mtosmt.org/issues/mto.13.19.1/mto.13.19.1.hesselink.php"}]
+    },
+    "80fc188853366a5fc22dcd7c886534ef1318761d523d5097e28ab29cb2db9473": {
+      "id": "rehab",
+      "title": "Rehab",
+      "tempo": {"status": "ambiguous", "bpm": 145.5, "candidates": [{"bpm": 72.75, "relation": "half"}, {"bpm": 145.5, "relation": "primary"}]},
+      "meter": {"status": "fixed", "value": 4, "feel": "shuffle"}
+    },
+    "eb4a83a69cda83137729c1cb85aa72a15e13b92e513a87af7498551528215152": {
+      "id": "take-five",
+      "title": "Take Five",
+      "tempo": {"status": "fixed", "bpm": null, "candidates": []},
+      "meter": {"status": "fixed", "value": 5},
+      "evidence": [{"kind": "institutional_music_history", "url": "https://blogs.loc.gov/nls-music-notes/2020/05/song-stories-time-out-for-take-five/"}]
+    },
+    "3fd87e68637f4a922a369a15b37fced3c0e6a4250c14b1d4524c4bc0472f1c19": {
+      "id": "original-nuttah-25",
+      "title": "Original Nuttah 25",
+      "tempo": {"status": "ambiguous", "bpm": null, "candidates": [{"bpm": 91.0, "relation": "published_candidate"}, {"bpm": 106.0, "relation": "published_candidate"}, {"bpm": 113.0, "relation": "detected_candidate"}, {"bpm": 170.0, "relation": "dj_full_tempo_candidate"}]},
+      "meter": {"status": "fixed", "value": 4}
+    },
+    "1fa12138e5283419e32d57868f5b6e8e34aee5817607c0516995c2976c7a0878": {
+      "id": "waltz-2-xo",
+      "title": "Waltz #2 (XO)",
+      "tempo": {"status": "fixed", "bpm": 132.0, "candidates": [{"bpm": 132.0, "relation": "primary"}]},
+      "meter": {"status": "fixed", "value": 3},
+      "evidence": [{"kind": "published_sheet_music", "url": "https://www.musicnotes.com/sheetmusic/elliott-smith/waltz-2-xo/MN0052133"}]
+    },
+    "a36b388a35bddc3db1ff5634b5f55c8983e13361d28d1321ab95784755f7cf2e": {
+      "id": "audacity3-artist-mix",
+      "title": "AUDACITY3",
+      "tempo": {"status": "fixed", "bpm": 127.706, "candidates": [{"bpm": 127.706, "relation": "artist_grid"}]},
+      "meter": {"status": "fixed", "value": 4},
+      "structure": {"status": "artist_validated", "sections": [{"start": 0.0, "label": "A"}, {"start": 47.2, "label": "B"}, {"start": 68.0, "label": "C"}, {"start": 79.3, "label": "D"}, {"start": 124.7, "label": "E"}, {"start": 158.8, "label": "F"}, {"start": 262.6, "label": "G"}, {"start": 280.8, "label": "H"}]}
+    },
+    "9ac1de4b23d0a3a5e93ccfe922c39daf6406651c1e7e5b0f47e5d1a9e6510504": {
+      "id": "doechii-daft-punk-custom-mashup",
+      "title": "Doechii x Daftpunk custom mashup",
+      "tempo": {"status": "fixed", "bpm": 123.05, "candidates": [{"bpm": 123.05, "relation": "local_grid"}]},
+      "meter": {"status": "fixed", "value": 4}
+    },
+    "b50972b272bf3f79c69766f79fa0d5ad0fe37da6765af81307e9bb9ce5f53672": {
+      "id": "behind-every-decision",
+      "title": "Behind Every Decision",
+      "tempo": {"status": "ambiguous", "bpm": 70.0, "candidates": [{"bpm": 70.0, "relation": "primary"}, {"bpm": 140.0, "relation": "double"}]},
+      "meter": {"status": "fixed", "value": 4},
+      "evidence": [{"kind": "recording_metadata", "url": "https://songdata.io/track/2kbruQXVXFmxxm4l75zuwy/Behind-Every-Decision-by-Yehezkel-Raz"}]
+    }
+  }
+}

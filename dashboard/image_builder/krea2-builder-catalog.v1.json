@@ -1,0 +1,7 @@
+{
+  "schema": "studio.krea2-builder-catalog/1",
+  "version": 1,
+  "source": "build_prompts.py deterministic buildPrompt order",
+  "axes": [],
+  "options": []
+}

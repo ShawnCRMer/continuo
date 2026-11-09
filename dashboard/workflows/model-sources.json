@@ -1,0 +1,989 @@
+{
+ "schema": "studio.model-sources/1",
+ "note": "Weights are never in the repo. url = a pinned Hugging Face resolve/<commit sha> whose LFS sha256 equals the local file's sha256. A null url carries its reason. GET /models/missing (continuo_models_missing) compares this machine against it.",
+ "models": {
+  "checkpoints/Foundation-1.2-Keybeds.safetensors": {
+   "name": "Foundation-1.2-Keybeds.safetensors",
+   "folder": "checkpoints",
+   "bytes": 2426992388,
+   "sha256": "44ed373bc8521cca041b82db72b4beb741ceb45c41727ef516e41776732e0463",
+   "url": "https://huggingface.co/RoyalCities/Foundation-1/resolve/7b10fbbbc1be2f54cbc5540aab89ee383bc94e4a/Foundation-1.2-Keybeds.safetensors",
+   "repo": "RoyalCities/Foundation-1",
+   "license_source": "model card of RoyalCities/Foundation-1 (the repo whose file has this sha256)",
+   "license": "stabilityai-community-license",
+   "gated": false
+  },
+  "checkpoints/Foundation-1.2-Samples.safetensors": {
+   "name": "Foundation-1.2-Samples.safetensors",
+   "folder": "checkpoints",
+   "bytes": 2426992388,
+   "sha256": "d5b26cb69c7f016c9466aceed15cbc2395874183e3f76fddc4059bbe0678e659",
+   "url": "https://huggingface.co/RoyalCities/Foundation-1/resolve/7b10fbbbc1be2f54cbc5540aab89ee383bc94e4a/Foundation-1.2-Samples.safetensors",
+   "repo": "RoyalCities/Foundation-1",
+   "license_source": "model card of RoyalCities/Foundation-1 (the repo whose file has this sha256)",
+   "license": "stabilityai-community-license",
+   "gated": false
+  },
+  "checkpoints/stable_audio_3_small_music.safetensors": {
+   "name": "stable_audio_3_small_music.safetensors",
+   "folder": "checkpoints",
+   "bytes": 2270384940,
+   "sha256": "da85866b11b01d0694d990785f6abbd79c8064df1b0e6f8aea52935e0ef84b64",
+   "url": "https://huggingface.co/Comfy-Org/stable-audio-3/resolve/75aad8836271cb5a5123fb58304fae5d3bb4b0f9/checkpoints/stable_audio_3_small_music.safetensors",
+   "repo": "Comfy-Org/stable-audio-3",
+   "license_source": "model card of Comfy-Org/stable-audio-3 (the repo whose file has this sha256)",
+   "license": "stable-audio-community",
+   "gated": false,
+   "mirrors": [
+    "stabilityai/stable-audio-3-small-music@8bdfb53c6b0f"
+   ]
+  },
+  "checkpoints/yue2_3b_int8_convrot.safetensors": {
+   "name": "yue2_3b_int8_convrot.safetensors",
+   "folder": "checkpoints",
+   "bytes": 3960938800,
+   "sha256": "96fe199377309001ed8cd26a944baeee8cc31a20ba7c36d1d3c0a7e1f4149db6",
+   "url": "https://huggingface.co/Comfy-Org/YuE2/resolve/2f76ca75e6ee094169de899cc7fc99d6887e2196/checkpoints/yue2_3b_int8_convrot.safetensors",
+   "repo": "Comfy-Org/YuE2",
+   "license_source": "model card of Comfy-Org/YuE2 (the repo whose file has this sha256)",
+   "license": "cc-by-nc-4.0",
+   "gated": false
+  },
+  "diffusion_models/MelBandRoformer_fp16.safetensors": {
+   "name": "MelBandRoformer_fp16.safetensors",
+   "folder": "diffusion_models",
+   "bytes": 456479072,
+   "sha256": "6119aef379a6c7264e0b37db65ae1e6488b8ca4a00baf56d6d244737b8488226",
+   "url": "https://huggingface.co/Kijai/MelBandRoFormer_comfy/resolve/7dc5fa7824f1f3089a5c4b130d767004ccc1ed12/MelBandRoformer_fp16.safetensors",
+   "repo": "Kijai/MelBandRoFormer_comfy",
+   "license_source": "the original KimberleyJSN/melbandroformer (MIT on its card); Kijai/MelBandRoFormer_comfy is an fp16 conversion of it whose card names none (w24-rest BCK-028, read 07.11.)",
+   "license": "mit",
+   "gated": false
+  },
+  "diffusion_models/anima-turbo-v1.1.safetensors": {
+   "name": "anima-turbo-v1.1.safetensors",
+   "folder": "diffusion_models",
+   "bytes": 4182230656,
+   "sha256": "fba11953276b57edf59d1dc4f1857ac05aa079c56f982b4d7c20298d57d3f7eb",
+   "url": "https://huggingface.co/circlestone-labs/Anima/resolve/f973fc41ec7545364ac9776c2440285f43ff2a30/split_files/diffusion_models/anima-turbo-v1.1.safetensors",
+   "repo": "circlestone-labs/Anima",
+   "license_source": "model card of circlestone-labs/Anima (the repo whose file has this sha256)",
+   "license": "circlestone-labs-non-commercial-license",
+   "gated": false
+  },
+  "diffusion_models/drama3_fp8experts_bf16.safetensors": {
+   "name": "drama3_fp8experts_bf16.safetensors",
+   "folder": "diffusion_models",
+   "bytes": 38578417928,
+   "sha256": "5d053a200cf0f77faa13c087c78ef200c3b53f288451a6b9e7a8fa421c03a67b",
+   "url": "https://huggingface.co/PedroMarinhoDev/Drama-3-ComfyUI/resolve/681e2fae64af1f12e64b9c19c82930a5f3bba1a4/drama3_fp8experts_bf16.safetensors",
+   "repo": "PedroMarinhoDev/Drama-3-ComfyUI",
+   "license_source": "model card of PedroMarinhoDev/Drama-3-ComfyUI (the repo whose file has this sha256)",
+   "license": "fish-audio-community-license",
+   "gated": false
+  },
+  "diffusion_models/flux-2-klein-9b-kv-fp8.safetensors": {
+   "name": "flux-2-klein-9b-kv-fp8.safetensors",
+   "folder": "diffusion_models",
+   "bytes": 9818935984,
+   "sha256": "33f7da5625a00798349a719742999d3c7dd20c1a7eda14663922c363640728f1",
+   "url": "https://huggingface.co/black-forest-labs/FLUX.2-klein-9b-kv-fp8/resolve/8430c03ee457ea86907ed31a009cd56280df003d/flux-2-klein-9b-kv-fp8.safetensors",
+   "repo": "black-forest-labs/FLUX.2-klein-9b-kv-fp8",
+   "license_source": "model card of black-forest-labs/FLUX.2-klein-9b-kv-fp8 (the repo whose file has this sha256)",
+   "license": "flux-non-commercial-license",
+   "gated": false
+  },
+  "diffusion_models/flux3_image_klein_sd_int8_convrot.safetensors": {
+   "name": "flux3_image_klein_sd_int8_convrot.safetensors",
+   "folder": "diffusion_models",
+   "bytes": 5827874779,
+   "sha256": "847d8933548afd93df4af2cac2498e70891bf28d9dae06d695f536992e168fe2",
+   "url": "https://huggingface.co/KoalaNation/FLUX-3-KLEIN-MODELS/resolve/f291e17070a0894d238901fcf2a9b7cd68193014/diffusion_models/flux3_image_klein_sd_int8_convrot.safetensors",
+   "repo": "KoalaNation/FLUX-3-KLEIN-MODELS",
+   "license_source": "model card of KoalaNation/FLUX-3-KLEIN-MODELS (the repo whose file has this sha256)",
+   "license": "flux-kommunity-license",
+   "gated": false
+  },
+  "diffusion_models/ideogram4_int8_convrot.safetensors": {
+   "name": "ideogram4_int8_convrot.safetensors",
+   "folder": "diffusion_models",
+   "bytes": 9583465712,
+   "sha256": "a9164002943463b4c7b2abd88c82a488c088acc35762651e4d8604d6ce4a163d",
+   "url": "https://huggingface.co/Comfy-Org/Ideogram-4/resolve/2aa6c75ce6d5fabded0ca4d0f76abbfaf8edc87d/diffusion_models/ideogram4_int8_convrot.safetensors",
+   "repo": "Comfy-Org/Ideogram-4",
+   "license_source": "model card of Comfy-Org/Ideogram-4 (the repo whose file has this sha256)",
+   "license": "ideogram-non-commercial-model-agreement",
+   "gated": false
+  },
+  "diffusion_models/ideogram4_unconditional_int8_convrot.safetensors": {
+   "name": "ideogram4_unconditional_int8_convrot.safetensors",
+   "folder": "diffusion_models",
+   "bytes": 9583465712,
+   "sha256": "cd03ed94f244c9cb705e7d30ca0f40b5f5b004bb20674117adff88d16416c23d",
+   "url": "https://huggingface.co/Comfy-Org/Ideogram-4/resolve/2aa6c75ce6d5fabded0ca4d0f76abbfaf8edc87d/diffusion_models/ideogram4_unconditional_int8_convrot.safetensors",
+   "repo": "Comfy-Org/Ideogram-4",
+   "license_source": "model card of Comfy-Org/Ideogram-4 (the repo whose file has this sha256)",
+   "license": "ideogram-non-commercial-model-agreement",
+   "gated": false
+  },
+  "diffusion_models/krea2_raw_int8_convrot.safetensors": {
+   "name": "krea2_raw_int8_convrot.safetensors",
+   "folder": "diffusion_models",
+   "bytes": 13492686496,
+   "sha256": "5585a4a38c4bcfb6fde2d480a4aa6edf7f665721ebde56d30662c35a45f5fa5c",
+   "url": "https://huggingface.co/Comfy-Org/Krea-2/resolve/1171f4dc7e325bf3734586942e737872506c73e1/diffusion_models/krea2_raw_int8_convrot.safetensors",
+   "repo": "Comfy-Org/Krea-2",
+   "license_source": "model card of Comfy-Org/Krea-2 (the repo whose file has this sha256)",
+   "license": "krea-2-community-license",
+   "gated": false
+  },
+  "diffusion_models/krea2_turbo_int8_convrot.safetensors": {
+   "name": "krea2_turbo_int8_convrot.safetensors",
+   "folder": "diffusion_models",
+   "bytes": 13492686496,
+   "sha256": "8e4eeda70dd5037ab1ba2bef6b417f9f901e26093117cf397f741fc1fdaaf3f1",
+   "url": "https://huggingface.co/Comfy-Org/Krea-2/resolve/1171f4dc7e325bf3734586942e737872506c73e1/diffusion_models/krea2_turbo_int8_convrot.safetensors",
+   "repo": "Comfy-Org/Krea-2",
+   "license_source": "model card of Comfy-Org/Krea-2 (the repo whose file has this sha256)",
+   "license": "krea-2-community-license",
+   "gated": false
+  },
+  "diffusion_models/kroma-v0.3.1-turbo-opd-int8-convrot.safetensors": {
+   "name": "kroma-v0.3.1-turbo-opd-int8-convrot.safetensors",
+   "folder": "diffusion_models",
+   "bytes": 14135109816,
+   "sha256": "36afdaeeea578ea577ae151fb2f9b58836b2a0538acf1cede74244cdbb5cfdd4",
+   "url": "https://huggingface.co/silveroxides/Kroma-Quant/resolve/75b60ef1a309e9517520b55b9dfd794ce557f118/kroma-v0.3.1-turbo-opd-int8-convrot.safetensors",
+   "repo": "silveroxides/Kroma-Quant",
+   "license_source": "model card of silveroxides/Kroma-Quant (quantized from lodestones/Kroma, base Krea/Krea-2); its LFS pointer at 75b60ef carries this sha256 and size",
+   "license": "krea-2-community-license",
+   "gated": false
+  },
+  "diffusion_models/minimax_h3_fl2va_pruned_int8_convrot.safetensors": {
+   "name": "minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+   "folder": "diffusion_models",
+   "bytes": 20970379616,
+   "sha256": "e889202c41dafb67b10d67b97f0d8541508036a6090af23425a5c2615d03c47a",
+   "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/e5eb578a89295337b8ff433a035929ce0279e0b6/diffusion_models/minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+   "repo": "Comfy-Org/MiniMax-H3",
+   "license_source": "model card of Comfy-Org/MiniMax-H3 (the repo whose file has this sha256)",
+   "license": "minimax-h3-community-license-agreement",
+   "gated": false
+  },
+  "diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors": {
+   "name": "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+   "folder": "diffusion_models",
+   "bytes": 20970379616,
+   "sha256": "9255f52b6677845ad238f20dfaafa94727053694127ab7f255c048f0f9365779",
+   "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/e5eb578a89295337b8ff433a035929ce0279e0b6/diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+   "repo": "Comfy-Org/MiniMax-H3",
+   "license_source": "model card of Comfy-Org/MiniMax-H3 (the repo whose file has this sha256)",
+   "license": "minimax-h3-community-license-agreement",
+   "gated": false
+  },
+  "diffusion_models/moss_image_sft_bf16.safetensors": {
+   "name": "moss_image_sft_bf16.safetensors",
+   "folder": "diffusion_models",
+   "bytes": 10164655808,
+   "sha256": "f96738d8116d78b7316b57c663d8c98591ddafab7488f48e3099b7655e34ab6f",
+   "url": "https://huggingface.co/Comfy-Org/MOSS-Image/resolve/24147db865fcdc207270f844777587223fed8d6e/diffusion_models/moss_image_sft_bf16.safetensors",
+   "repo": "Comfy-Org/MOSS-Image",
+   "license_source": "model card of Comfy-Org/MOSS-Image (the repo whose file has this sha256)",
+   "license": "apache-2.0",
+   "gated": false
+  },
+  "diffusion_models/qwen_image_2.1_int8_convrot.safetensors": {
+   "name": "qwen_image_2.1_int8_convrot.safetensors",
+   "folder": "diffusion_models",
+   "bytes": 7256783064,
+   "sha256": "cb74113cb03faecd79611b01fd7fd642f0aa60d6f0b95086abee214d75eaa57d",
+   "url": "https://huggingface.co/Comfy-Org/Qwen-Image-2.1/resolve/0217efd1d9c9452e84f6448903d6e21bfa171ffd/diffusion_models/qwen_image_2.1_int8_convrot.safetensors",
+   "repo": "Comfy-Org/Qwen-Image-2.1",
+   "license_source": "model card of Comfy-Org/Qwen-Image-2.1 (the repo whose file has this sha256)",
+   "license": "qwen-research",
+   "gated": false
+  },
+  "frame_interpolation/rife_v4.26.safetensors": {
+   "name": "rife_v4.26.safetensors",
+   "folder": "frame_interpolation",
+   "bytes": 22674688,
+   "sha256": "151874592c877740e5db11522f4514df569eeafb0a0fcb2696f16e9e8d317c94",
+   "url": "https://huggingface.co/Comfy-Org/Frame-Interpolation/resolve/219da3c9d8c357ceaf457fc1d5932c6e861b8dee/frame_interpolation/rife_v4.26.safetensors",
+   "repo": "Comfy-Org/Frame-Interpolation",
+   "license_source": "model card of Comfy-Org/Frame-Interpolation (the repo whose file has this sha256)",
+   "license": "mit-and-apache-2.0",
+   "gated": false
+  },
+  "latent_upscale_models/minimax_h3_latent_upscaler_3d_fp16.safetensors": {
+   "name": "minimax_h3_latent_upscaler_3d_fp16.safetensors",
+   "folder": "latent_upscale_models",
+   "bytes": 690592672,
+   "sha256": "043e5a48e161610ef6c3ea974645220354d06fa618abca15f76d084812eb55c2",
+   "url": "https://huggingface.co/KENIC-1/minimax_h3_latent_upscaler_3d_fp16_V2/resolve/3c71c6105256c97a7cd8bcd8358dd3b69e71121f/minimax_h3_latent_upscaler_3d_fp16_V2.safetensors",
+   "repo": "KENIC-1/minimax_h3_latent_upscaler_3d_fp16_V2",
+   "license_source": "model card of the original LBH-123-AI/Minimax_h3_latent_Upscaler (commit 3f941d5d: minimax_h3_latent_upscaler_3d_conv_v1/minimax_h3_latent_upscaler_3d_conv_v1_fp16.safetensors has the same LFS sha256); the KENIC-1 re-upload card names none",
+   "license": "apache-2.0",
+   "gated": false,
+   "mirrors": [
+    "LBH-123-AI/Minimax_h3_latent_Upscaler@3f941d5d1820"
+   ]
+  },
+  "loras/krea2/krea2_general_edit_v2.safetensors": {
+   "name": "krea2/krea2_general_edit_v2.safetensors",
+   "folder": "loras",
+   "bytes": 1828285656,
+   "sha256": "fb5315477444c8df6dea2ad347a852bd90e97ab0f9109f4100a39714a7a09356",
+   "url": "https://huggingface.co/conradlocke/krea2-identity-edit/resolve/f33b26291c640e8ec50b0da420bfee3c9a660daa/krea2_general_edit_v2.safetensors",
+   "repo": "conradlocke/krea2-identity-edit",
+   "license_source": "model card of conradlocke/krea2-identity-edit (the repo whose file has this sha256)",
+   "license": "krea-2-identity-edit-v2-license",
+   "gated": false
+  },
+  "loras/krea2/krea2_identity_edit_v2.safetensors": {
+   "name": "krea2/krea2_identity_edit_v2.safetensors",
+   "folder": "loras",
+   "bytes": 1828285728,
+   "sha256": "c53843f9451963a6cb3c22dc4975205056b93a6575fb9347dd2bc6e055ef9877",
+   "url": "https://huggingface.co/conradlocke/krea2-identity-edit/resolve/f33b26291c640e8ec50b0da420bfee3c9a660daa/krea2_identity_edit_v2.safetensors",
+   "repo": "conradlocke/krea2-identity-edit",
+   "license_source": "model card of conradlocke/krea2-identity-edit (the repo whose file has this sha256)",
+   "license": "krea-2-identity-edit-v2-license",
+   "gated": false
+  },
+  "loras/minimax_h3_turbo_v4_step600_ema_pruned_comfyui.safetensors": {
+   "name": "minimax_h3_turbo_v4_step600_ema_pruned_comfyui.safetensors",
+   "folder": "loras",
+   "bytes": 620285592,
+   "sha256": "7098acf3ee75028fd9fcd948f50fcc8d995057fabb76f86bd3ca2c0ffc58e409",
+   "url": "https://huggingface.co/Momoking/MiniMax-H3-Turbo-Lora-ComfyUI/resolve/e36a931e03780c01f75f7c4048d6bdf5db4cd509/minimax_h3_turbo_v4_step600_ema_pruned_comfyui.safetensors",
+   "repo": "Momoking/MiniMax-H3-Turbo-Lora-ComfyUI",
+   "license_source": "model card of Momoking/MiniMax-H3-Turbo-Lora-ComfyUI (the repo whose file has this sha256)",
+   "license": "apache-2.0",
+   "gated": false,
+   "mirrors": [
+    "drbaph/MiniMax-H3-Turbo-Lora-ComfyUI@bb2bc497cbac"
+   ]
+  },
+  "loras/p_qwen_image_2.1_8step_v0.1.safetensors": {
+   "name": "p_qwen_image_2.1_8step_v0.1.safetensors",
+   "folder": "loras",
+   "bytes": 335606104,
+   "sha256": "f0865d68b02511a3a0ed232d9d1aa99cac3a94166f574b38bcbab1a7a297bb15",
+   "url": "https://huggingface.co/PrunaAI/Pruna-Q-Image-2.1/resolve/a14dab44ffc64a0a84fe87960c8d0e3aaad3aaea/p_q_image_2.1_8step_v0.1.safetensors",
+   "license": "Qwen Research License (repo LICENSE)",
+   "gated": false,
+   "upstream_name": "p_q_image_2.1_8step_v0.1.safetensors",
+   "note": "PrunaAI renamed the file upstream (p_qwen_ -> p_q_); same bytes, LFS sha256 equal. Found 23.10. after the artist's hint."
+  },
+  "model_patches/minimax_h3_fun_controlnet_union_2.0_pruned_int8_convrot.safetensors": {
+   "name": "minimax_h3_fun_controlnet_union_2.0_pruned_int8_convrot.safetensors",
+   "folder": "model_patches",
+   "bytes": 4531220608,
+   "sha256": "890af58bb350f0c2f6c409b1c67ea8f4196654297d037769b72de1e6f504c612",
+   "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/e5eb578a89295337b8ff433a035929ce0279e0b6/model_patches/minimax_h3_fun_controlnet_union_2.0_pruned_int8_convrot.safetensors",
+   "repo": "Comfy-Org/MiniMax-H3",
+   "license_source": "model card of Comfy-Org/MiniMax-H3 (the repo whose file has this sha256)",
+   "license": "minimax-h3-community-license-agreement",
+   "gated": false,
+   "mirrors": [
+    "Kijai/MiniMax-H3-experimental@382271aa8f5b"
+   ]
+  },
+  "omnivoice/OmniVoice/model.safetensors": {
+   "name": "OmniVoice/model.safetensors",
+   "folder": "omnivoice",
+   "bytes": 2450344112,
+   "sha256": "730839316de585f4c8298ec0e1712efc10fb19c6fa4e36eb741cb8d51ebcf6aa",
+   "url": "https://huggingface.co/Bgeorge/OmniVoice/resolve/79192477f360398c322075faad69f7071e85025c/model.safetensors",
+   "repo": "Bgeorge/OmniVoice",
+   "license_source": "model card of Bgeorge/OmniVoice (the repo whose file has this sha256)",
+   "license": "apache-2.0",
+   "gated": false,
+   "mirrors": [
+    "EBINSHAJI1999/OmniVoice@ba3bba989333",
+    "LeeAeron/OmniVoice@6319a6c6a1ca",
+    "Manish993135/OmniVoice@236b008e8bfd"
+   ]
+  },
+  "text_encoders/qwen3.5_9b_flux3_prompt_upsampler_int8_convrot.safetensors": {
+   "name": "qwen3.5_9b_flux3_prompt_upsampler_int8_convrot.safetensors",
+   "folder": "text_encoders",
+   "bytes": 9748113996,
+   "sha256": "cb8cb9b9dcd2569509de755dca54d96fd93a16a7aabfd2f4051f0a144230620f",
+   "url": "https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy/resolve/feef60b0aaf63a4773ace96636ebbcf43b881312/text_encoders/qwen3.5_9b_flux3_prompt_upsampler_int8_convrot.safetensors",
+   "license": "FLUX Kommunity License (repo LICENSE.md)",
+   "gated": true,
+   "note": "Gated BFL repo (accepted via the artist's HF login). LFS sha256 equal in every commit since 0424378a (15.10.)."
+  },
+  "text_encoders/qwen3.5_9b_int8_convrot.safetensors": {
+   "name": "qwen3.5_9b_int8_convrot.safetensors",
+   "folder": "text_encoders",
+   "bytes": 9748121532,
+   "sha256": "32e3787472f708fa5f83624acbf5ef23f7fc89c439e05065ea57cfe5a97f025a",
+   "url": "https://huggingface.co/Comfy-Org/MOSS-Image/resolve/24147db865fcdc207270f844777587223fed8d6e/text_encoders/qwen3.5_9b_int8_convrot.safetensors",
+   "repo": "Comfy-Org/MOSS-Image",
+   "license_source": "model card of Comfy-Org/MOSS-Image (the repo whose file has this sha256)",
+   "license": "apache-2.0",
+   "gated": false
+  },
+  "text_encoders/qwen3.5_9b_qwen_image_2.1_pe_i2i.int8_convrot.safetensors": {
+   "name": "qwen3.5_9b_qwen_image_2.1_pe_i2i.int8_convrot.safetensors",
+   "folder": "text_encoders",
+   "bytes": 9471072252,
+   "sha256": "32707d01b427e488af252b95c551989aad59f9fec611a694f5db6bde7f0f1f6c",
+   "url": "https://huggingface.co/Comfy-Org/Qwen-Image-2.1/resolve/0217efd1d9c9452e84f6448903d6e21bfa171ffd/text_encoders/qwen3.5_9b_qwen_image_2.1_pe_i2i.int8_convrot.safetensors",
+   "repo": "Comfy-Org/Qwen-Image-2.1",
+   "license_source": "model card of Comfy-Org/Qwen-Image-2.1 (the repo whose file has this sha256)",
+   "license": "qwen-research",
+   "gated": false
+  },
+  "text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors": {
+   "name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+   "folder": "text_encoders",
+   "bytes": 15687142551,
+   "sha256": "35a88d51044231fe332301d7a62aa81e3f2cba62febeb446e2c1e3e0ef76f2c6",
+   "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/e5eb578a89295337b8ff433a035929ce0279e0b6/text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+   "repo": "Comfy-Org/MiniMax-H3",
+   "license": "minimax-h3-community-license-agreement",
+   "license_source": "model card of Comfy-Org/MiniMax-H3",
+   "gated": false,
+   "local": "absent",
+   "reason": "not on this machine: bytes and sha256 are the remote LFS values of the official repo, not checked against a local file"
+  },
+  "text_encoders/qwen3vl_4b_fp8_scaled.safetensors": {
+   "name": "qwen3vl_4b_fp8_scaled.safetensors",
+   "folder": "text_encoders",
+   "bytes": 5242467968,
+   "sha256": "54bd5144df0bbc25dd6ccadfcb826b521445a1b06ae5a42570bdd2974ca87094",
+   "url": "https://huggingface.co/Comfy-Org/Qwen3-VL/resolve/02f0d3eefb59528799653d16735818801177ef1f/text_encoders/qwen3vl_4b_fp8_scaled.safetensors",
+   "repo": "Comfy-Org/Qwen3-VL",
+   "license_source": "model card of Comfy-Org/Qwen3-VL (the repo whose file has this sha256)",
+   "license": "apache-2.0",
+   "gated": false,
+   "mirrors": [
+    "Comfy-Org/Krea-2@1171f4dc7e32",
+    "ChrisColeTech/krea2-turbo-edit-GGUF@29ddae118a98",
+    "ChrisColeTech/minimax-h3-turbo-GGUF@490f6dca88bd"
+   ]
+  },
+  "text_encoders/qwen3vl_4b_int8_convrot.safetensors": {
+   "name": "qwen3vl_4b_int8_convrot.safetensors",
+   "folder": "text_encoders",
+   "bytes": 4858559240,
+   "sha256": "32de113cbf8282b02cbff0794b637b9d6676da09314a1db5a30bcea9bf4ee01c",
+   "url": "https://huggingface.co/Comfy-Org/Krea-2/resolve/1171f4dc7e325bf3734586942e737872506c73e1/text_encoders/qwen3vl_4b_int8_convrot.safetensors",
+   "repo": "Comfy-Org/Krea-2",
+   "license_source": "model card of Comfy-Org/Krea-2 (the repo whose file has this sha256)",
+   "license": "krea-2-community-license",
+   "gated": false,
+   "mirrors": [
+    "Comfy-Org/Fibo-2.0@b2bffaf57d48",
+    "KoalaNation/FLUX-3-KLEIN-MODELS@f291e17070a0"
+   ]
+  },
+  "text_encoders/qwen3vl_8b_fp8_scaled.safetensors": {
+   "name": "qwen3vl_8b_fp8_scaled.safetensors",
+   "folder": "text_encoders",
+   "bytes": 10588637512,
+   "sha256": "4ba424cf62e51392e4d1a39933e803706f4e823c1065f36aaf149c6453f66bcd",
+   "url": "https://huggingface.co/Comfy-Org/Qwen3-VL/resolve/02f0d3eefb59528799653d16735818801177ef1f/text_encoders/qwen3vl_8b_fp8_scaled.safetensors",
+   "repo": "Comfy-Org/Qwen3-VL",
+   "license_source": "model card of Comfy-Org/Qwen3-VL (the repo whose file has this sha256)",
+   "license": "apache-2.0",
+   "gated": false,
+   "mirrors": [
+    "Comfy-Org/Ideogram-4@2aa6c75ce6d5",
+    "eadx/Ideogram-4@8ddd39fa8638"
+   ]
+  },
+  "text_encoders/qwen3vl_8b_int8_convrot.safetensors": {
+   "name": "qwen3vl_8b_int8_convrot.safetensors",
+   "folder": "text_encoders",
+   "bytes": 9350798360,
+   "sha256": "8bfd0f6e12abf2d2d697ecc888e5e90b0d6741d6708f05799f53afa560452e8f",
+   "url": "https://huggingface.co/Comfy-Org/Qwen3-VL/resolve/02f0d3eefb59528799653d16735818801177ef1f/text_encoders/qwen3vl_8b_int8_convrot.safetensors",
+   "repo": "Comfy-Org/Qwen3-VL",
+   "license_source": "model card of Comfy-Org/Qwen3-VL (the repo whose file has this sha256)",
+   "license": "apache-2.0",
+   "gated": false,
+   "mirrors": [
+    "Comfy-Org/Qwen-Image-2.1@0217efd1d9c9"
+   ]
+  },
+  "text_encoders/qwen_3_06b_base.safetensors": {
+   "name": "qwen_3_06b_base.safetensors",
+   "folder": "text_encoders",
+   "bytes": 1192135096,
+   "sha256": "cd2a512003e2f9f3cd3c32a9c3573f820bb28c940f73c57b1ddaa983d9223eba",
+   "url": "https://huggingface.co/circlestone-labs/Anima/resolve/f973fc41ec7545364ac9776c2440285f43ff2a30/split_files/text_encoders/qwen_3_06b_base.safetensors",
+   "repo": "circlestone-labs/Anima",
+   "license_source": "model card of circlestone-labs/Anima (the repo whose file has this sha256)",
+   "license": "circlestone-labs-non-commercial-license",
+   "gated": false,
+   "mirrors": [
+    "Abiray/Anima-turbo-v1.0-GGUF@f54210b8c663",
+    "ChrisColeTech/Anima-turbo@dd36ebe72575"
+   ]
+  },
+  "text_encoders/qwen_3_8b_fp8mixed.safetensors": {
+   "name": "qwen_3_8b_fp8mixed.safetensors",
+   "folder": "text_encoders",
+   "bytes": 8664848742,
+   "sha256": "abad16806e0cbabc54e0325d6565847443fe396d5f0be38bb3cd3fe75a1201d6",
+   "url": "https://huggingface.co/Comfy-Org/Flux-2-Klein-9B/resolve/3f62d9d8ae1fec33c6e91453d5c712855b096b55/split_files/text_encoders/qwen_3_8b_fp8mixed.safetensors",
+   "repo": "Comfy-Org/Flux-2-Klein-9B",
+   "license_source": "model card of Comfy-Org/Flux-2-Klein-9B (the repo whose file has this sha256)",
+   "license": "flux-non-commercial-license",
+   "gated": false
+  },
+  "text_encoders/t5-base.safetensors": {
+   "name": "t5-base.safetensors",
+   "folder": "text_encoders",
+   "bytes": 891646390,
+   "sha256": "a90903540cc02cbeb7ff9f823f1a80eb778c7e22426a0e620b01c77a5ec8f5b4",
+   "url": "https://huggingface.co/google-t5/t5-base/resolve/a9723ea7f1b39c1eae772870f3b547bf6ef7e6c1/model.safetensors",
+   "repo": "google-t5/t5-base",
+   "license_source": "model card of google-t5/t5-base (the repo whose file has this sha256)",
+   "license": "apache-2.0",
+   "gated": false
+  },
+  "text_encoders/t5gemma_b_b_ul2.safetensors": {
+   "name": "t5gemma_b_b_ul2.safetensors",
+   "folder": "text_encoders",
+   "bytes": 1187264003,
+   "sha256": "1e1eba25be8872edb0d3c6335c6658fd6388e7b14b60da6e454e404cfcd8150e",
+   "url": "https://huggingface.co/Comfy-Org/stable-audio-3/resolve/75aad8836271cb5a5123fb58304fae5d3bb4b0f9/text_encoders/t5gemma_b_b_ul2.safetensors",
+   "repo": "Comfy-Org/stable-audio-3",
+   "license_source": "model card of Comfy-Org/stable-audio-3 (the repo whose file has this sha256)",
+   "license": "stable-audio-community",
+   "gated": false
+  },
+  "vae/drama3_codec.safetensors": {
+   "name": "drama3_codec.safetensors",
+   "folder": "vae",
+   "bytes": 1565647484,
+   "sha256": "4fecf102907a48414230da9a74d72d07c3a92368eab53fab655797837bddf5ae",
+   "url": "https://huggingface.co/PedroMarinhoDev/Drama-3-ComfyUI/resolve/681e2fae64af1f12e64b9c19c82930a5f3bba1a4/drama3_codec.safetensors",
+   "repo": "PedroMarinhoDev/Drama-3-ComfyUI",
+   "license_source": "model card of PedroMarinhoDev/Drama-3-ComfyUI (the repo whose file has this sha256)",
+   "license": "fish-audio-community-license",
+   "gated": false
+  },
+  "vae/flux2-vae.safetensors": {
+   "name": "flux2-vae.safetensors",
+   "folder": "vae",
+   "bytes": 336213556,
+   "sha256": "d64f3a68e1cc4f9f4e29b6e0da38a0204fe9a49f2d4053f0ec1fa1ca02f9c4b5",
+   "url": "https://huggingface.co/Comfy-Org/Flux-2-Dev/resolve/be27b9cf1b7212b3a281c2abbd9ecf6985242bb8/split_files/vae/flux2-vae.safetensors",
+   "repo": "Comfy-Org/Flux-2-Dev",
+   "license_source": "the original black-forest-labs/FLUX.2-dev (FLUX Non-Commercial License); the Comfy-Org/Flux-2-Dev card names flux-1-dev-non-commercial-license with a FLUX.1 link (w24-rest BCK-028, read 07.11.)",
+   "license": "flux-non-commercial-license",
+   "gated": false,
+   "mirrors": [
+    "Comfy-Org/ERNIE-Image@82fe29a5cd05"
+   ]
+  },
+  "vae/minimax_h3_audio_vae_fp32.safetensors": {
+   "name": "minimax_h3_audio_vae_fp32.safetensors",
+   "folder": "vae",
+   "bytes": 605254808,
+   "sha256": "8e505d95dd1561d47abd43d4238fd40d9bb1ae9e147ed0a4cba778d76ae4db48",
+   "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/e5eb578a89295337b8ff433a035929ce0279e0b6/vae/minimax_h3_audio_vae_fp32.safetensors",
+   "repo": "Comfy-Org/MiniMax-H3",
+   "license": "minimax-h3-community-license-agreement",
+   "license_source": "model card of Comfy-Org/MiniMax-H3",
+   "gated": false,
+   "local": "absent",
+   "reason": "not on this machine: bytes and sha256 are the remote LFS values of the official repo, not checked against a local file"
+  },
+  "vae/minimax_h3_video_vae_fp16.safetensors": {
+   "name": "minimax_h3_video_vae_fp16.safetensors",
+   "folder": "vae",
+   "bytes": 5207808496,
+   "sha256": "7c1f131492e7eddacaac9069a61b81bdd39de5cc96561e677c5eab1cdce5e522",
+   "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/e5eb578a89295337b8ff433a035929ce0279e0b6/vae/minimax_h3_video_vae_fp16.safetensors",
+   "repo": "Comfy-Org/MiniMax-H3",
+   "license": "minimax-h3-community-license-agreement",
+   "license_source": "model card of Comfy-Org/MiniMax-H3",
+   "gated": false,
+   "local": "absent",
+   "reason": "not on this machine: bytes and sha256 are the remote LFS values of the official repo, not checked against a local file"
+  },
+  "vae/minimax_h3_video_vae_int8_convrot.safetensors": {
+   "name": "minimax_h3_video_vae_int8_convrot.safetensors",
+   "folder": "vae",
+   "bytes": 3171670912,
+   "sha256": "9bb2d96f218c76babd85e0611b85ca8fb330a90546c01a0005e8a58a59593410",
+   "url": "https://huggingface.co/Kijai/MiniMax-H3-experimental/resolve/382271aa8f5b97bc1b376d3f1f83f9a500c42a80/minimax_h3_video_vae_int8_convrot.safetensors",
+   "repo": "Kijai/MiniMax-H3-experimental",
+   "license_source": "the original MiniMaxAI/MiniMax-H3 (MiniMax H3 Community License Agreement); Kijai/MiniMax-H3-experimental is an int8 quantisation of its video VAE whose card names none (w24-rest BCK-028, read 07.11.)",
+   "license": "minimax-h3-community-license-agreement",
+   "gated": false,
+   "mirrors": [
+    "GuangyuanSD/minimax_h3_video_vae_int8_convrot@fc2f3c9dcb44"
+   ]
+  },
+  "vae/qwen_image_2.1_vae_bf16.safetensors": {
+   "name": "qwen_image_2.1_vae_bf16.safetensors",
+   "folder": "vae",
+   "bytes": 675509688,
+   "sha256": "bb21f7473051e1ac368515dd3f2e15cd44d7a11748ee8823e1ddca3e4876b7c9",
+   "url": "https://huggingface.co/Comfy-Org/Qwen-Image-2.1/resolve/0217efd1d9c9452e84f6448903d6e21bfa171ffd/vae/qwen_image_2.1_vae_bf16.safetensors",
+   "repo": "Comfy-Org/Qwen-Image-2.1",
+   "license_source": "model card of Comfy-Org/Qwen-Image-2.1 (the repo whose file has this sha256)",
+   "license": "qwen-research",
+   "gated": false
+  },
+  "vae/qwen_image_vae.safetensors": {
+   "name": "qwen_image_vae.safetensors",
+   "folder": "vae",
+   "bytes": 253806246,
+   "sha256": "a70580f0213e67967ee9c95f05bb400e8fb08307e017a924bf3441223e023d1f",
+   "url": "https://huggingface.co/Comfy-Org/Qwen-Image/resolve/1f12b17be14c89b026c51a91d67c32f84bb047bc/split_files/vae/qwen_image_vae.safetensors",
+   "repo": "Comfy-Org/Qwen-Image",
+   "license_source": "model card of Comfy-Org/Qwen-Image (the repo whose file has this sha256)",
+   "license": "apache-2.0",
+   "gated": false,
+   "mirrors": [
+    "Comfy-Org/Krea-2@1171f4dc7e32",
+    "Abiray/Anima-turbo-v1.0-GGUF@f54210b8c663",
+    "ChrisColeTech/Anima-turbo@dd36ebe72575"
+   ]
+  },
+  "diffusion_models/relayvsr_x2_lightx2v_int8_convrot.safetensors": {
+   "name": "relayvsr_x2_lightx2v_int8_convrot.safetensors",
+   "folder": "diffusion_models",
+   "bytes": 5163295248,
+   "sha256": "240e75e0c17cf2845d559b25254a230ff7458f81449d7a8c5e7e3fb8275c7b3c",
+   "url": null,
+   "reason": "Comfy-Org/RelayVSR on Hugging Face; the resolve commit was not recorded when the file was installed (bytes and sha256 are the local file's)",
+   "repo": "Comfy-Org/RelayVSR",
+   "license_source": "model card of Comfy-Org/RelayVSR (base models kopper/RelayVSR and lightx2v/RelayVSR_X2)",
+   "license": "apache-2.0",
+   "gated": false
+  },
+  "diffusion_models/relayvsr_x4_int8_convrot.safetensors": {
+   "name": "relayvsr_x4_int8_convrot.safetensors",
+   "folder": "diffusion_models",
+   "bytes": 5164179952,
+   "sha256": "21303b3c5f9ab4e1fd3fe00df5dd2e0b343f0cf2e3d269e03a9872000a313a2e",
+   "url": null,
+   "reason": "Comfy-Org/RelayVSR on Hugging Face; the resolve commit was not recorded when the file was installed (bytes and sha256 are the local file's)",
+   "repo": "Comfy-Org/RelayVSR",
+   "license_source": "model card of Comfy-Org/RelayVSR (base models kopper/RelayVSR and lightx2v/RelayVSR_X2)",
+   "license": "apache-2.0",
+   "gated": false
+  },
+  "vae/relayvsr_flash_vae_x2_fp32.safetensors": {
+   "name": "relayvsr_flash_vae_x2_fp32.safetensors",
+   "folder": "vae",
+   "bytes": 127759464,
+   "sha256": "b5bb0339acb5b52545911ea29a51b4c5b805776a779222b5a14591571f42e21c",
+   "url": null,
+   "reason": "Comfy-Org/RelayVSR on Hugging Face; the resolve commit was not recorded when the file was installed (bytes and sha256 are the local file's)",
+   "repo": "Comfy-Org/RelayVSR",
+   "license_source": "model card of Comfy-Org/RelayVSR (base models kopper/RelayVSR and lightx2v/RelayVSR_X2)",
+   "license": "apache-2.0",
+   "gated": false
+  },
+  "vae/relayvsr_flash_vae_x4_fp32.safetensors": {
+   "name": "relayvsr_flash_vae_x4_fp32.safetensors",
+   "folder": "vae",
+   "bytes": 127759784,
+   "sha256": "7b8b8c99275fd5c4501b0589cc7b4c4506456a5df83160ef4e207e147b30f714",
+   "url": null,
+   "reason": "Comfy-Org/RelayVSR on Hugging Face; the resolve commit was not recorded when the file was installed (bytes and sha256 are the local file's)",
+   "repo": "Comfy-Org/RelayVSR",
+   "license_source": "model card of Comfy-Org/RelayVSR (base models kopper/RelayVSR and lightx2v/RelayVSR_X2)",
+   "license": "apache-2.0",
+   "gated": false
+  },
+  "loras/p-h3-image_lora_bf16.safetensors": {
+   "name": "p-h3-image_lora_bf16.safetensors",
+   "folder": "loras",
+   "bytes": 1956195360,
+   "sha256": "0e9013ae2873e3415dcb7bb59a9677293bdbdb6f663e138a79bb9bdced00ea61",
+   "url": "https://huggingface.co/PrunaAI/P-H3-Image-Comfy/resolve/44a0fb73f299da1bb715bdb5ff59ce3fd3c6f543/loras/p-h3-image_lora_bf16.safetensors",
+   "repo": "PrunaAI/P-H3-Image-Comfy",
+   "license_source": "model card of PrunaAI/P-H3-Image-Comfy (the repo whose file has this sha256) and its LICENSE (MiniMax H3 Community License Agreement, 02.08.2026)",
+   "license": "minimax-h3-community-license-agreement",
+   "gated": false
+  },
+  "text_encoders/p-h3-image_text_encoder_int8_convrot.safetensors": {
+   "name": "p-h3-image_text_encoder_int8_convrot.safetensors",
+   "folder": "text_encoders",
+   "bytes": 5120870504,
+   "sha256": "fb42c9ff0597e61729475d0b48b69b591ffe06d0b442a79dde22b14fadbe1c0f",
+   "url": "https://huggingface.co/PrunaAI/P-H3-Image-Comfy/resolve/44a0fb73f299da1bb715bdb5ff59ce3fd3c6f543/text_encoders/p-h3-image_text_encoder_int8_convrot.safetensors",
+   "repo": "PrunaAI/P-H3-Image-Comfy",
+   "license_source": "model card of PrunaAI/P-H3-Image-Comfy (the repo whose file has this sha256) and its LICENSE (MiniMax H3 Community License Agreement, 02.08.2026)",
+   "license": "minimax-h3-community-license-agreement",
+   "gated": false
+  },
+  "vae/p-h3-image_vae_int8_convrot.safetensors": {
+   "name": "p-h3-image_vae_int8_convrot.safetensors",
+   "folder": "vae",
+   "bytes": 3146996440,
+   "sha256": "583e0d43354b6b833aa9a0815a5fac831b1ef6d0c19a7eaa0616980a3dab5ffe",
+   "url": "https://huggingface.co/PrunaAI/P-H3-Image-Comfy/resolve/44a0fb73f299da1bb715bdb5ff59ce3fd3c6f543/vae/p-h3-image_vae_int8_convrot.safetensors",
+   "repo": "PrunaAI/P-H3-Image-Comfy",
+   "license_source": "model card of PrunaAI/P-H3-Image-Comfy (the repo whose file has this sha256) and its LICENSE (MiniMax H3 Community License Agreement, 02.08.2026)",
+   "license": "minimax-h3-community-license-agreement",
+   "gated": false
+  }
+ },
+ "workflows": {
+  "anima-turbo-create-v1": {
+   "models": [
+    "diffusion_models/anima-turbo-v1.1.safetensors",
+    "text_encoders/qwen_3_06b_base.safetensors",
+    "vae/qwen_image_vae.safetensors"
+   ]
+  },
+  "audio-stems-v1": {
+   "models": [
+    "diffusion_models/MelBandRoformer_fp16.safetensors"
+   ]
+  },
+  "drama3-clone-v1": {
+   "models": [
+    "diffusion_models/drama3_fp8experts_bf16.safetensors",
+    "vae/drama3_codec.safetensors"
+   ],
+   "node_packages": [
+    {
+     "repo": "https://github.com/PedroMarinhoDev/ComfyUI-Drama3",
+     "commit": "d74b74f3fb5501efdce9cbd296193f7699ae2be7"
+    }
+   ]
+  },
+  "flux2-klein-9b-kv-edit-v1": {
+   "models": [
+    "diffusion_models/flux-2-klein-9b-kv-fp8.safetensors",
+    "text_encoders/qwen_3_8b_fp8mixed.safetensors",
+    "vae/flux2-vae.safetensors"
+   ]
+  },
+  "flux2-klein-9b-t2i-v1": {
+   "models": [
+    "diffusion_models/flux-2-klein-9b-kv-fp8.safetensors",
+    "text_encoders/qwen_3_8b_fp8mixed.safetensors",
+    "vae/flux2-vae.safetensors"
+   ]
+  },
+  "flux3-klein-box-edit-v1": {
+   "models": [
+    "diffusion_models/flux3_image_klein_sd_int8_convrot.safetensors",
+    "text_encoders/qwen3vl_4b_int8_convrot.safetensors",
+    "vae/flux2-vae.safetensors"
+   ]
+  },
+  "flux3-klein-sd-create-v1": {
+   "models": [
+    "diffusion_models/flux3_image_klein_sd_int8_convrot.safetensors",
+    "text_encoders/qwen3vl_4b_int8_convrot.safetensors",
+    "vae/flux2-vae.safetensors",
+    "text_encoders/qwen3.5_9b_flux3_prompt_upsampler_int8_convrot.safetensors"
+   ]
+  },
+  "flux3-klein-sd-edit-v1": {
+   "models": [
+    "diffusion_models/flux3_image_klein_sd_int8_convrot.safetensors",
+    "text_encoders/qwen3vl_4b_int8_convrot.safetensors",
+    "vae/flux2-vae.safetensors",
+    "text_encoders/qwen3.5_9b_flux3_prompt_upsampler_int8_convrot.safetensors"
+   ]
+  },
+  "foundation1-loop-v1": {
+   "models": [
+    "checkpoints/Foundation-1.2-Keybeds.safetensors",
+    "checkpoints/Foundation-1.2-Samples.safetensors",
+    "text_encoders/t5-base.safetensors"
+   ]
+  },
+  "ideogram4-create-v1": {
+   "models": [
+    "diffusion_models/ideogram4_int8_convrot.safetensors",
+    "diffusion_models/ideogram4_unconditional_int8_convrot.safetensors",
+    "text_encoders/qwen3vl_8b_fp8_scaled.safetensors",
+    "vae/flux2-vae.safetensors"
+   ]
+  },
+  "krea2-general-edit-v2": {
+   "models": [
+    "diffusion_models/krea2_turbo_int8_convrot.safetensors",
+    "text_encoders/qwen3vl_4b_fp8_scaled.safetensors",
+    "vae/qwen_image_vae.safetensors",
+    "loras/krea2/krea2_general_edit_v2.safetensors"
+   ]
+  },
+  "krea2-edit-kroma-v1": {
+   "models": [
+    "diffusion_models/kroma-v0.3.1-turbo-opd-int8-convrot.safetensors",
+    "text_encoders/qwen3vl_4b_fp8_scaled.safetensors",
+    "vae/qwen_image_vae.safetensors",
+    "loras/krea2/krea2_general_edit_v2.safetensors"
+   ]
+  },
+  "krea2-edit-turbo-v1": {
+   "models": [
+    "diffusion_models/krea2_turbo_int8_convrot.safetensors",
+    "text_encoders/qwen3vl_4b_fp8_scaled.safetensors",
+    "vae/qwen_image_vae.safetensors",
+    "loras/krea2/krea2_general_edit_v2.safetensors"
+   ]
+  },
+  "krea2-identity-edit-v2": {
+   "models": [
+    "diffusion_models/krea2_turbo_int8_convrot.safetensors",
+    "text_encoders/qwen3vl_4b_fp8_scaled.safetensors",
+    "vae/qwen_image_vae.safetensors",
+    "loras/krea2/krea2_identity_edit_v2.safetensors"
+   ]
+  },
+  "krea2-raw-t2i-create": {
+   "models": [
+    "diffusion_models/krea2_raw_int8_convrot.safetensors",
+    "text_encoders/qwen3vl_4b_fp8_scaled.safetensors",
+    "vae/qwen_image_vae.safetensors"
+   ]
+  },
+  "krea2-turbo-t2i-create": {
+   "models": [
+    "diffusion_models/krea2_turbo_int8_convrot.safetensors",
+    "text_encoders/qwen3vl_4b_fp8_scaled.safetensors",
+    "vae/qwen_image_vae.safetensors"
+   ]
+  },
+  "minimax-h3-bridge-mctx-v1": {
+   "models": [
+    "diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+    "text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+    "vae/minimax_h3_video_vae_int8_convrot.safetensors",
+    "vae/minimax_h3_audio_vae_fp32.safetensors"
+   ],
+   "node_packages": [
+    {
+     "repo": "https://github.com/chanon/comfyui-obvpm-timeline",
+     "commit": "03a4b83f46c39fa07f7a002c6d85fe00004a29f2"
+    }
+   ]
+  },
+  "minimax-h3-extend-mctx-v1": {
+   "models": [
+    "diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+    "text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+    "vae/minimax_h3_video_vae_int8_convrot.safetensors",
+    "vae/minimax_h3_audio_vae_fp32.safetensors"
+   ],
+   "node_packages": [
+    {
+     "repo": "https://github.com/chanon/comfyui-obvpm-timeline",
+     "commit": "03a4b83f46c39fa07f7a002c6d85fe00004a29f2"
+    }
+   ]
+  },
+  "minimax-h3-finish-v1": {
+   "models": [
+    "vae/minimax_h3_video_vae_int8_convrot.safetensors",
+    "vae/minimax_h3_audio_vae_fp32.safetensors",
+    "latent_upscale_models/minimax_h3_latent_upscaler_3d_fp16.safetensors",
+    "frame_interpolation/rife_v4.26.safetensors"
+   ],
+   "node_packages": [
+    {
+     "repo": "https://github.com/chanon/comfyui-obvpm-timeline",
+     "commit": "03a4b83f46c39fa07f7a002c6d85fe00004a29f2"
+    },
+    {
+     "repo": "https://github.com/LBH-123-AI/Comfyui_Minimax_h3_latent_Upscaler",
+     "commit": "40316cf008b2fd8663263270669eb4da23f89d2c",
+     "note": "the local checkout equals this commit (git status: only __pycache__ untracked, no source change; read 07.11. by w24-rest BCK-028); MIT, LICENSE added in this commit"
+    }
+   ]
+  },
+  "minimax-h3-frames-v1": {
+   "models": [
+    "diffusion_models/minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+    "text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+    "vae/minimax_h3_video_vae_int8_convrot.safetensors",
+    "vae/minimax_h3_audio_vae_fp32.safetensors",
+    "loras/minimax_h3_turbo_v4_step600_ema_pruned_comfyui.safetensors"
+   ],
+   "node_packages": [
+    {
+     "repo": "https://github.com/chanon/comfyui-obvpm-timeline",
+     "commit": "03a4b83f46c39fa07f7a002c6d85fe00004a29f2"
+    }
+   ]
+  },
+  "minimax-h3-prepend-mctx-v1": {
+   "models": [
+    "diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+    "text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+    "vae/minimax_h3_video_vae_int8_convrot.safetensors",
+    "vae/minimax_h3_audio_vae_fp32.safetensors"
+   ],
+   "node_packages": [
+    {
+     "repo": "https://github.com/chanon/comfyui-obvpm-timeline",
+     "commit": "03a4b83f46c39fa07f7a002c6d85fe00004a29f2"
+    }
+   ]
+  },
+  "minimax-h3-references-v1": {
+   "models": [
+    "diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+    "text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+    "vae/minimax_h3_video_vae_int8_convrot.safetensors",
+    "vae/minimax_h3_audio_vae_fp32.safetensors",
+    "loras/minimax_h3_turbo_v4_step600_ema_pruned_comfyui.safetensors",
+    "model_patches/minimax_h3_fun_controlnet_union_2.0_pruned_int8_convrot.safetensors"
+   ],
+   "node_packages": [
+    {
+     "repo": "https://github.com/chanon/comfyui-obvpm-timeline",
+     "commit": "03a4b83f46c39fa07f7a002c6d85fe00004a29f2"
+    }
+   ]
+  },
+  "minimax-h3-t2v": {
+   "models": [
+    "diffusion_models/minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+    "text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+    "vae/minimax_h3_video_vae_fp16.safetensors",
+    "vae/minimax_h3_audio_vae_fp32.safetensors"
+   ],
+   "node_packages": [
+    {
+     "repo": "https://github.com/chanon/comfyui-obvpm-timeline",
+     "commit": "03a4b83f46c39fa07f7a002c6d85fe00004a29f2"
+    },
+    {
+     "repo": "https://github.com/kijai/ComfyUI-KJNodes",
+     "commit": "17195fcfa8a05f601b766a0f09c9733284f47416"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "core_node": "ResolutionSelector",
+     "comfyui_min": "0.25.0",
+     "core_source": "comfy_extras/nodes_resolution.py (ComfyUI core; added in v0.16.0 by #12199, the multiple input this workflow sets since v0.25.0 by #14309, commit a1c434eb6)",
+     "reason": "ResolutionSelector is a ComfyUI core node, not a custom package: update ComfyUI to 0.25.0 or later"
+    }
+   ]
+  },
+  "moss-image-sft-create-v1": {
+   "models": [
+    "diffusion_models/moss_image_sft_bf16.safetensors",
+    "text_encoders/qwen3.5_9b_int8_convrot.safetensors",
+    "vae/flux2-vae.safetensors"
+   ]
+  },
+  "omnivoice-clone-v1": {
+   "models": [
+    "omnivoice/OmniVoice/model.safetensors"
+   ],
+   "node_packages": [
+    {
+     "repo": "https://github.com/Saganaki22/ComfyUI-OmniVoice-TTS",
+     "commit": "3fe8e42a6d4a03628471aa1ba8506657e2e96dea"
+    }
+   ]
+  },
+  "omnivoice-design-v1": {
+   "models": [
+    "omnivoice/OmniVoice/model.safetensors"
+   ],
+   "node_packages": [
+    {
+     "repo": "https://github.com/Saganaki22/ComfyUI-OmniVoice-TTS",
+     "commit": "3fe8e42a6d4a03628471aa1ba8506657e2e96dea"
+    }
+   ]
+  },
+  "qwen-image-2.1-create-pe-v3-v2": {
+   "models": [
+    "diffusion_models/qwen_image_2.1_int8_convrot.safetensors",
+    "text_encoders/qwen3vl_8b_int8_convrot.safetensors",
+    "vae/qwen_image_2.1_vae_bf16.safetensors",
+    "loras/p_qwen_image_2.1_8step_v0.1.safetensors",
+    "text_encoders/qwen3.5_9b_qwen_image_2.1_pe_i2i.int8_convrot.safetensors"
+   ]
+  },
+  "qwen-image-2.1-edit-pe-v3-v2": {
+   "models": [
+    "diffusion_models/qwen_image_2.1_int8_convrot.safetensors",
+    "text_encoders/qwen3vl_8b_int8_convrot.safetensors",
+    "vae/qwen_image_2.1_vae_bf16.safetensors",
+    "loras/p_qwen_image_2.1_8step_v0.1.safetensors",
+    "text_encoders/qwen3.5_9b_qwen_image_2.1_pe_i2i.int8_convrot.safetensors"
+   ]
+  },
+  "qwen-image-2.1-edit-pe-v3": {
+   "models": [
+    "diffusion_models/qwen_image_2.1_int8_convrot.safetensors",
+    "text_encoders/qwen3vl_8b_int8_convrot.safetensors",
+    "vae/qwen_image_2.1_vae_bf16.safetensors",
+    "loras/p_qwen_image_2.1_8step_v0.1.safetensors",
+    "text_encoders/qwen3.5_9b_qwen_image_2.1_pe_i2i.int8_convrot.safetensors"
+   ]
+  },
+  "sa3-small-music-v1": {
+   "models": [
+    "checkpoints/stable_audio_3_small_music.safetensors",
+    "text_encoders/t5gemma_b_b_ul2.safetensors"
+   ]
+  },
+  "yue2-song-v1": {
+   "models": [
+    "checkpoints/yue2_3b_int8_convrot.safetensors"
+   ]
+  },
+  "relayvsr-video-upscale-v1": {
+   "models": [
+    "diffusion_models/relayvsr_x2_lightx2v_int8_convrot.safetensors",
+    "diffusion_models/relayvsr_x4_int8_convrot.safetensors",
+    "vae/relayvsr_flash_vae_x2_fp32.safetensors",
+    "vae/relayvsr_flash_vae_x4_fp32.safetensors"
+   ],
+   "node_packages": [
+    {
+     "repo": "https://github.com/comfyanonymous/ComfyUI",
+     "commit": null,
+     "reason": "native core nodes since ComfyUI 2f8943324 (RelayVSRConditioning, VSRDecode); no custom node pack"
+    }
+   ]
+  },
+  "p-h3-image-lora-t2i-v1": {
+   "models": [
+    "diffusion_models/minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+    "loras/p-h3-image_lora_bf16.safetensors",
+    "text_encoders/p-h3-image_text_encoder_int8_convrot.safetensors",
+    "vae/p-h3-image_vae_int8_convrot.safetensors"
+   ],
+   "node_packages": [
+    {
+     "repo": "https://github.com/comfyanonymous/ComfyUI",
+     "commit": null,
+     "reason": "native core nodes since ComfyUI 0.44.0 (PH3ImageConditioning, MiniMaxH3SigmaShift, LoraLoaderBypassModelOnly); no custom node pack"
+    }
+   ]
+  },
+  "p-h3-image-lora-edit-v1": {
+   "models": [
+    "diffusion_models/minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+    "loras/p-h3-image_lora_bf16.safetensors",
+    "text_encoders/p-h3-image_text_encoder_int8_convrot.safetensors",
+    "vae/p-h3-image_vae_int8_convrot.safetensors"
+   ],
+   "node_packages": [
+    {
+     "repo": "https://github.com/comfyanonymous/ComfyUI",
+     "commit": null,
+     "reason": "native core nodes since ComfyUI 0.44.0 (PH3ImageConditioning, MiniMaxH3SigmaShift, LoraLoaderBypassModelOnly); no custom node pack"
+    }
+   ]
+  }
+ }
+}

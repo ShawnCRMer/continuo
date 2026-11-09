@@ -1,0 +1,188 @@
+{
+ "schema": "studio.music-workflow/1",
+ "id": "yue2-song-v1",
+ "version": 1,
+ "kind": "music",
+ "provider_id": "comfyui-local",
+ "engine": "yue2",
+ "engine_label": "YuE2",
+ "label": "YuE2 Song",
+ "graphs": {
+  "notes": {
+   "api_file": "notes-api.json",
+   "api_sha256": "7fa4e2806ae9028246654df7e07993328651c396cd0716a476de6929c0184fbf",
+   "label": "Notes",
+   "output": {
+    "node_id": "3",
+    "kind": "text",
+    "key": "text",
+    "extension": ".abc"
+   },
+   "writes": {
+    "style": [
+     "/2/inputs/style"
+    ],
+    "lyrics": [
+     "/2/inputs/lyrics"
+    ],
+    "seed": [
+     "/2/inputs/seed"
+    ]
+   },
+   "fixed": {
+    "/1/inputs/ckpt_name": "yue2_3b_int8_convrot.safetensors",
+    "/2/inputs/mode": "full",
+    "/2/inputs/temperature": 0.7,
+    "/2/inputs/top_p": 0.9,
+    "/2/inputs/top_k": 30,
+    "/2/inputs/repetition_penalty": 1.005,
+    "/2/inputs/penalty_window": 100,
+    "/2/inputs/max_abc_tokens": 4096,
+    "/3/class_type": "PreviewAny"
+   },
+   "required_classes": [
+    "CheckpointLoaderSimple",
+    "PreviewAny",
+    "YuE2GenerateABC"
+   ]
+  },
+  "song": {
+   "api_file": "song-api.json",
+   "api_sha256": "f9047a0592c7128c13f6c8c79b1865967e39220d40949cfb0db789608356c1fc",
+   "label": "Song",
+   "output": {
+    "node_id": "9",
+    "kind": "audio",
+    "key": "audio",
+    "extension": ".flac"
+   },
+   "writes": {
+    "style": [
+     "/4/inputs/style"
+    ],
+    "lyrics": [
+     "/4/inputs/lyrics"
+    ],
+    "abc": [
+     "/4/inputs/abc"
+    ],
+    "seed": [
+     "/4/inputs/seed"
+    ],
+    "max_duration": [
+     "/4/inputs/max_duration"
+    ],
+    "trim": [
+     "/14/inputs/duration"
+    ]
+   },
+   "fixed": {
+    "/1/inputs/ckpt_name": "yue2_3b_int8_convrot.safetensors",
+    "/4/inputs/mode": "full",
+    "/4/inputs/temperature": 1.0,
+    "/4/inputs/top_p": 0.95,
+    "/4/inputs/top_k": 100,
+    "/4/inputs/repetition_penalty": 1.2,
+    "/7/inputs/seed": 42,
+    "/7/inputs/steps": 32,
+    "/7/inputs/cfg": 1.0,
+    "/7/inputs/sampler_name": "dpm_2",
+    "/7/inputs/scheduler": "sgm_uniform",
+    "/7/inputs/denoise": 1.0,
+    "/13/class_type": "AudioAdjustVolume",
+    "/13/inputs/volume": -6,
+    "/9/class_type": "PreviewAudio",
+    "/14/class_type": "TrimAudioDuration",
+    "/14/inputs/start_index": 0.0
+   },
+   "required_classes": [
+    "AudioAdjustVolume",
+    "CheckpointLoaderSimple",
+    "ConditioningZeroOut",
+    "EmptyYuE2LatentAudio",
+    "KSampler",
+    "PreviewAudio",
+    "TrimAudioDuration",
+    "VAEDecodeAudio",
+    "YuE2GenerateMusic"
+   ]
+  }
+ },
+ "controls": [
+  {
+   "id": "prompt",
+   "label": "Style",
+   "kind": "text",
+   "default": "",
+   "max_chars": 600,
+   "required": true
+  },
+  {
+   "id": "lyrics",
+   "label": "Lyrics",
+   "kind": "text",
+   "default": "",
+   "max_chars": 8000,
+   "required": true
+  },
+  {
+   "id": "notes",
+   "label": "Notes",
+   "kind": "text",
+   "default": "",
+   "max_chars": 40000
+  },
+  {
+   "id": "stages",
+   "label": "Stages",
+   "kind": "choice",
+   "default": "both",
+   "options": [
+    "both",
+    "notes",
+    "song"
+   ]
+  },
+  {
+   "id": "length",
+   "label": "Length",
+   "kind": "integer",
+   "default": 0,
+   "min": 0,
+   "max": 900,
+   "step": 1
+  },
+  {
+   "id": "max_length",
+   "label": "Max length",
+   "kind": "number",
+   "default": 360.0,
+   "min": 1.0,
+   "max": 900.0,
+   "step": 0.04
+  },
+  {
+   "id": "seed",
+   "label": "Seed",
+   "kind": "integer",
+   "default": 831054,
+   "min": 0,
+   "max": 2147483647,
+   "step": 1
+  }
+ ],
+ "models": [
+  {
+   "folder": "checkpoints",
+   "name": "yue2_3b_int8_convrot.safetensors"
+  }
+ ],
+ "source": "The authors' presets (yue2_generation_config.json) plan 0.7/0.9/30/1.005, music 1.0/0.95/100/1.2, 32 steps dpm_2/sgm_uniform; split into two graphs so the notes (ABC) are text between the stages; AudioAdjustVolume -6 dB; PreviewAudio = temp only; optional Length in whole seconds trims the song with native TrimAudioDuration (start 0) before the -6 dB node, no fade; Length 0 = the model's own length (the trim then stands at Max length and cuts nothing)",
+ "policy": {
+  "graph_mutation": "declared_pointers_only",
+  "custom_node_install": "never",
+  "model_download": "never_automatic",
+  "output_folder": "temp_only",
+  "submission_requires_explicit_user_intent": true
+ }
+}

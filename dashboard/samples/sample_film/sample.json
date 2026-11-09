@@ -1,0 +1,108 @@
+{
+ "schema": "film-suite.sample-project/1",
+ "name": "Sample film",
+ "licence": "CC0-1.0 (made by catalog/make-sample-film.py)",
+ "rate": {
+  "num": 24,
+  "den": 1
+ },
+ "format": {
+  "width": 1280,
+  "height": 720
+ },
+ "script": "script.fountain",
+ "shots": [
+  {
+   "picture": "pictures/shot-01.png",
+   "clip": "clips/shot-01.mp4",
+   "label": "Harbour, wide",
+   "duration_frames": 96,
+   "details": {
+    "size": "EWS",
+    "type": "cutaway",
+    "angle": "eye",
+    "move": "static",
+    "equipment": "tripod",
+    "lens": 24,
+    "dur": 4
+   }
+  },
+  {
+   "picture": "pictures/shot-02.png",
+   "clip": "clips/shot-02.mp4",
+   "label": "Ines on her suitcase",
+   "duration_frames": 96,
+   "details": {
+    "size": "CU",
+    "type": "single",
+    "angle": "eye",
+    "move": "dolly_in",
+    "equipment": "slider",
+    "lens": 85,
+    "dur": 4
+   }
+  },
+  {
+   "picture": "pictures/shot-03.png",
+   "clip": "clips/shot-03.mp4",
+   "label": "Ferryman",
+   "duration_frames": 96,
+   "details": {
+    "size": "MS",
+    "type": "single",
+    "angle": "low",
+    "move": "static",
+    "equipment": "tripod",
+    "lens": 50,
+    "dur": 4
+   }
+  },
+  {
+   "picture": "pictures/shot-04.png",
+   "clip": "clips/shot-04.mp4",
+   "label": "Lighthouse beam",
+   "duration_frames": 96,
+   "details": {
+    "size": "WS",
+    "type": "cutaway",
+    "angle": "low",
+    "move": "tilt",
+    "equipment": "tripod",
+    "lens": 35,
+    "dur": 4
+   }
+  },
+  {
+   "picture": "pictures/shot-05.png",
+   "clip": "clips/shot-05.mp4",
+   "label": "Cabin lamp",
+   "duration_frames": 96,
+   "details": {
+    "size": "INSERT",
+    "type": "insert",
+    "angle": "high",
+    "move": "static",
+    "equipment": "tripod",
+    "lens": 85,
+    "dur": 4
+   }
+  },
+  {
+   "picture": "pictures/shot-06.png",
+   "clip": "clips/shot-06.mp4",
+   "label": "Ferry leaves",
+   "duration_frames": 96,
+   "details": {
+    "size": "EWS",
+    "type": "cutaway",
+    "angle": "high",
+    "move": "crane",
+    "equipment": "crane",
+    "lens": 24,
+    "dur": 4
+   }
+  }
+ ],
+ "music": "sound/harbour-pad.mp3",
+ "illustrated": true
+}

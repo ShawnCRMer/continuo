@@ -1,0 +1,297 @@
+{
+  "schema": "studio.model-evidence/1",
+  "note": "Real renders through the Suite's own routes on the local ComfyUI (lane img-models, render_targets.py). A pickable Image model needs a rendered entry here; failed or absent means it is not offered.",
+  "variants": {
+    "krea2/turbo": {
+      "target_id": "krea2-turbo-t2i-create",
+      "state": "rendered",
+      "date": "2026-10-21",
+      "seconds": 13.3,
+      "comfyui": "0.41.0",
+      "output": {
+        "width": 1024,
+        "height": 1024,
+        "sha256": "fd60127cf44bf5fdfd964eb4e8f3fdaa274fa3ca24a5f11d393524ebe93ab5e1"
+      }
+    },
+    "krea2/raw": {
+      "target_id": "krea2-turbo-t2i-create",
+      "state": "rendered",
+      "date": "2026-10-21",
+      "seconds": 40.4,
+      "comfyui": "0.41.0",
+      "output": {
+        "width": 1024,
+        "height": 1024,
+        "sha256": "5473d96d91f21fd2e959c673405a3f7ebe824877564fe16564a19e2e79accd23"
+      },
+      "note": "Raw preset: render spec v2 profile raw, 52 steps, CFG 3.5"
+    },
+    "krea2/identity_edit_v2": {
+      "target_id": "krea2-identity-edit-v2",
+      "state": "rendered",
+      "date": "2026-10-21",
+      "seconds": 10.7,
+      "comfyui": "0.41.0",
+      "output": {
+        "width": 1024,
+        "height": 1024,
+        "sha256": "3726e9e79ccaba2289bde69b42b9821ec4fc1e5e43bf66b24286416775e075e7"
+      },
+      "note": "one reference portrait"
+    },
+    "krea2/general_edit_v2": {
+      "target_id": "krea2-general-edit-v2",
+      "state": "rendered",
+      "date": "2026-10-21",
+      "seconds": 19.8,
+      "comfyui": "0.41.0",
+      "output": {
+        "width": 1024,
+        "height": 1024,
+        "sha256": "2106178f3c89030157bb60ae488f48adaa87da4c945ff3153a736f29077d7140"
+      },
+      "note": "remove the lighthouse: removed"
+    },
+    "anima/create": {
+      "target_id": "anima-turbo-create-v1",
+      "state": "rendered",
+      "date": "2026-10-21",
+      "seconds": 7.9,
+      "comfyui": "0.41.0",
+      "output": {
+        "width": 1024,
+        "height": 1024,
+        "sha256": "e9dfdeda9756a850f63c990bac93dfde094211da054cbe55d8176741809da2e9"
+      }
+    },
+    "ideogram4/create": {
+      "target_id": "ideogram4-create-v1",
+      "state": "rendered",
+      "date": "2026-10-21",
+      "seconds": 26.3,
+      "comfyui": "0.41.0",
+      "output": {
+        "width": 1024,
+        "height": 1024,
+        "sha256": "87fa0a514b501556f5aa7735e59779f7ea0ed10d056d926ba060c0df5ede4f9c"
+      },
+      "note": "JSON caption; the sign text HARBOUR LIGHT is legible"
+    },
+    "flux2_klein/t2i": {
+      "target_id": "flux2-klein-9b-t2i-v1",
+      "state": "rendered",
+      "date": "2026-10-21",
+      "seconds": 10.9,
+      "comfyui": "0.41.0",
+      "output": {
+        "width": 1024,
+        "height": 1024,
+        "sha256": "4efc9d47c017ed3cc6401e650f43fcb449c7b00524a082bd864244b6ac5524f8"
+      }
+    },
+    "qwen_image_2_1/create": {
+      "target_id": "qwen-image-2.1-create-pe-v3-v2",
+      "state": "rendered",
+      "date": "2026-10-21",
+      "seconds": 19.4,
+      "comfyui": "0.41.0",
+      "output": {
+        "width": 1024,
+        "height": 1024,
+        "sha256": "035abd89dfe1059248cc41b3468f38f7ab247e9c7bceab10791ae053505dd040"
+      }
+    },
+    "qwen_image_2_1/edit": {
+      "target_id": "qwen-image-2.1-edit-pe-v3-v2",
+      "state": "rendered",
+      "date": "2026-10-21",
+      "seconds": 21.2,
+      "comfyui": "0.41.0",
+      "output": {
+        "width": 1024,
+        "height": 1024,
+        "sha256": "144defdab6ed6f435a21054171650d77ae6c90574e78216a9361b0b25e692e42"
+      },
+      "note": "remove the lighthouse: removed"
+    },
+    "moss_image/sft": {
+      "target_id": "moss-image-sft-create-v1",
+      "state": "rendered",
+      "date": "2026-10-21",
+      "seconds": 35.2,
+      "comfyui": "0.41.0",
+      "output": {
+        "width": 1024,
+        "height": 1024,
+        "sha256": "3f1fdd06bdfe3def631791c1308eb91e44182a83ffc6269275eca5b89f700842"
+      }
+    },
+    "flux3_klein/sd": {
+      "target_id": "flux3-klein-sd-create-v1",
+      "state": "rendered",
+      "date": "2026-10-21",
+      "seconds": 16.5,
+      "comfyui": "0.41.0",
+      "output": {
+        "width": 1024,
+        "height": 1024,
+        "sha256": "4c99ee98115e6792a792206161ed0cc567d04aed20fa4269b7136b1bc4b88703"
+      }
+    },
+    "p_h3_image/create": {
+      "target_id": "p-h3-image-lora-t2i-v1",
+      "state": "rendered",
+      "date": "2026-11-07",
+      "seconds": 51.3,
+      "comfyui": "0.44.0",
+      "output": {
+        "width": 3872,
+        "height": 2176,
+        "sha256": "4b5ce4019996bb0cf344ce56757b1e07c93085804e9833ab01f5b3094374a41f"
+      },
+      "note": "workflow-submit, 8 MP 16:9 harbour (full prompt), seed 7; 3 prompts x 2 sizes rendered 07.11. (lane w24-h3img)"
+    },
+    "p_h3_image/edit": {
+      "target_id": "p-h3-image-lora-edit-v1",
+      "state": "rendered",
+      "date": "2026-11-07",
+      "seconds": 31.1,
+      "comfyui": "0.44.0",
+      "output": {
+        "width": 2720,
+        "height": 1536,
+        "sha256": "fe2d9bf6a1ef651928820af63250f295aee8765a5182274e91fc7475b2a89a41"
+      },
+      "note": "workflow-submit, Picture 1 = Harbour kf0 at 4 MP, overcast sky; a second run with <Picture 2> as reference rendered (24.4 s) but ignored the scale request"
+    }
+  },
+  "edit_targets": {
+    "qwen-image-2.1-edit-pe-v3": {
+      "state": "rendered",
+      "date": "2026-10-21",
+      "seconds": 34.9,
+      "comfyui": "0.41.0",
+      "output": {
+        "width": 1024,
+        "height": 1024,
+        "sha256": "85da60d52d2272a1d30173960eb07303ff01e4567b7f41dccda0c9a2d2a77a1b"
+      },
+      "operations": {
+        "remove": "rendered",
+        "box": "rendered",
+        "fill": "rendered",
+        "replace": "rendered",
+        "restyle": "rendered",
+        "relight": "rendered",
+        "outpaint": "rendered"
+      },
+      "note": "remove the lighthouse: removed, a faint seam remains. Box -> mask (Remove tower + Keep house) 2026-10-22 seeds 7 and 11: removed in 45-46 s, a dark remnant at the house's left roof end | matrix 2026-11-07 (image-lanes/w24-edit-MATRIX.md, Harbour kf0 + Sample film shot-04, seed 7, outside the mask 0 px): Fill, Replace, Remove, Restyle, Relight, Outpaint good"
+    },
+    "flux3-klein-sd-edit-v1": {
+      "state": "rendered",
+      "date": "2026-10-21",
+      "seconds": 17.5,
+      "comfyui": "0.41.0",
+      "output": {
+        "width": 1024,
+        "height": 1024,
+        "sha256": "a2a3f03feeeac2580dce6cab04fe452b5743a98cc93bed4d101fbd8e756b744a"
+      },
+      "operations": {
+        "remove": "rendered",
+        "fill": "rendered",
+        "restyle": "rendered",
+        "relight": "rendered",
+        "outpaint": "rendered"
+      },
+      "note": "remove the lighthouse: removed, a faint seam remains | matrix 2026-11-07 (image-lanes/w24-edit-MATRIX.md): Fill (inside wording), Remove, Restyle, Relight, Outpaint (colour match) rendered; Replace refused"
+    },
+    "flux2-klein-9b-kv-edit-v1": {
+      "state": "rendered",
+      "date": "2026-10-21",
+      "seconds": 3.6,
+      "comfyui": "0.41.0",
+      "output": {
+        "width": 1024,
+        "height": 1024,
+        "sha256": "5838cecda39bcb81cedb7cc37742b2fda0f1e1d211c017f038face81da90783c"
+      },
+      "operations": {
+        "replace": "rendered",
+        "restyle": "rendered",
+        "outpaint": "rendered",
+        "relight": "rendered",
+        "remove": "rendered",
+        "fill": "rendered",
+        "box": "rendered"
+      },
+      "note": "Fill and Remove (2026-10-21 grey crop: the grey area came back unchanged, std under 1) now see the original crop located by words; rendered 2026-10-22 on lighthouse.jpg seeds 7 and 11: Remove emptied the tower (11-12 s), Fill put the boat on the open sea (3.4 s). Replace, Restyle, Outpaint, Relight edit. | matrix 2026-11-07: Fill, Box, Outpaint refused (see capabilities)"
+    },
+    "flux3-klein-box-edit-v1": {
+      "state": "rendered",
+      "date": "2026-10-22",
+      "seconds": 4.8,
+      "comfyui": "0.41.0",
+      "output": {
+        "width": 1024,
+        "height": 1024,
+        "sha256": "802183003e76e09fde80c4c27a7d75a7c9db58b8415762c58fe5c97cb12bb0ee"
+      },
+      "operations": {
+        "box": "rendered"
+      },
+      "note": "Image Box through NKD Klein Presampling (Klein 3), lighthouse.jpg seeds 7 and 11: Remove tower, Remove tower + Keep house (house kept), Move tower left (a whole tower stands at the target) in 4.5-8.8 s; colour match on | matrix 2026-11-07: Box Add good on both pictures, seeds 7 and 111"
+    },
+    "p-h3-image-lora-crop-edit-v1": {
+      "state": "rendered",
+      "date": "2026-11-07",
+      "seconds": 19.1,
+      "comfyui": "0.44.0",
+      "output": {
+        "width": 2048,
+        "height": 2048,
+        "sha256": "8f1253f24ddb328a3b611333ed3fef33532fd64b15a4363da338d4f8ab296f2d"
+      },
+      "operations": {
+        "fill": "rendered",
+        "replace": "rendered",
+        "remove": "rendered",
+        "restyle": "rendered",
+        "relight": "rendered",
+        "box": "rendered",
+        "outpaint": "failed"
+      },
+      "note": "w24-h3img matrix (Harbour kf0 + Sample shot-04, seed 7, 0 px changed outside the mask in every cell): Outpaint left a flat grey margin (seed 11) or a hard seam (shot-04 seed 7); Fill on shot-04 with a bare noun gave a ghostly or pasted object (seeds 7, 11), Box Add there was good (seed 7)"
+    },
+    "krea2-edit-kroma-v1": {
+      "state": "rendered",
+      "date": "2026-11-07",
+      "seconds": 18.8,
+      "output": {
+        "width": 960,
+        "height": 544,
+        "sha256": "86fae4290665e063ecc6d463dbc47144cf5d5d81d8df5e0f41d03243757f2454"
+      },
+      "operations": {
+        "replace": "rendered"
+      },
+      "note": "lane w24-krea study (docs/studies/w24-krea-RESEARCH.md): the Suite's prepare / instruction / stitch on the pinned General Edit V2 graph, Kroma, latent-mask Replace on the Harbour kf0 (white ferry -> red cargo ship) and Sample shot-03 (hat -> red beanie), seeds 7 and 111: 8 of 8 usable or good, 0 px changed outside the selection; median 18.8 s"
+    },
+    "krea2-edit-turbo-v1": {
+      "state": "rendered",
+      "date": "2026-11-07",
+      "seconds": 12.6,
+      "output": {
+        "width": 1280,
+        "height": 720,
+        "sha256": "171ef8ffe21a70bb69612980a6c79c3b4a4233adc88ecfc240e782cd8b712c30"
+      },
+      "operations": {
+        "restyle": "rendered",
+        "relight": "rendered"
+      },
+      "note": "lane w24-krea study: same seam on Krea 2 Turbo, Harbour kf0 and Sample shot-03, seeds 7 and 111: Restyle (watercolour) whole picture 4 of 4 and inside a selection 4 of 4 good or usable; Relight with the short instruction 4 of 4 good or usable; 0 px changed outside the selection; median 12.6 s"
+    }
+  }
+}

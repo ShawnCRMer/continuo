@@ -1,0 +1,535 @@
+{
+  "schema": "studio.comfy-workflow/1",
+  "id": "minimax-h3-frames-v1",
+  "version": 1,
+  "display_name": "MiniMax H3 · Frames",
+  "provider_id": "comfyui-local",
+  "prompt_policy": "literal",
+  "runtime_compatibility": {
+    "comfyui_versions": [
+      "0.41.0"
+    ],
+    "frontend_versions": [
+      "1.55.17"
+    ],
+    "workflow_templates_versions": [
+      "0.11.86"
+    ],
+    "policy": "schema_verified"
+  },
+  "workflow": {
+    "api_file": "workflow-api.json",
+    "api_sha256": "61e89c5862f3f40b9ea1a587ce2a51eec9a35ac8c6168a8a2c1aa74da329c33d",
+    "node_count": 41,
+    "source": "fs-h3a proven native wiring (J2-J10, artist master TURBO route: SigmaShift 12/3, turbo LoRA 0.8, er_sde/beta/12, int8_convrot video VAE); every optional branch present, absent roles removed structurally by generation/h3_conditioning.py; fs-h3aud: reference audio (LoadAudio 56-58 -> ref_audios), clip soundtracks (GetVideoComponents 53-55 slot 1 -> ref_video_audios) and a frame-0 sound track (LoadAudio 90 -> AddGuide 91 audio), measured in fs-h3audio; fs-obvb: saved as a take pair (mp4 + mctx sidecar) by H3TrimAndSaveVideoWithMCtx, pins unwired (root take), path via PreviewAny"
+  },
+  "capabilities": {
+    "modalities": [
+      "keyframes_to_video",
+      "image_to_video"
+    ],
+    "audio": "required_generated",
+    "duration": {
+      "unit": "seconds",
+      "min": 4,
+      "max": 15,
+      "default": 5,
+      "request_type": "integer_seconds",
+      "fps": 24,
+      "effective_frames": {
+        "rule": "round_fps_then_align_modulo",
+        "minimum_frames": 5,
+        "modulus": 17,
+        "remainder": 5
+      }
+    },
+    "aspect_ratios": [
+      "21:9 (Ultrawide)",
+      "16:9 (Widescreen)",
+      "4:3 (Standard)",
+      "1:1 (Square)",
+      "3:4 (Portrait Standard)",
+      "9:16 (Portrait Widescreen)"
+    ],
+    "megapixel_presets": [
+      0.5,
+      1.0
+    ],
+    "canvas_rule": "resolution_selector_multiple_32",
+    "media_roles": [
+      {
+        "id": "keyframes",
+        "kind": "keyframes",
+        "max": 10,
+        "frame_mapping": "first_last_guides",
+        "fit": "cover"
+      },
+      {
+        "id": "sound_track",
+        "kind": "audio",
+        "max": 1,
+        "frame": 0,
+        "fit": "cut_to_shot"
+      }
+    ],
+    "fit_note": "Stills and clips are cropped to the video frame from the centre.",
+    "sound_note": "Sound tracks and music references start at the first frame and are cut to the shot length."
+  },
+  "defaults": {
+    "duration_seconds": 5,
+    "aspect_ratio": "16:9 (Widescreen)",
+    "megapixels": 0.5,
+    "steps": 12,
+    "sampler_name": "er_sde",
+    "scheduler": "beta"
+  },
+  "mutable_json_pointers": [
+    "/8/inputs/prompt",
+    "/8/inputs/width",
+    "/8/inputs/height",
+    "/8/inputs/length",
+    "/9/inputs/value",
+    "/11/inputs/sampler_name",
+    "/12/inputs/steps",
+    "/12/inputs/scheduler",
+    "/60/inputs/image",
+    "/61/inputs/image",
+    "/62/inputs/image",
+    "/63/inputs/image",
+    "/64/inputs/image",
+    "/65/inputs/image",
+    "/66/inputs/image",
+    "/67/inputs/image",
+    "/68/inputs/image",
+    "/69/inputs/image",
+    "/70/inputs/frame_idx",
+    "/71/inputs/frame_idx",
+    "/72/inputs/frame_idx",
+    "/73/inputs/frame_idx",
+    "/74/inputs/frame_idx",
+    "/75/inputs/frame_idx",
+    "/76/inputs/frame_idx",
+    "/77/inputs/frame_idx",
+    "/78/inputs/frame_idx",
+    "/79/inputs/frame_idx",
+    "/30/inputs/image",
+    "/31/inputs/image",
+    "/90/inputs/audio",
+    "/91/inputs/frame_idx"
+  ],
+  "fixed_assertions": {
+    "/5/inputs/shift_video": 12.0,
+    "/5/inputs/shift_audio": 3.0,
+    "/6/inputs/strength_model": 0.8,
+    "/8/class_type": "MiniMaxH3ImageToVideo",
+    "/20/class_type": "PreviewAny",
+    "/19/class_type": "H3TrimAndSaveVideoWithMCtx",
+    "/19/inputs/base_folder": "studio-h3",
+    "/19/inputs/filename_prefix": "Studio_MiniMax_H3_frames"
+  },
+  "models": {
+    "diffusion_model": {
+      "folder": "diffusion_models",
+      "filename": "minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+      "assertion_pointer": "/1/inputs/unet_name"
+    },
+    "text_encoder": {
+      "folder": "text_encoders",
+      "filename": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+      "assertion_pointer": "/2/inputs/clip_name"
+    },
+    "video_vae": {
+      "folder": "vae",
+      "filename": "minimax_h3_video_vae_int8_convrot.safetensors",
+      "assertion_pointer": "/3/inputs/vae_name"
+    },
+    "audio_vae": {
+      "folder": "vae",
+      "filename": "minimax_h3_audio_vae_fp32.safetensors",
+      "assertion_pointer": "/4/inputs/vae_name"
+    },
+    "turbo_lora": {
+      "folder": "loras",
+      "filename": "minimax_h3_turbo_v4_step600_ema_pruned_comfyui.safetensors",
+      "assertion_pointer": "/6/inputs/lora_name"
+    }
+  },
+  "required_classes": [
+    "BasicGuider",
+    "BasicScheduler",
+    "CLIPLoader",
+    "H3TrimAndSaveVideoWithMCtx",
+    "KSamplerSelect",
+    "LoadAudio",
+    "LoadImage",
+    "LoraLoaderModelOnly",
+    "MiniMaxH3AddGuide",
+    "MiniMaxH3ImageToVideo",
+    "MiniMaxH3SigmaShift",
+    "PreviewAny",
+    "PrimitiveInt",
+    "RandomNoise",
+    "SamplerCustomAdvanced",
+    "UNETLoader",
+    "VAEDecode",
+    "VAEDecodeAudio",
+    "VAELoader"
+  ],
+  "schema_fingerprint": {
+    "nodes": {
+      "BasicGuider": {
+        "conditioning": {
+          "type": "CONDITIONING"
+        },
+        "model": {
+          "type": "MODEL"
+        }
+      },
+      "BasicScheduler": {
+        "denoise": {
+          "type": "FLOAT",
+          "covers": [
+            1.0,
+            1.0
+          ]
+        },
+        "model": {
+          "type": "MODEL"
+        },
+        "scheduler": {
+          "type": "COMBO",
+          "options": [
+            "beta",
+            "simple"
+          ]
+        },
+        "steps": {
+          "type": "INT",
+          "covers": [
+            1,
+            100
+          ]
+        }
+      },
+      "CLIPLoader": {
+        "clip_name": {
+          "type": "COMBO"
+        },
+        "device": {
+          "type": "COMBO",
+          "options": [
+            "default"
+          ]
+        },
+        "type": {
+          "type": "COMBO",
+          "options": [
+            "minimax"
+          ]
+        }
+      },
+      "H3TrimAndSaveVideoWithMCtx": {
+        "audio": {
+          "type": "AUDIO"
+        },
+        "base_folder": {
+          "type": "STRING"
+        },
+        "crf": {
+          "type": "INT",
+          "covers": [
+            19,
+            19
+          ]
+        },
+        "filename_prefix": {
+          "type": "STRING"
+        },
+        "images": {
+          "type": "IMAGE"
+        },
+        "metadata": {
+          "type": "STRING"
+        },
+        "samples": {
+          "type": "LATENT"
+        },
+        "save_conditioning": {
+          "type": "BOOLEAN"
+        }
+      },
+      "KSamplerSelect": {
+        "sampler_name": {
+          "type": "COMBO",
+          "options": [
+            "er_sde",
+            "euler",
+            "res_multistep"
+          ]
+        }
+      },
+      "LoadAudio": {
+        "audio": {
+          "type": "COMBO"
+        }
+      },
+      "LoadImage": {
+        "image": {
+          "type": "COMBO"
+        }
+      },
+      "LoraLoaderModelOnly": {
+        "lora_name": {
+          "type": "COMBO"
+        },
+        "model": {
+          "type": "MODEL"
+        },
+        "strength_model": {
+          "type": "FLOAT",
+          "covers": [
+            0.8,
+            0.8
+          ]
+        }
+      },
+      "MiniMaxH3AddGuide": {
+        "audio": {
+          "type": "AUDIO"
+        },
+        "audio_vae": {
+          "type": "VAE"
+        },
+        "frame_idx": {
+          "type": "INT",
+          "covers": [
+            0,
+            360
+          ]
+        },
+        "image": {
+          "type": "IMAGE"
+        },
+        "latent": {
+          "type": "LATENT"
+        },
+        "positive": {
+          "type": "CONDITIONING"
+        },
+        "vae": {
+          "type": "VAE"
+        }
+      },
+      "MiniMaxH3ImageToVideo": {
+        "clip": {
+          "type": "CLIP"
+        },
+        "first_frame": {
+          "type": "IMAGE"
+        },
+        "height": {
+          "type": "INT"
+        },
+        "last_frame": {
+          "type": "IMAGE"
+        },
+        "length": {
+          "type": "INT",
+          "covers": [
+            107,
+            365
+          ]
+        },
+        "prompt": {
+          "type": "STRING"
+        },
+        "vae": {
+          "type": "VAE"
+        },
+        "width": {
+          "type": "INT"
+        }
+      },
+      "MiniMaxH3SigmaShift": {
+        "model": {
+          "type": "MODEL"
+        },
+        "shift_audio": {
+          "type": "FLOAT",
+          "covers": [
+            3.0,
+            3.0
+          ]
+        },
+        "shift_video": {
+          "type": "FLOAT",
+          "covers": [
+            12.0,
+            12.0
+          ]
+        }
+      },
+      "PreviewAny": {
+        "source": {
+          "type": "*"
+        }
+      },
+      "PrimitiveInt": {
+        "value": {
+          "type": "INT"
+        }
+      },
+      "RandomNoise": {
+        "noise_seed": {
+          "type": "INT"
+        }
+      },
+      "SamplerCustomAdvanced": {
+        "guider": {
+          "type": "GUIDER"
+        },
+        "latent_image": {
+          "type": "LATENT"
+        },
+        "noise": {
+          "type": "NOISE"
+        },
+        "sampler": {
+          "type": "SAMPLER"
+        },
+        "sigmas": {
+          "type": "SIGMAS"
+        }
+      },
+      "UNETLoader": {
+        "unet_name": {
+          "type": "COMBO"
+        },
+        "weight_dtype": {
+          "type": "COMBO",
+          "options": [
+            "default"
+          ]
+        }
+      },
+      "VAEDecode": {
+        "samples": {
+          "type": "LATENT"
+        },
+        "vae": {
+          "type": "VAE"
+        }
+      },
+      "VAEDecodeAudio": {
+        "samples": {
+          "type": "LATENT"
+        },
+        "vae": {
+          "type": "VAE"
+        }
+      },
+      "VAELoader": {
+        "vae_name": {
+          "type": "COMBO"
+        }
+      }
+    }
+  },
+  "live_schema": [
+    {
+      "class_type": "MiniMaxH3AddGuide",
+      "input": "frame_idx",
+      "kind": "range",
+      "covers": [
+        0,
+        360
+      ]
+    },
+    {
+      "class_type": "MiniMaxH3AddGuide",
+      "input": "image",
+      "kind": "present"
+    },
+    {
+      "class_type": "MiniMaxH3ImageToVideo",
+      "input": "length",
+      "kind": "range",
+      "covers": [
+        107,
+        365
+      ]
+    },
+    {
+      "class_type": "KSamplerSelect",
+      "input": "sampler_name",
+      "kind": "combo",
+      "includes": [
+        "er_sde",
+        "res_multistep",
+        "euler"
+      ]
+    },
+    {
+      "class_type": "BasicScheduler",
+      "input": "scheduler",
+      "kind": "combo",
+      "includes": [
+        "beta",
+        "simple"
+      ]
+    },
+    {
+      "class_type": "BasicScheduler",
+      "input": "steps",
+      "kind": "range",
+      "covers": [
+        1,
+        100
+      ]
+    },
+    {
+      "class_type": "MiniMaxH3SigmaShift",
+      "input": "shift_video",
+      "kind": "present"
+    },
+    {
+      "class_type": "MiniMaxH3ImageToVideo",
+      "input": "last_frame",
+      "kind": "present"
+    },
+    {
+      "class_type": "MiniMaxH3AddGuide",
+      "input": "audio",
+      "kind": "present"
+    }
+  ],
+  "output": {
+    "node_id": "20",
+    "accepted_keys": [
+      "text"
+    ],
+    "required_folder_type": "output",
+    "extension": ".mp4",
+    "mime": "video/mp4",
+    "retrieve_via": "/view",
+    "path_text_folder": "studio-h3",
+    "sidecar_suffix": ".mctx.safetensors",
+    "legacy_output": {
+      "node_id": "19",
+      "accepted_keys": [
+        "images",
+        "videos",
+        "video"
+      ]
+    }
+  },
+  "policy": {
+    "graph_mutation": "declared_pointers_and_structural_role_removal",
+    "custom_node_install": "never",
+    "model_download": "never_automatic",
+    "submission_requires_explicit_user_intent": true,
+    "overwrite_comfy_output": false,
+    "media_delivery": "prefit_then_upload_type_temp",
+    "comfy_input_folder": "never"
+  }
+}

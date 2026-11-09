@@ -1,0 +1,3 @@
+# Keep baseline-hashed source bytes stable across Windows checkouts.
+*.py text eol=lf
+.gitattributes text eol=lf

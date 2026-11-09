@@ -1,0 +1,208 @@
+{
+ "10": {
+  "class_type": "UNETLoader",
+  "inputs": {
+   "unet_name": "kroma-v0.3.1-turbo-opd-int8-convrot.safetensors",
+   "weight_dtype": "default"
+  }
+ },
+ "11": {
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "qwen3vl_4b_fp8_scaled.safetensors",
+   "device": "default",
+   "type": "krea2"
+  }
+ },
+ "12": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "qwen_image_vae.safetensors"
+  }
+ },
+ "13": {
+  "class_type": "LoraLoaderModelOnly",
+  "inputs": {
+   "lora_name": "krea2\\krea2_general_edit_v2.safetensors",
+   "model": [
+    "10",
+    0
+   ],
+   "strength_model": 1.0
+  }
+ },
+ "2": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Keep everything in the picture exactly the same."
+  }
+ },
+ "20": {
+  "class_type": "ImageScaleToTotalPixels",
+  "inputs": {
+   "image": [
+    "5",
+    0
+   ],
+   "megapixels": 1.0,
+   "resolution_steps": 16,
+   "upscale_method": "lanczos"
+  }
+ },
+ "21": {
+  "class_type": "GetImageSize",
+  "inputs": {
+   "image": [
+    "20",
+    0
+   ]
+  }
+ },
+ "22": {
+  "class_type": "EmptySD3LatentImage",
+  "inputs": {
+   "batch_size": 1,
+   "height": [
+    "21",
+    1
+   ],
+   "width": [
+    "21",
+    0
+   ]
+  }
+ },
+ "23": {
+  "class_type": "VAEEncode",
+  "inputs": {
+   "pixels": [
+    "20",
+    0
+   ],
+   "vae": [
+    "12",
+    0
+   ]
+  }
+ },
+ "24": {
+  "class_type": "Krea2EditModelPatch",
+  "inputs": {
+   "fit_mode": "fit",
+   "model": [
+    "13",
+    0
+   ],
+   "ref_boost": 4.0,
+   "ref_boost_a": 1.0,
+   "ref_position": "aligned (trained)",
+   "ref_position_a": "aligned (trained)",
+   "source_image": [
+    "5",
+    0
+   ],
+   "source_latent": [
+    "23",
+    0
+   ],
+   "target_latent": [
+    "22",
+    0
+   ],
+   "vae": [
+    "12",
+    0
+   ]
+  }
+ },
+ "25": {
+  "class_type": "Krea2EditGroundedEncode",
+  "inputs": {
+   "clip": [
+    "11",
+    0
+   ],
+   "grounding_px": 768,
+   "image": [
+    "5",
+    0
+   ],
+   "prompt": [
+    "2",
+    0
+   ],
+   "system_prompt": ""
+  }
+ },
+ "26": {
+  "class_type": "Krea2EditGroundedEncode",
+  "inputs": {
+   "clip": [
+    "11",
+    0
+   ],
+   "grounding_px": 768,
+   "image": [
+    "5",
+    0
+   ],
+   "prompt": "",
+   "system_prompt": ""
+  }
+ },
+ "27": {
+  "class_type": "KSampler",
+  "inputs": {
+   "cfg": 1.0,
+   "denoise": 1.0,
+   "latent_image": [
+    "22",
+    0
+   ],
+   "model": [
+    "24",
+    0
+   ],
+   "negative": [
+    "26",
+    0
+   ],
+   "positive": [
+    "25",
+    0
+   ],
+   "sampler_name": "euler",
+   "scheduler": "simple",
+   "seed": 0,
+   "steps": 8
+  }
+ },
+ "28": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "27",
+    0
+   ],
+   "vae": [
+    "12",
+    0
+   ]
+  }
+ },
+ "5": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "filmsuite-edit-00000000000000000000000000000000.png [temp]"
+  }
+ },
+ "99": {
+  "class_type": "PreviewImage",
+  "inputs": {
+   "images": [
+    "28",
+    0
+   ]
+  }
+ }
+}

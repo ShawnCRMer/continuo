@@ -1,0 +1,67 @@
+{
+ "schema": "studio.image-edit-capability/1",
+ "id": "flux3-klein-sd-edit-v1",
+ "family": "flux3-klein",
+ "variant": "edit-distilled",
+ "preset": "distilled",
+ "provider_id": "comfyui-local",
+ "source": {
+  "path": "comfyui_workflow_templates_json/templates/image_flux3_klein_distilled_image_edit.json",
+  "bytes": 37903,
+  "sha256": "8c7184583aec0b2f95e6dc61d3a9e9f71be4205bc4f10c0d9759c3c89cc3139c",
+  "package": "comfyui_workflow_templates_json 0.1.112",
+  "license": "MIT",
+  "license_file": "COMFYUI-WORKFLOW-TEMPLATES-LICENSE.txt",
+  "note": "Official FLUX.3 Klein distilled edit template flattened to API form. Kept: files, ReferenceMultiLatent, ConditioningZeroOut, sampler 16 steps cfg 1 euler/simple, the edit prompt upsampler system text. Changed: upsampler int8_convrot instead of w4a8 (the installed file), upsampler seed fixed 0 (top_k 1), the switch reads true = upsampler on, reference resolution 'keep resolution' (the Suite already sizes the crop), SaveImage -> PreviewImage (temp). Dropped: notes, ImageCompare, bounding-box layout prompt, EmptyFlux2LatentImage (unused)."
+ },
+ "mutable_json_pointers": {
+  "image": "/11/inputs/image",
+  "instruction": "/34/inputs/value",
+  "seed": "/7/inputs/seed",
+  "prompt_enhancer": "/51/inputs/switch"
+ },
+ "fixed_assertions": {
+  "/1/inputs/unet_name": "flux3_image_klein_sd_int8_convrot.safetensors",
+  "/2/inputs/clip_name": "qwen3vl_4b_int8_convrot.safetensors",
+  "/2/inputs/type": "flux3",
+  "/3/inputs/vae_name": "flux2-vae.safetensors",
+  "/46/inputs/clip_name": "qwen3.5_9b_flux3_prompt_upsampler_int8_convrot.safetensors",
+  "/7/inputs/steps": 16,
+  "/7/inputs/cfg": 1.0,
+  "/7/inputs/sampler_name": "euler",
+  "/7/inputs/scheduler": "simple",
+  "/7/inputs/denoise": 1.0,
+  "/17/inputs/resolution": "keep resolution",
+  "/47/inputs/thinking": false,
+  "/9/class_type": "PreviewImage"
+ },
+ "outputs": {
+  "image": {
+   "node_id": "9",
+   "class_type": "PreviewImage",
+   "key": "images",
+   "type": "temp"
+  },
+  "sent_prompt": {
+   "node_id": "52",
+   "class_type": "PreviewAny",
+   "key": "text"
+  }
+ },
+ "size_rule": {
+  "resolution": 1024,
+  "multiple": 16,
+  "rule": "output follows the reference picture (keep resolution); the Suite sends the crop at its work size"
+ },
+ "live_preview": {
+  "class_type": "ModelPreviewOverrideKJ",
+  "node_id": "900",
+  "model_from": "/7/inputs/model",
+  "tiny_vae": null
+ },
+ "measured": "Measured 18 Oct 2026 on an RTX 5090 against Qwen-Image 2.1 Edit on the same pictures and masks: Qwen-Image 2.1 Edit was better in every operation; Klein is offered as a choice.",
+ "workflow": {
+  "api_sha256": "a85e210bf111c875898c82a52420255e5e09204544c540607e0f320485855084",
+  "node_count": 16
+ }
+}

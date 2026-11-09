@@ -1,0 +1,105 @@
+{
+ "1": {
+  "class_type": "Drama3Loader",
+  "inputs": {
+   "model_name": "drama3_fp8experts_bf16.safetensors",
+   "experts": "in RAM",
+   "expert_cache_gb": 2.0,
+   "second_gpu": "none",
+   "split_layer": 0,
+   "vram_expert_layers": 22
+  },
+  "_meta": {
+   "title": "Model (artist's NTU_VO_v06b settings)"
+  }
+ },
+ "2": {
+  "class_type": "Drama3CodecLoader",
+  "inputs": {
+   "codec_name": "drama3_codec.safetensors"
+  },
+  "_meta": {
+   "title": "Codec"
+  }
+ },
+ "3": {
+  "class_type": "LoadAudio",
+  "inputs": {
+   "audio": "__REFERENCE__ [temp]"
+  },
+  "_meta": {
+   "title": "Voice clip"
+  }
+ },
+ "4": {
+  "class_type": "Drama3EncodeVoice",
+  "inputs": {
+   "codec": [
+    "2",
+    0
+   ],
+   "audio": [
+    "3",
+    0
+   ],
+   "transcript": "__WORDS__"
+  },
+  "_meta": {
+   "title": "Voice"
+  }
+ },
+ "5": {
+  "class_type": "Drama3Generate",
+  "inputs": {
+   "model": [
+    "1",
+    0
+   ],
+   "text": "__LINE__",
+   "voices.voice0": [
+    "4",
+    0
+   ],
+   "seed": 4711,
+   "temperature": 1.0,
+   "top_p": 0.9,
+   "top_k": 0,
+   "max_frames": 600,
+   "split_long_text": true,
+   "speakers": "one take per line"
+  },
+  "_meta": {
+   "title": "Speak"
+  }
+ },
+ "6": {
+  "class_type": "Drama3Decode",
+  "inputs": {
+   "codec": [
+    "2",
+    0
+   ],
+   "codes": [
+    "5",
+    0
+   ],
+   "shorten_long_pauses": true
+  },
+  "_meta": {
+   "title": "Decode"
+  }
+ },
+ "7": {
+  "class_type": "SaveAudio",
+  "inputs": {
+   "audio": [
+    "6",
+    0
+   ],
+   "filename_prefix": "fs-voice/drama3-clone"
+  },
+  "_meta": {
+   "title": "Save"
+  }
+ }
+}

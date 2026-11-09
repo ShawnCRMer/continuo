@@ -1,0 +1,41 @@
+{
+ "1": {
+  "class_type": "OmniVoiceVoiceDesignTTS",
+  "inputs": {
+   "model": "OmniVoice",
+   "text": "__LINE__",
+   "voice_instruct": "male, middle-aged, low pitch",
+   "steps": 64,
+   "guidance_scale": 2.0,
+   "t_shift": 0.1,
+   "speed": 0.9,
+   "duration": 0.0,
+   "device": "auto",
+   "dtype": "auto",
+   "attention": "auto",
+   "seed": 4711,
+   "position_temperature": 5.0,
+   "class_temperature": 0.0,
+   "layer_penalty_factor": 5.0,
+   "denoise": true,
+   "postprocess_output": true,
+   "keep_model_loaded": false
+  },
+  "_meta": {
+   "title": "Speak (description)"
+  }
+ },
+ "2": {
+  "class_type": "SaveAudio",
+  "inputs": {
+   "audio": [
+    "1",
+    0
+   ],
+   "filename_prefix": "fs-voice/omnivoice-design"
+  },
+  "_meta": {
+   "title": "Save"
+  }
+ }
+}

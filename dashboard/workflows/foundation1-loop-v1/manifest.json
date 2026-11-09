@@ -1,0 +1,249 @@
+{
+ "schema": "studio.music-workflow/1",
+ "id": "foundation1-loop-v1",
+ "version": 1,
+ "kind": "music",
+ "provider_id": "comfyui-local",
+ "engine": "foundation1",
+ "engine_label": "Foundation-1",
+ "label": "Foundation-1 Loop",
+ "graphs": {
+  "loop": {
+   "api_file": "loop-api.json",
+   "api_sha256": "bc75a4b5bfa3552bcb1d1c8ab07eaef9c5b83f7acbebf339390b3d28b0f65fc4",
+   "label": "Loop",
+   "output": {
+    "node_id": "8",
+    "kind": "audio",
+    "key": "audio",
+    "extension": ".flac"
+   },
+   "writes": {
+    "text": [
+     "/3/inputs/text"
+    ],
+    "seed": [
+     "/6/inputs/seed"
+    ],
+    "seconds_total": [
+     "/10/inputs/seconds_total"
+    ],
+    "latent_seconds": [
+     "/5/inputs/seconds"
+    ],
+    "trim": [
+     "/11/inputs/duration"
+    ]
+   },
+   "fixed": {
+    "/1/inputs/ckpt_name": "Foundation-1.2-Samples.safetensors",
+    "/2/inputs/clip_name": "t5-base.safetensors",
+    "/2/inputs/type": "stable_audio",
+    "/12/class_type": "ConditioningZeroOut",
+    "/10/inputs/seconds_start": 0.0,
+    "/6/inputs/steps": 250,
+    "/6/inputs/cfg": 7.0,
+    "/6/inputs/sampler_name": "dpmpp_3m_sde",
+    "/6/inputs/scheduler": "exponential",
+    "/6/inputs/denoise": 1.0,
+    "/11/inputs/start_index": 0.0,
+    "/13/class_type": "AudioAdjustVolume",
+    "/13/inputs/volume": -6,
+    "/8/class_type": "PreviewAudio"
+   },
+   "required_classes": [
+    "AudioAdjustVolume",
+    "CLIPLoader",
+    "CLIPTextEncode",
+    "CheckpointLoaderSimple",
+    "ConditioningStableAudio",
+    "ConditioningZeroOut",
+    "EmptyLatentAudio",
+    "KSampler",
+    "PreviewAudio",
+    "TrimAudioDuration",
+    "VAEDecodeAudio"
+   ]
+  },
+  "keybed": {
+   "api_file": "keybed-api.json",
+   "api_sha256": "ca6cd77f3a25623b6d0c913e85be235ff4f5205b3d50b0701ffaf56ac2605dbb",
+   "label": "Keybed",
+   "output": {
+    "node_id": "8",
+    "kind": "audio",
+    "key": "audio",
+    "extension": ".flac"
+   },
+   "writes": {
+    "text": [
+     "/3/inputs/text"
+    ],
+    "seed": [
+     "/6/inputs/seed"
+    ]
+   },
+   "fixed": {
+    "/1/inputs/ckpt_name": "Foundation-1.2-Keybeds.safetensors",
+    "/2/inputs/clip_name": "t5-base.safetensors",
+    "/2/inputs/type": "stable_audio",
+    "/12/class_type": "ConditioningZeroOut",
+    "/10/inputs/seconds_start": 0.0,
+    "/6/inputs/steps": 80,
+    "/6/inputs/cfg": 6.0,
+    "/6/inputs/sampler_name": "dpmpp_3m_sde",
+    "/6/inputs/scheduler": "exponential",
+    "/6/inputs/denoise": 1.0,
+    "/11/inputs/start_index": 0.0,
+    "/13/class_type": "AudioAdjustVolume",
+    "/13/inputs/volume": -6,
+    "/8/class_type": "PreviewAudio",
+    "/10/inputs/seconds_total": 20.0,
+    "/5/inputs/seconds": 20.05,
+    "/11/inputs/duration": 19.25
+   },
+   "required_classes": [
+    "AudioAdjustVolume",
+    "CLIPLoader",
+    "CLIPTextEncode",
+    "CheckpointLoaderSimple",
+    "ConditioningStableAudio",
+    "ConditioningZeroOut",
+    "EmptyLatentAudio",
+    "KSampler",
+    "PreviewAudio",
+    "TrimAudioDuration",
+    "VAEDecodeAudio"
+   ]
+  }
+ },
+ "controls": [
+  {
+   "id": "instrument",
+   "label": "Instrument",
+   "kind": "text",
+   "default": "",
+   "max_chars": 120,
+   "required": true
+  },
+  {
+   "id": "timbre",
+   "label": "Timbre",
+   "kind": "text",
+   "default": "",
+   "max_chars": 200
+  },
+  {
+   "id": "fx",
+   "label": "FX",
+   "kind": "text",
+   "default": "",
+   "max_chars": 200
+  },
+  {
+   "id": "wet",
+   "label": "Wet/Dry",
+   "kind": "choice",
+   "default": "Wet",
+   "options": [
+    "Wet",
+    "Dry"
+   ]
+  },
+  {
+   "id": "key",
+   "label": "Key",
+   "kind": "choice",
+   "default": "C minor",
+   "options": [
+    "C major",
+    "C# major",
+    "D major",
+    "D# major",
+    "E major",
+    "F major",
+    "F# major",
+    "G major",
+    "G# major",
+    "A major",
+    "A# major",
+    "B major",
+    "C minor",
+    "C# minor",
+    "D minor",
+    "D# minor",
+    "E minor",
+    "F minor",
+    "F# minor",
+    "G minor",
+    "G# minor",
+    "A minor",
+    "A# minor",
+    "B minor"
+   ]
+  },
+  {
+   "id": "bpm",
+   "label": "BPM",
+   "kind": "integer",
+   "default": 100,
+   "min": 40,
+   "max": 200,
+   "step": 1
+  },
+  {
+   "id": "bars",
+   "label": "Bars",
+   "kind": "choice",
+   "default": 4,
+   "options": [
+    4,
+    8
+   ]
+  },
+  {
+   "id": "keybed",
+   "label": "Keybed",
+   "kind": "boolean",
+   "default": false
+  },
+  {
+   "id": "notes",
+   "label": "Notes",
+   "kind": "text",
+   "default": "",
+   "max_chars": 200
+  },
+  {
+   "id": "seed",
+   "label": "Seed",
+   "kind": "integer",
+   "default": 2002,
+   "min": 0,
+   "max": 2147483647,
+   "step": 1
+  }
+ ],
+ "models": [
+  {
+   "folder": "checkpoints",
+   "name": "Foundation-1.2-Samples.safetensors"
+  },
+  {
+   "folder": "checkpoints",
+   "name": "Foundation-1.2-Keybeds.safetensors"
+  },
+  {
+   "folder": "text_encoders",
+   "name": "t5-base.safetensors"
+  }
+ ],
+ "source": "Settings from listening tests of the authors' Foundation-1 examples (250-step variants, ConditioningZeroOut negative) for loops: 250 steps, CFG 7, dpmpp_3m_sde/exponential, length = bars*4*60/BPM (trim exact, latent +0.05 s); keybed = the authors' Foundation-1.2-Keybeds settings (80 steps, CFG 6, the author's sequence prompt, trim 19.25 s); AudioAdjustVolume -6 dB before the output; PreviewAudio = temp only. Foundation-1.2-Keybeds sounds one octave below the note name (pitch tracking with pyin: C4..F4 requested sound C3..F3, -1199 cents per note; the authors' own example the same; a synthetic control through the same code measures +1 cent), so the target writes every keybed note +12 semitones into the prompt (C4 -> C5, KEYBED_OCTAVE_OFFSET in music_gen/targets.py)",
+ "policy": {
+  "graph_mutation": "declared_pointers_only",
+  "custom_node_install": "never",
+  "model_download": "never_automatic",
+  "output_folder": "temp_only",
+  "submission_requires_explicit_user_intent": true
+ }
+}

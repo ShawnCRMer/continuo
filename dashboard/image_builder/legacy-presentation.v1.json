@@ -1,0 +1,25 @@
+{
+  "schema": "studio.legacy-image-presentation/1",
+  "binding": "builder_v1",
+  "family": { "id": "krea2", "label": "Krea 2" },
+  "runnable_families": ["krea2"],
+  "spec_schemas": { "v1": "studio.krea2-render-spec/1", "v2": "studio.krea2-render-spec/2" },
+  "presets": {
+    "turbo": {
+      "label": "Turbo",
+      "values": { "steps": 8, "cfg": 1, "sampler": "euler", "scheduler": "simple" },
+      "files": { "diffusion_model": ["krea2_turbo_int8_convrot.safetensors"], "text_encoder": ["qwen3vl_4b_fp8_scaled.safetensors"], "vae": ["qwen_image_vae.safetensors"] }
+    },
+    "raw": {
+      "label": "Raw",
+      "values": { "steps": 40, "cfg": 3.5, "sampler": "euler", "scheduler": "simple" },
+      "files": { "diffusion_model": ["krea2_raw_int8_convrot.safetensors"], "text_encoder": ["qwen3vl_4b_fp8_scaled.safetensors"], "vae": ["qwen_image_vae.safetensors"] }
+    }
+  },
+  "run_spec": { "model": "Krea 2 Turbo", "steps": 8, "cfg": 1 },
+  "messages": {
+    "references": "No references. Krea 2 Turbo and Raw make pictures from the prompt alone; reference pictures arrive with the next update.",
+    "burn_in": "Krea 2 Turbo burns in above about cfg 1.6",
+    "unavailable": "The Krea 2 builder catalog is unavailable."
+  }
+}

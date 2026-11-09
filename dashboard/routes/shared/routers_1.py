@@ -1,0 +1,2 @@
+from __future__ import annotations
+image_catalog_router = APIRouter(route_class=ImageCatalogValidationRoute)

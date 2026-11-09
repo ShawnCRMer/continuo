@@ -1,0 +1,14 @@
+{
+  "1": {"class_type": "LoadVideo", "inputs": {"file": "__STUDIO_SOURCE__"}},
+  "2": {"class_type": "GetVideoComponents", "inputs": {"video": ["1", 0]}},
+  "3": {"class_type": "ImageFromBatch", "inputs": {"image": ["2", 0], "batch_index": 0, "length": 124}},
+  "4": {"class_type": "TrimAudioDuration", "inputs": {"audio": ["2", 1], "start_index": 0.0, "duration": 5.1667}},
+  "5": {"class_type": "UNETLoader", "inputs": {"unet_name": "relayvsr_x4_int8_convrot.safetensors", "weight_dtype": "default"}},
+  "6": {"class_type": "RelayVSRConditioning", "inputs": {"model": ["5", 0], "images": ["3", 0]}},
+  "7": {"class_type": "KSampler", "inputs": {"model": ["5", 0], "positive": ["6", 0], "negative": ["6", 0], "latent_image": ["6", 1], "seed": 0, "steps": 1, "cfg": 1.0, "sampler_name": "euler", "scheduler": "simple", "denoise": 1.0}},
+  "8": {"class_type": "VAELoader", "inputs": {"vae_name": "relayvsr_flash_vae_x4_fp32.safetensors"}},
+  "9": {"class_type": "VSRDecode", "inputs": {"vae": ["8", 0], "samples": ["7", 0], "images": ["3", 0], "detail": 0.5}},
+  "10": {"class_type": "ImageScale", "inputs": {"image": ["9", 0], "upscale_method": "lanczos", "width": 1906, "height": 1080, "crop": "disabled"}},
+  "11": {"class_type": "CreateVideo", "inputs": {"images": ["10", 0], "audio": ["4", 0], "fps": ["2", 2]}},
+  "12": {"class_type": "SaveVideo", "inputs": {"video": ["11", 0], "filename_prefix": "video/Studio_RelayVSR_upscale", "format": "auto", "codec": "auto"}}
+}

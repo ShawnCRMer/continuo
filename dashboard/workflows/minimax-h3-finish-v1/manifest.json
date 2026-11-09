@@ -1,0 +1,332 @@
+{
+  "schema": "studio.comfy-workflow/1",
+  "id": "minimax-h3-finish-v1",
+  "version": 1,
+  "display_name": "MiniMax H3 · Finish",
+  "provider_id": "comfyui-local",
+  "prompt_policy": "none",
+  "runtime_compatibility": {
+    "comfyui_versions": [
+      "0.41.0"
+    ],
+    "frontend_versions": [
+      "1.55.17"
+    ],
+    "workflow_templates_versions": [
+      "0.11.86"
+    ],
+    "policy": "schema_verified"
+  },
+  "workflow": {
+    "api_file": "workflow-api.json",
+    "api_sha256": "acda458f2f9159317afe48a5ecb728658f84faed8d7cdcdb049c9b7eac016a3d",
+    "node_count": 14,
+    "source": "Artist master H3_CE_0.5_FINISHING_RC2.json (SHA-256 16eb8b1d...5434e): 1331 LTXVSeparateAVLatent -> 1332 MinimaxH3LatentUpscaler3D (LBH, megapixels 1.5, align 32, temporal chunking on, cuda fp16) -> 1333 LTXVConcatAVLatent -> 1334 VAEDecode; 1572 FrameInterpolationModelLoader rife_v4.26 -> 1573 FrameInterpolate x2 (24 -> 48 fps). Input is the take's stored AV latent (H3LoadMCtx, comfyui-obvpm-timeline) instead of RC2's in-graph final latent; frames and audio are cut to the delivered span (ImageFromBatch / TrimAudioDuration); CreateVideo + SaveVideo. Lane w1-h3; the frames/references graphs are not edited."
+  },
+  "capabilities": {
+    "modalities": [
+      "finish"
+    ],
+    "audio": "kept_from_source",
+    "duration": {
+      "unit": "frames",
+      "fps": 24,
+      "fps_rife": 48,
+      "effective_frames": {
+        "rule": "source_delivered_frames",
+        "rife": "2n-1"
+      }
+    },
+    "canvas_rule": "source_sidecar_or_upscaled_1.5mp_multiple_32",
+    "media_roles": [
+      {
+        "id": "source",
+        "kind": "take",
+        "max": 1,
+        "sidecar": "required"
+      }
+    ],
+    "stages": {
+      "upscale": {
+        "method": "lbh",
+        "megapixels": 1.5,
+        "align": 32
+      },
+      "rife": {
+        "model": "rife_v4.26.safetensors",
+        "multiplier": 2
+      },
+      "temporal": "not_offered: needs_padding_fix"
+    }
+  },
+  "defaults": {
+    "upscale": true,
+    "rife": false
+  },
+  "mutable_json_pointers": [
+    "/40/inputs/clip",
+    "/44/inputs/batch_index",
+    "/44/inputs/length",
+    "/45/inputs/start_index",
+    "/45/inputs/duration",
+    "/18/inputs/fps"
+  ],
+  "fixed_assertions": {
+    "/42/class_type": "MinimaxH3LatentUpscaler3D",
+    "/42/inputs/mode": "megapixels",
+    "/42/inputs/mode.megapixels": 1.5,
+    "/42/inputs/align": 32,
+    "/42/inputs/enable_temporal_chunking": true,
+    "/42/inputs/precision": "fp16",
+    "/51/class_type": "FrameInterpolate",
+    "/51/inputs/multiplier": 2,
+    "/19/class_type": "SaveVideo",
+    "/19/inputs/filename_prefix": "video/Studio_MiniMax_H3_finish",
+    "/40/class_type": "H3LoadMCtx"
+  },
+  "models": {
+    "video_vae": {
+      "folder": "vae",
+      "filename": "minimax_h3_video_vae_int8_convrot.safetensors",
+      "assertion_pointer": "/3/inputs/vae_name"
+    },
+    "audio_vae": {
+      "folder": "vae",
+      "filename": "minimax_h3_audio_vae_fp32.safetensors",
+      "assertion_pointer": "/4/inputs/vae_name"
+    },
+    "latent_upscaler": {
+      "folder": "latent_upscale_models",
+      "filename": "minimax_h3_latent_upscaler_3d_fp16.safetensors",
+      "assertion_pointer": "/42/inputs/model_name"
+    },
+    "frame_interpolation": {
+      "folder": "frame_interpolation",
+      "filename": "rife_v4.26.safetensors",
+      "assertion_pointer": "/50/inputs/model_name"
+    }
+  },
+  "required_classes": [
+    "CreateVideo",
+    "FrameInterpolate",
+    "FrameInterpolationModelLoader",
+    "H3LoadMCtx",
+    "ImageFromBatch",
+    "LTXVConcatAVLatent",
+    "LTXVSeparateAVLatent",
+    "MinimaxH3LatentUpscaler3D",
+    "SaveVideo",
+    "TrimAudioDuration",
+    "VAEDecode",
+    "VAEDecodeAudio",
+    "VAELoader"
+  ],
+  "schema_fingerprint": {
+    "nodes": {
+      "CreateVideo": {
+        "audio": {
+          "type": "AUDIO"
+        },
+        "bit_depth": {
+          "type": "COMBO",
+          "options": [
+            8
+          ]
+        },
+        "fps": {
+          "type": "FLOAT"
+        },
+        "images": {
+          "type": "IMAGE"
+        }
+      },
+      "FrameInterpolate": {
+        "images": {
+          "type": "IMAGE"
+        },
+        "interp_model": {
+          "type": "INTERP_MODEL"
+        },
+        "multiplier": {
+          "type": "INT",
+          "covers": [
+            2,
+            2
+          ]
+        }
+      },
+      "FrameInterpolationModelLoader": {
+        "model_name": {
+          "type": "COMBO"
+        }
+      },
+      "H3LoadMCtx": {
+        "clip": {
+          "type": "COMBO"
+        },
+        "create_pins": {
+          "type": "COMBO",
+          "options": [
+            "none"
+          ]
+        },
+        "pin_window": {
+          "type": "COMBO",
+          "options": [
+            "39"
+          ]
+        }
+      },
+      "ImageFromBatch": {
+        "batch_index": {
+          "type": "INT"
+        },
+        "image": {
+          "type": "IMAGE"
+        },
+        "length": {
+          "type": "INT"
+        }
+      },
+      "LTXVConcatAVLatent": {
+        "audio_latent": {
+          "type": "LATENT"
+        },
+        "video_latent": {
+          "type": "LATENT"
+        }
+      },
+      "LTXVSeparateAVLatent": {
+        "av_latent": {
+          "type": "LATENT"
+        }
+      },
+      "MinimaxH3LatentUpscaler3D": {
+        "align": {
+          "type": "INT",
+          "covers": [
+            32,
+            32
+          ]
+        },
+        "device": {
+          "type": "COMBO",
+          "options": [
+            "cuda"
+          ]
+        },
+        "enable_temporal_chunking": {
+          "type": "BOOLEAN"
+        },
+        "force_unload": {
+          "type": "BOOLEAN"
+        },
+        "latent": {
+          "type": "*"
+        },
+        "mode": {
+          "type": "COMFY_DYNAMICCOMBO_V3",
+          "options": [
+            "megapixels"
+          ]
+        },
+        "mode.megapixels": {
+          "type": "FLOAT",
+          "within": [
+            "mode",
+            "megapixels"
+          ],
+          "nested": "megapixels",
+          "covers": [
+            1.5,
+            1.5
+          ]
+        },
+        "model_name": {
+          "type": "COMBO"
+        },
+        "precision": {
+          "type": "COMBO",
+          "options": [
+            "fp16"
+          ]
+        }
+      },
+      "SaveVideo": {
+        "codec": {
+          "type": "COMFY_DYNAMICCOMBO_V3",
+          "options": [
+            "auto"
+          ]
+        },
+        "filename_prefix": {
+          "type": "STRING"
+        },
+        "format": {
+          "type": "COMFY_DYNAMICCOMBO_V3",
+          "options": [
+            "auto"
+          ]
+        },
+        "video": {
+          "type": "VIDEO"
+        }
+      },
+      "TrimAudioDuration": {
+        "audio": {
+          "type": "AUDIO"
+        },
+        "duration": {
+          "type": "FLOAT"
+        },
+        "start_index": {
+          "type": "FLOAT"
+        }
+      },
+      "VAEDecode": {
+        "samples": {
+          "type": "LATENT"
+        },
+        "vae": {
+          "type": "VAE"
+        }
+      },
+      "VAEDecodeAudio": {
+        "samples": {
+          "type": "LATENT"
+        },
+        "vae": {
+          "type": "VAE"
+        }
+      },
+      "VAELoader": {
+        "vae_name": {
+          "type": "COMBO"
+        }
+      }
+    }
+  },
+  "live_schema": [],
+  "output": {
+    "node_id": "19",
+    "accepted_keys": [
+      "images",
+      "videos",
+      "video"
+    ],
+    "required_folder_type": "output",
+    "extension": ".mp4",
+    "mime": "video/mp4",
+    "retrieve_via": "/view"
+  },
+  "policy": {
+    "graph_mutation": "declared_pointers_and_structural_stage_removal",
+    "custom_node_install": "never",
+    "model_download": "never_automatic",
+    "submission_requires_explicit_user_intent": true,
+    "overwrite_comfy_output": false,
+    "media_delivery": "stage_take_pair_to_output_then_remove",
+    "comfy_input_folder": "never",
+    "source_take": "read_only"
+  }
+}

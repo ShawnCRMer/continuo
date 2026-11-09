@@ -1,0 +1,125 @@
+{
+  "schema": "studio.image-edit-capabilities/1",
+  "note": "Per-family edit capabilities. The Suite owns the operations; a family maps the common edit request onto its own pinned ComfyUI workflow. available=false keeps an operation visible but disabled with its reason. mask: paste_back = the model edits a crop, the Suite pastes it back inside the soft mask; native_mask = the model itself receives the mask; latent_mask = the Suite crops with context, the selection (grown and feathered at the work size) is the sampler's latent noise mask (SetLatentNoiseMask + DifferentialDiffusion) and the result is pasted back through that same soft mask. Sources: docs/plans/film-suite-r3r4-edit-prep.md section 2 and 3b.",
+  "operations": ["fill", "replace", "remove", "outpaint", "restyle", "relight", "control", "upscale", "move", "replace_character", "remove_background", "box"],
+  "families": [
+    {
+      "family": "qwen-image-2.1",
+      "variant": "edit-pe-v3",
+      "label": "Qwen-Image 2.1 Edit",
+      "how": "instruction edit of image 1, no mask input; the Suite crops the selection with context, the model edits the crop, the Suite pastes it back inside the soft mask",
+      "references": {"max": 9, "syntax": "<image{n}>", "target_slot": 1, "wired": false, "note": "the model takes up to 10 pictures; reference slots are not wired in the edit workflow yet, references are accepted and ignored with a warning"},
+      "prompt_enhancer": {"default": false, "thinking": false, "note": "PE-I2I rewrites the instruction (~55 s on an RTX 5090); its output is returned as the effective prompt"},
+      "operations": {
+        "fill": {"available": true, "target_id": "qwen-image-2.1-edit-pe-v3", "method": "instruction_on_crop", "mask": "paste_back", "refs_max": 0, "strength": true, "variants_max": 4, "live_preview": true},
+        "replace": {"available": true, "target_id": "qwen-image-2.1-edit-pe-v3", "method": "instruction_on_crop", "mask": "latent_mask", "refs_max": 0, "strength": true, "variants_max": 4, "live_preview": true},
+        "remove": {"available": true, "target_id": "qwen-image-2.1-edit-pe-v3", "method": "instruction_on_crop", "mask": "paste_back", "refs_max": 0, "strength": true, "variants_max": 4, "live_preview": true, "status": "first family for remove; fallback Krea 2 Raw CFG 3, anime pictures Anima inpaint (later)"},
+        "restyle": {"available": true, "target_id": "qwen-image-2.1-edit-pe-v3", "method": "instruction_on_crop", "mask": "paste_back", "refs_max": 0, "strength": true, "variants_max": 4, "live_preview": true, "note": "whole picture: every style clear; inside a mask a line style (ink) reads, paint and tone styles read as a recolour"},
+        "replace_character": {"available": false, "reason": "Head swap is not wired yet."},
+        "remove_background": {"available": false, "reason": "Use Select background (mask job) instead; the generative path is slow."},
+        "relight": {"available": true, "target_id": "qwen-image-2.1-edit-pe-v3", "method": "instruction_on_crop", "mask": "paste_back", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": true, "prompt_enhancer": false, "note": "measured 2026-10-18: 9 of 12 without the prompt enhancer, no broken cell; light reads partly as a colour grade"},
+        "outpaint": {"available": true, "target_id": "qwen-image-2.1-edit-pe-v3", "method": "instruction_on_canvas", "mask": "paste_back", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": true, "note": "the picture on a grey-margined canvas, edited like a Fill; pasted back over the margin and a 2 % seam band"}
+      }
+    },
+    {
+      "family": "flux3-klein",
+      "variant": "edit-distilled",
+      "label": "FLUX.3 Klein Edit",
+      "how": "instruction edit of the crop as <ref_image_0> (official ComfyUI template, ReferenceMultiLatent), no mask input; the Suite crops the selection with context, the model edits the crop, the Suite pastes it back inside the soft mask",
+      "measured": "2026-10-18, same bench as Qwen: Qwen better in every operation (Klein leaves the old object showing through, a ghost after Remove, weaker styles), about the same time; offered as the artist's choice. Edit matrix 2026-11-07 (image-lanes/w24-edit-MATRIX.md): Replace refused, Outpaint with colour match",
+      "references": {"max": 0, "syntax": "<ref_image_{n}>", "target_slot": 0, "wired": false, "note": "the template takes more reference pictures; not wired in the Suite yet"},
+      "prompt_enhancer": {"default": false, "thinking": false, "note": "the official FLUX.3 prompt upsampler rewrites the instruction; its output is returned as the effective prompt"},
+      "operations": {
+        "fill": {"available": true, "target_id": "flux3-klein-sd-edit-v1", "method": "instruction_on_crop", "mask": "paste_back", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": true},
+        "replace": {"available": true, "target_id": "flux3-klein-sd-edit-v1", "method": "instruction_on_crop", "mask": "latent_mask", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": true, "warning": "Matrix 2026-11-07: the old object stays and is only recoloured (harbour, seed 7)"},
+        "remove": {"available": true, "target_id": "flux3-klein-sd-edit-v1", "method": "instruction_on_crop", "mask": "paste_back", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": true},
+        "restyle": {"available": true, "target_id": "flux3-klein-sd-edit-v1", "method": "instruction_on_crop", "mask": "paste_back", "refs_max": 0, "strength": true, "variants_max": 4, "live_preview": true},
+        "relight": {"available": true, "target_id": "flux3-klein-sd-edit-v1", "method": "instruction_on_crop", "mask": "paste_back", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": true, "prompt_enhancer": false, "note": "measured 2026-10-18: 8 of 12, keeps the person best, the light stays timid"},
+        "box": {"available": true, "target_id": "flux3-klein-box-edit-v1", "method": "native_boxes", "mask": "paste_back", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": true, "intents": ["add", "change", "move", "keep", "remove"], "move": false, "note": "FLUX.3 Klein reads the boxes itself (NKD Klein Presampling, BFL element list); Add, Change, Keep and Remove in one edit. Move carries the object's own pixels (Remove at the source, the object pasted at the target, only a narrow ring blended); move stays false until the carry is measured on real renders"},
+        "outpaint": {"available": true, "target_id": "flux3-klein-sd-edit-v1", "method": "instruction_on_canvas", "mask": "paste_back", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": true}
+      }
+    },
+    {
+      "family": "flux2-klein",
+      "variant": "edit-9b-kv",
+      "label": "FLUX.2 Klein Edit",
+      "how": "instruction edit of the crop as the reference picture (official ComfyUI template image_flux2_klein_9b_kv_image_edit, ReferenceLatent, KV cache, 4 steps), no mask input; the Suite crops the selection with context, the model edits the crop, the Suite pastes it back inside the soft mask",
+      "measured": "2026-10-18, same bench as Qwen and FLUX.3 Klein: about 2-3 s per edit (Qwen 6.2 s); Qwen better in every operation, FLUX.2 Klein weakest in Fill (the beach stays pale) and Remove (a ghost); the fast choice. Edit matrix 2026-11-07 (image-lanes/w24-edit-MATRIX.md): Fill, Box and Outpaint refused",
+      "references": {"max": 0, "syntax": "image {n}", "target_slot": 0, "wired": false, "note": "the template takes a second reference picture; not wired in the Suite yet"},
+      "prompt_enhancer": {"default": false, "thinking": false, "note": "the template has no prompt upsampler: the Suite instruction goes in as written"},
+      "operations": {
+        "fill": {"available": true, "target_id": "flux2-klein-9b-kv-edit-v1", "method": "instruction_on_crop", "mask": "paste_back", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": false, "warning": "Matrix 2026-11-07: the new object is cut off at the selection edge (harbour, seeds 7 and 111)"},
+        "replace": {"available": true, "target_id": "flux2-klein-9b-kv-edit-v1", "method": "instruction_on_crop", "mask": "latent_mask", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": false},
+        "remove": {"available": true, "target_id": "flux2-klein-9b-kv-edit-v1", "method": "instruction_on_crop", "mask": "paste_back", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": false},
+        "restyle": {"available": true, "target_id": "flux2-klein-9b-kv-edit-v1", "method": "instruction_on_crop", "mask": "paste_back", "refs_max": 0, "strength": true, "variants_max": 4, "live_preview": false},
+        "relight": {"available": true, "target_id": "flux2-klein-9b-kv-edit-v1", "method": "instruction_on_crop", "mask": "paste_back", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": false, "prompt_enhancer": false, "note": "measured 2026-10-18: 10 of 12, the strongest light (backlight, low key), clothing colours drift"},
+        "box": {"available": true, "target_id": "flux2-klein-9b-kv-edit-v1", "method": "boxes_to_mask", "mask": "paste_back", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": false, "intents": ["add", "keep"], "move": false, "note": "Add boxes become the mask of one Fill (Keep boxes cut out); Change, Move and Remove in a box are FLUX.3 Klein's", "warning": "Matrix 2026-11-07: the new object is cut off at the box edge (harbour, seeds 7 and 111)"},
+        "outpaint": {"available": true, "target_id": "flux2-klein-9b-kv-edit-v1", "method": "instruction_on_canvas", "mask": "paste_back", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": false, "warning": "Matrix 2026-11-07: the new area comes out as a darker panel on flat pictures (lighthouse, seed 7, colour match on)"}
+      }
+    },
+    {
+      "family": "krea2",
+      "variant": "general-edit-v2",
+      "label": "Krea 2 Edit",
+      "how": "instruction edit of the crop with the Krea 2 General Edit V2 LoRA (comfyui-krea2edit 2.0.0), no mask input; the Suite crops the selection with context, the model edits the crop, the Suite pastes it back inside the soft mask. Replace runs on Kroma through the latent mask, Restyle and Relight on Krea 2 Turbo",
+      "measured": "2026-11-07, w24-krea render study (docs/studies/w24-krea-RESEARCH.md): 124 cells on the Harbour kf0 and the Sample film shot-03, seeds 7 and 111, 0 px changed outside the selection",
+      "references": {"max": 0, "syntax": "image {n}", "target_slot": 1, "wired": false, "note": "the node pack takes a second picture (Identity Edit V2: a person); the editor sends one"},
+      "prompt_enhancer": {"default": false, "thinking": false, "note": "no prompt enhancer: the instruction goes in as written"},
+      "operations": {
+        "replace": {"available": true, "target_id": "krea2-edit-kroma-v1", "method": "instruction_on_crop", "mask": "latent_mask", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": false, "note": "Kroma: 8 of 8 cells usable or good, the best integration of the new object"},
+        "restyle": {"available": true, "target_id": "krea2-edit-turbo-v1", "method": "instruction_on_crop", "mask": "paste_back", "refs_max": 0, "strength": true, "variants_max": 4, "live_preview": false, "note": "Krea 2 Turbo: whole picture 4 of 4 good or usable, inside a selection 4 of 4 usable"},
+        "relight": {"available": true, "target_id": "krea2-edit-turbo-v1", "method": "instruction_on_crop", "mask": "paste_back", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": false, "prompt_enhancer": false, "note": "Krea 2 Turbo with Krea's short instruction: 4 of 4 good or usable; it may add the light source (a moon)"},
+        "fill": {"available": true, "target_id": "krea2-edit-kroma-v1", "method": "instruction_on_crop", "mask": "paste_back", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": false, "warning": "The grey area stays grey on flat pictures, and through the mask the old content shows"},
+        "remove": {"available": true, "target_id": "krea2-edit-kroma-v1", "method": "instruction_on_crop", "mask": "paste_back", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": false, "warning": "The object stays, or a grey smear is left where it was"},
+        "outpaint": {"available": true, "target_id": "krea2-edit-kroma-v1", "method": "instruction_on_canvas", "mask": "paste_back", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": false, "warning": "The new margin stays grey on flat pictures"},
+        "box": {"available": true, "target_id": "krea2-edit-kroma-v1", "method": "boxes_to_mask", "intents": ["add", "keep"], "move": false, "mask": "paste_back", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": false, "warning": "A box is edited like Fill: the grey area stays grey on flat pictures"},
+        "replace_character": {"available": false, "reason": "The new person keeps the reference picture's style and scale, with a visible box edge"}
+      }
+    },
+    {
+      "family": "krea2",
+      "variant": "turbo",
+      "label": "Krea 2 Turbo",
+      "how": "text to image only in the Suite today",
+      "operations": {}
+    },
+    {
+      "family": "anima",
+      "variant": "inpaint",
+      "label": "Anima",
+      "how": "true masked inpaint (LLLite inpaint + VAEEncodeForInpaint), I2I with denoise, outpaint on a padded canvas",
+      "references": {"max": 0, "wired": false},
+      "operations": {
+        "fill": {"available": false, "reason": "Anima masked inpaint is declared, the adapter comes later.", "method": "native_mask", "mask": "native_mask"},
+        "remove": {"available": false, "reason": "Anima masked inpaint is declared, the adapter comes later (anime pictures).", "method": "native_mask", "mask": "native_mask"},
+        "restyle": {"available": false, "reason": "Anima I2I is declared, the adapter comes later.", "method": "i2i", "strength": true},
+        "outpaint": {"available": false, "reason": "Anima outpaint is declared, the adapter comes later.", "method": "native_mask_padded"},
+        "control": {"available": false, "reason": "Anima line-art control is declared, the adapter comes later.", "method": "lllite_control"}
+      }
+    },
+    {
+      "family": "ideogram4",
+      "variant": "create",
+      "label": "Ideogram 4",
+      "how": "text to image only",
+      "operations": {}
+    },
+    {
+      "family": "p-h3-image",
+      "variant": "lora-edit",
+      "label": "P-H3-Image Edit",
+      "how": "instruction edit of the crop as <Picture 1> (PrunaAI P-H3-Image LoRA on the MiniMax H3 FL2VA transformer, PH3ImageConditioning, 8 fixed sigmas, no CFG) at the card's 4 MP edit size, no mask input; the Suite crops the selection with context, the model edits the crop, the Suite pastes it back inside the soft mask",
+      "references": {"max": 0, "syntax": "<Picture {n}>", "target_slot": 1, "wired": false, "note": "the catalog edit target (Image > Edit model P-H3-Image) takes Picture 1 + 7 references with roles; area edits send the crop only"},
+      "prompt_enhancer": {"default": false, "thinking": false, "note": "the PrunaAI prompt upsampler is not installed: the Suite instruction goes in as written"},
+      "operations": {
+        "fill": {"available": true, "target_id": "p-h3-image-lora-crop-edit-v1", "method": "instruction_on_crop", "mask": "paste_back", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": false, "note": "measured 2026-11-07: photo good; flat illustration broken with a bare noun (seeds 7, 11), good as Box Add with an Add sentence (seed 7); Box Add runs through this operation"},
+        "replace": {"available": true, "target_id": "p-h3-image-lora-crop-edit-v1", "method": "instruction_on_crop", "mask": "paste_back", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": false},
+        "remove": {"available": true, "target_id": "p-h3-image-lora-crop-edit-v1", "method": "instruction_on_crop", "mask": "paste_back", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": false},
+        "restyle": {"available": true, "target_id": "p-h3-image-lora-crop-edit-v1", "method": "instruction_on_crop", "mask": "paste_back", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": false},
+        "relight": {"available": true, "target_id": "p-h3-image-lora-crop-edit-v1", "method": "instruction_on_crop", "mask": "paste_back", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": false, "prompt_enhancer": false},
+        "outpaint": {"available": true, "target_id": "p-h3-image-lora-crop-edit-v1", "method": "instruction_on_canvas", "mask": "paste_back", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": false, "warning": "Measured 2026-11-07: P-H3-Image leaves the new margin flat grey (seed 11, both test pictures) or cut at a hard seam; use Qwen-Image 2.1 or FLUX.2 Klein for Outpaint"},
+        "box": {"available": true, "target_id": "p-h3-image-lora-crop-edit-v1", "method": "boxes_to_mask", "mask": "paste_back", "refs_max": 0, "strength": false, "variants_max": 4, "live_preview": false, "intents": ["add", "keep"], "move": false, "note": "Add boxes become the mask of one Fill (Keep boxes cut out)"}
+      }
+    }
+  ]
+}

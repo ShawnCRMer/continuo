@@ -1,0 +1,52 @@
+{
+ "earlier": {
+  "flux3-klein-sd-create-v1": [
+   {
+    "api_sha256": "f6ed7094e8b6d44497abcc12cf3b2717c34619e4903b259e4e6dbbbca48cd987",
+    "manifest_sha256": "0b0da45ed26e73e8541e600b20a997f13819c5225af476056495a124d4aaa502"
+   }
+  ],
+  "gpt-image-2-create-v1": [
+   {
+    "api_sha256": "16b77d161bbd248d05c0495cfcfd58d783b9b112d5966970857fae05c22ff3bd",
+    "manifest_sha256": "6470142f13090c885444cd39eee6737b2f90e71f850d64178a96ead4f36cc935"
+   }
+  ],
+  "gpt-image-2-edit-v1": [
+   {
+    "api_sha256": "8d435b18ca2eb6e0299ba6fd580c175718fd5f1da39caeafeaf08cf0809952d6",
+    "manifest_sha256": "676a334b2306837807a31db51b30a3a0454f149e5735cfc792416c0150d02e22"
+   }
+  ],
+  "krea2-identity-edit-v2": [
+   {
+    "api_sha256": "470bcfb96bdf8dc4da17954b475e2d5eab782643f4a9cba334634ff016ea643a",
+    "manifest_sha256": "8964cfcc96f2805b5f843a3050cf708d63aad9580ab83a1e44e897d476ad558a"
+   }
+  ],
+  "p-h3-image-lora-t2i-v1": [
+   {
+    "api_sha256": "8c817d5e1fc371777ac7028c471eb4fb3ad9d341e8e6deb98b910c3557a49c51",
+    "manifest_sha256": "868b0ae07bacd3486e29e9318e9b3f65f80a98c5b740c1041f76ae191d4b843d"
+   },
+   {
+    "api_sha256": "8c817d5e1fc371777ac7028c471eb4fb3ad9d341e8e6deb98b910c3557a49c51",
+    "manifest_sha256": "adbc520956de79ef1b1e73fb5e92d3fdcd24c051c28cd925c37ca1dcfebeca67"
+   }
+  ],
+  "qwen-image-2.1-create-pe-v3-v2": [
+   {
+    "api_sha256": "a1cfe09703301ce6a0e777eec3fef703a05bd15de951094950dae663080d9832",
+    "manifest_sha256": "882de8a9922ad4faf68633cb777834e1c1e19cb00106b818438c9eeeb07dada3"
+   }
+  ],
+  "qwen-image-2.1-edit-pe-v3-v2": [
+   {
+    "api_sha256": "7fcd3357703e967f3c0d65c7e591fc0604b45c402d6854549d5a3bf981fc8525",
+    "manifest_sha256": "32ae8f2ae133e51c80d30509d4d96e57b5173586d29125da3fe269abfb0706c0"
+   }
+  ]
+ },
+ "note": "Lane w29-fix2 W29F-P0: every (manifest_sha256, api_sha256) pin a workflow target had in an earlier committed catalog. A job persisted under one of them keeps decoding (image_workflow_contract.validate_snapshot). Append only: when a pin changes, add the old pair here (tests/backend/test_w29_fix2_workflow_pins.py checks the git history).",
+ "schema": "studio.workflow-pin-history/1"
+}

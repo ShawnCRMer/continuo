@@ -1,0 +1,132 @@
+{
+ "schema": "studio.voice-workflow/1",
+ "id": "drama3-clone-v1",
+ "version": 1,
+ "kind": "voice",
+ "provider_id": "comfyui-local",
+ "api_file": "workflow-api.json",
+ "api_sha256": "cc707bb63e3c50efe9c4b2936f3a7a260fc14f3ebfcc9869b450bfca0f9bc961",
+ "engine": "drama3",
+ "engine_label": "Drama 3",
+ "operation": "speak_clone",
+ "label": "Drama 3 · Clip",
+ "voice_from": "clip",
+ "cue_dialect": "drama3",
+ "direction": "inline",
+ "sample_rate": 44100,
+ "text": {
+  "pointer": "/5/inputs/text"
+ },
+ "words": {
+  "pointer": "/4/inputs/transcript",
+  "required": true
+ },
+ "reference": {
+  "pointer": "/3/inputs/audio"
+ },
+ "description": null,
+ "parameters": {
+  "seed": {
+   "pointer": "/5/inputs/seed"
+  },
+  "temperature": {
+   "pointer": "/5/inputs/temperature"
+  },
+  "top_p": {
+   "pointer": "/5/inputs/top_p"
+  },
+  "top_k": {
+   "pointer": "/5/inputs/top_k"
+  },
+  "shorten_long_pauses": {
+   "pointer": "/6/inputs/shorten_long_pauses"
+  }
+ },
+ "controls": [
+  {
+   "id": "seed",
+   "label": "Seed",
+   "section": "delivery",
+   "kind": "integer",
+   "default": 4711,
+   "min": 0,
+   "max": 2147483647,
+   "step": 1
+  },
+  {
+   "id": "temperature",
+   "label": "Temperature",
+   "section": "delivery",
+   "kind": "number",
+   "default": 1.0,
+   "min": 0.0,
+   "max": 2.0,
+   "step": 0.05
+  },
+  {
+   "id": "top_p",
+   "label": "Top p",
+   "section": "delivery",
+   "kind": "number",
+   "default": 0.9,
+   "min": 0.05,
+   "max": 1.0,
+   "step": 0.05
+  },
+  {
+   "id": "top_k",
+   "label": "Top k",
+   "section": "delivery",
+   "kind": "integer",
+   "default": 0,
+   "min": 0,
+   "max": 4096,
+   "step": 1
+  },
+  {
+   "id": "shorten_long_pauses",
+   "label": "Shorten long pauses",
+   "section": "pauses",
+   "kind": "boolean",
+   "default": true
+  }
+ ],
+ "fixed": {
+  "/1/inputs/model_name": "drama3_fp8experts_bf16.safetensors",
+  "/1/inputs/experts": "in RAM",
+  "/5/inputs/speakers": "one take per line",
+  "/5/class_type": "Drama3Generate",
+  "/7/class_type": "SaveAudio"
+ },
+ "required_classes": [
+  "Drama3Loader",
+  "Drama3CodecLoader",
+  "LoadAudio",
+  "Drama3EncodeVoice",
+  "Drama3Generate",
+  "Drama3Decode",
+  "SaveAudio"
+ ],
+ "models": [
+  {
+   "folder": "diffusion_models",
+   "name": "drama3_fp8experts_bf16.safetensors"
+  },
+  {
+   "folder": "vae",
+   "name": "drama3_codec.safetensors"
+  }
+ ],
+ "output": {
+  "node_id": "7",
+  "key": "audio",
+  "extension": ".flac"
+ },
+ "source": "PedroMarinhoDev/ComfyUI-Drama3 live (object_info 21.10.); graph = example_workflows/drama3_voice_clone.json without Qwen3-ASR (no ASR weights installed); loader = artist's NTU_VO_v06b (fp8, in RAM, cache 2 GB, 22 expert layers in VRAM); sampling = pack defaults (temp 1.0, top_p 0.9, top_k 0). Drama 3 has no keep_model_loaded input: ComfyUI's cache holds it until /free.",
+ "policy": {
+  "graph_mutation": "declared_pointers_only",
+  "custom_node_install": "never",
+  "model_download": "never_automatic",
+  "submission_requires_explicit_user_intent": true
+ }
+}

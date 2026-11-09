@@ -1,0 +1,567 @@
+{
+  "schema": "studio.comfy-workflow/1",
+  "id": "minimax-h3-prepend-mctx-v1",
+  "version": 1,
+  "display_name": "MiniMax H3 · Prepend",
+  "provider_id": "comfyui-local",
+  "prompt_policy": "literal",
+  "runtime_compatibility": {
+    "comfyui_versions": [
+      "0.41.0"
+    ],
+    "frontend_versions": [
+      "1.55.17"
+    ],
+    "workflow_templates_versions": [
+      "0.11.86"
+    ],
+    "policy": "schema_verified"
+  },
+  "workflow": {
+    "api_file": "workflow-api.json",
+    "api_sha256": "025f14655e40cb95544b74df5510d221462096163f34c1815908503408979319",
+    "node_count": 19,
+    "source": "fs-obvpm A/B winner (out/fs-obvpm/tools/graphs.py obv_pinned): OBVPM comfyui-obvpm-timeline 0.1.4 (commit 03a4b83) H3LoadMCtx -> H3MCtxPinSpec (39-frame window; extend masked, arriving side both) -> H3MCtxApplyPins (audio feather 8) -> SamplerCustomAdvanced -> H3TrimAndSaveVideoWithMCtx; generator MiniMaxH3ReferenceToVideo without references, ref2va int8, shift 12/3, res_multistep/simple/20; video VAE int8_convrot = the VAE the Suite's own takes decode with (the held window decodes identically on both sides)"
+  },
+  "capabilities": {
+    "modalities": [
+      "video_continuation"
+    ],
+    "continuation": "prepend",
+    "audio": "required_generated",
+    "duration": {
+      "unit": "seconds",
+      "min": 2,
+      "max": 14,
+      "default": 6,
+      "request_type": "integer_seconds",
+      "fps": 24,
+      "effective_frames": {
+        "rule": "av_grid_window_39",
+        "window": 39,
+        "modulus": 51,
+        "minimum_new_frames": 51
+      }
+    },
+    "canvas_rule": "source_sidecar",
+    "media_roles": [
+      {
+        "id": "source",
+        "kind": "take",
+        "max": 1,
+        "sidecar": "required"
+      }
+    ],
+    "pin_modes": {
+      "source": "both"
+    }
+  },
+  "defaults": {
+    "duration_seconds": 6,
+    "steps": 20,
+    "sampler_name": "res_multistep",
+    "scheduler": "simple"
+  },
+  "mutable_json_pointers": [
+    "/8/inputs/prompt",
+    "/8/inputs/width",
+    "/8/inputs/height",
+    "/8/inputs/length",
+    "/9/inputs/value",
+    "/11/inputs/sampler_name",
+    "/12/inputs/steps",
+    "/12/inputs/scheduler",
+    "/40/inputs/clip",
+    "/50/inputs/take_from",
+    "/50/inputs/take_from_frame"
+  ],
+  "fixed_assertions": {
+    "/5/inputs/shift_video": 12.0,
+    "/5/inputs/shift_audio": 3.0,
+    "/8/class_type": "MiniMaxH3ReferenceToVideo",
+    "/19/class_type": "H3TrimAndSaveVideoWithMCtx",
+    "/19/inputs/base_folder": "studio-h3",
+    "/19/inputs/filename_prefix": "Studio_MiniMax_H3_prepend",
+    "/20/class_type": "PreviewAny",
+    "/60/inputs/masked_audio_feather": 8,
+    "/50/inputs/mode": "both",
+    "/50/inputs/window": "39"
+  },
+  "models": {
+    "diffusion_model": {
+      "folder": "diffusion_models",
+      "filename": "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+      "assertion_pointer": "/1/inputs/unet_name"
+    },
+    "text_encoder": {
+      "folder": "text_encoders",
+      "filename": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+      "assertion_pointer": "/2/inputs/clip_name"
+    },
+    "video_vae": {
+      "folder": "vae",
+      "filename": "minimax_h3_video_vae_int8_convrot.safetensors",
+      "assertion_pointer": "/3/inputs/vae_name"
+    },
+    "audio_vae": {
+      "folder": "vae",
+      "filename": "minimax_h3_audio_vae_fp32.safetensors",
+      "assertion_pointer": "/4/inputs/vae_name"
+    }
+  },
+  "required_classes": [
+    "BasicGuider",
+    "BasicScheduler",
+    "CLIPLoader",
+    "H3LoadMCtx",
+    "H3MCtxApplyPins",
+    "H3MCtxPinSpec",
+    "H3TrimAndSaveVideoWithMCtx",
+    "KSamplerSelect",
+    "MiniMaxH3ReferenceToVideo",
+    "MiniMaxH3SigmaShift",
+    "PreviewAny",
+    "PrimitiveInt",
+    "RandomNoise",
+    "SamplerCustomAdvanced",
+    "UNETLoader",
+    "VAEDecode",
+    "VAEDecodeAudio",
+    "VAELoader"
+  ],
+  "schema_fingerprint": {
+    "nodes": {
+      "BasicGuider": {
+        "conditioning": {
+          "type": "CONDITIONING"
+        },
+        "model": {
+          "type": "MODEL"
+        }
+      },
+      "BasicScheduler": {
+        "denoise": {
+          "type": "FLOAT",
+          "covers": [
+            1.0,
+            1.0
+          ]
+        },
+        "model": {
+          "type": "MODEL"
+        },
+        "scheduler": {
+          "type": "COMBO",
+          "options": [
+            "beta",
+            "simple"
+          ]
+        },
+        "steps": {
+          "type": "INT",
+          "covers": [
+            1,
+            100
+          ]
+        }
+      },
+      "CLIPLoader": {
+        "clip_name": {
+          "type": "COMBO"
+        },
+        "device": {
+          "type": "COMBO",
+          "options": [
+            "default"
+          ]
+        },
+        "type": {
+          "type": "COMBO",
+          "options": [
+            "minimax"
+          ]
+        }
+      },
+      "H3LoadMCtx": {
+        "clip": {
+          "type": "COMBO"
+        },
+        "create_pins": {
+          "type": "COMBO",
+          "options": [
+            "none"
+          ]
+        },
+        "pin_window": {
+          "type": "COMBO",
+          "options": [
+            "39"
+          ]
+        }
+      },
+      "H3MCtxApplyPins": {
+        "audio_denoise": {
+          "type": "FLOAT",
+          "covers": [
+            0.0,
+            0.0
+          ]
+        },
+        "audio_vae": {
+          "type": "VAE"
+        },
+        "conditioning": {
+          "type": "CONDITIONING"
+        },
+        "freeze_audio": {
+          "type": "BOOLEAN"
+        },
+        "latent": {
+          "type": "LATENT"
+        },
+        "masked_audio_feather": {
+          "type": "INT",
+          "covers": [
+            8,
+            8
+          ]
+        },
+        "pin_specs": {
+          "type": "OBVPM_H3_PINSPECS"
+        },
+        "snap_window_down_to_available": {
+          "type": "BOOLEAN"
+        },
+        "video_vae": {
+          "type": "VAE"
+        }
+      },
+      "H3MCtxPinSpec": {
+        "audio_window": {
+          "type": "INT",
+          "covers": [
+            0,
+            0
+          ]
+        },
+        "mask_hold": {
+          "type": "FLOAT",
+          "covers": [
+            0.0,
+            0.0
+          ]
+        },
+        "mask_ramp_edge": {
+          "type": "FLOAT",
+          "covers": [
+            0.0,
+            0.0
+          ]
+        },
+        "mask_ramp_frames": {
+          "type": "INT",
+          "covers": [
+            0,
+            0
+          ]
+        },
+        "mctx": {
+          "type": "OBVPM_H3_MCTX"
+        },
+        "mode": {
+          "type": "COMBO",
+          "options": [
+            "both",
+            "masked"
+          ]
+        },
+        "place": {
+          "type": "COMBO",
+          "options": [
+            "after"
+          ]
+        },
+        "place_at_frame": {
+          "type": "INT",
+          "covers": [
+            0,
+            0
+          ]
+        },
+        "take_from": {
+          "type": "COMBO",
+          "options": [
+            "at_frame",
+            "head",
+            "tail"
+          ]
+        },
+        "take_from_frame": {
+          "type": "INT"
+        },
+        "window": {
+          "type": "COMBO",
+          "options": [
+            "39"
+          ]
+        }
+      },
+      "H3TrimAndSaveVideoWithMCtx": {
+        "audio": {
+          "type": "AUDIO"
+        },
+        "base_folder": {
+          "type": "STRING"
+        },
+        "crf": {
+          "type": "INT",
+          "covers": [
+            19,
+            19
+          ]
+        },
+        "filename_prefix": {
+          "type": "STRING"
+        },
+        "images": {
+          "type": "IMAGE"
+        },
+        "metadata": {
+          "type": "STRING"
+        },
+        "pins": {
+          "type": "OBVPM_H3_PINS"
+        },
+        "samples": {
+          "type": "LATENT"
+        },
+        "save_conditioning": {
+          "type": "BOOLEAN"
+        }
+      },
+      "KSamplerSelect": {
+        "sampler_name": {
+          "type": "COMBO",
+          "options": [
+            "er_sde",
+            "euler",
+            "res_multistep"
+          ]
+        }
+      },
+      "MiniMaxH3ReferenceToVideo": {
+        "audio_vae": {
+          "type": "VAE"
+        },
+        "clip": {
+          "type": "CLIP"
+        },
+        "height": {
+          "type": "INT"
+        },
+        "length": {
+          "type": "INT",
+          "covers": [
+            90,
+            396
+          ]
+        },
+        "prompt": {
+          "type": "STRING"
+        },
+        "ref_image_size": {
+          "type": "COMBO",
+          "options": [
+            "match"
+          ]
+        },
+        "vae": {
+          "type": "VAE"
+        },
+        "width": {
+          "type": "INT"
+        }
+      },
+      "MiniMaxH3SigmaShift": {
+        "model": {
+          "type": "MODEL"
+        },
+        "shift_audio": {
+          "type": "FLOAT",
+          "covers": [
+            3.0,
+            3.0
+          ]
+        },
+        "shift_video": {
+          "type": "FLOAT",
+          "covers": [
+            12.0,
+            12.0
+          ]
+        }
+      },
+      "PreviewAny": {
+        "source": {
+          "type": "*"
+        }
+      },
+      "PrimitiveInt": {
+        "value": {
+          "type": "INT"
+        }
+      },
+      "RandomNoise": {
+        "noise_seed": {
+          "type": "INT"
+        }
+      },
+      "SamplerCustomAdvanced": {
+        "guider": {
+          "type": "GUIDER"
+        },
+        "latent_image": {
+          "type": "LATENT"
+        },
+        "noise": {
+          "type": "NOISE"
+        },
+        "sampler": {
+          "type": "SAMPLER"
+        },
+        "sigmas": {
+          "type": "SIGMAS"
+        }
+      },
+      "UNETLoader": {
+        "unet_name": {
+          "type": "COMBO"
+        },
+        "weight_dtype": {
+          "type": "COMBO",
+          "options": [
+            "default"
+          ]
+        }
+      },
+      "VAEDecode": {
+        "samples": {
+          "type": "LATENT"
+        },
+        "vae": {
+          "type": "VAE"
+        }
+      },
+      "VAEDecodeAudio": {
+        "samples": {
+          "type": "LATENT"
+        },
+        "vae": {
+          "type": "VAE"
+        }
+      },
+      "VAELoader": {
+        "vae_name": {
+          "type": "COMBO"
+        }
+      }
+    }
+  },
+  "live_schema": [
+    {
+      "class_type": "H3MCtxPinSpec",
+      "input": "mode",
+      "kind": "combo",
+      "includes": [
+        "masked",
+        "both"
+      ]
+    },
+    {
+      "class_type": "H3MCtxPinSpec",
+      "input": "take_from",
+      "kind": "combo",
+      "includes": [
+        "head",
+        "tail",
+        "at_frame"
+      ]
+    },
+    {
+      "class_type": "H3MCtxPinSpec",
+      "input": "window",
+      "kind": "combo",
+      "includes": [
+        "39"
+      ]
+    },
+    {
+      "class_type": "H3MCtxApplyPins",
+      "input": "pin_specs",
+      "kind": "present"
+    },
+    {
+      "class_type": "H3TrimAndSaveVideoWithMCtx",
+      "input": "pins",
+      "kind": "present"
+    },
+    {
+      "class_type": "MiniMaxH3ReferenceToVideo",
+      "input": "length",
+      "kind": "range",
+      "covers": [
+        90,
+        396
+      ]
+    },
+    {
+      "class_type": "KSamplerSelect",
+      "input": "sampler_name",
+      "kind": "combo",
+      "includes": [
+        "res_multistep",
+        "er_sde",
+        "euler"
+      ]
+    },
+    {
+      "class_type": "BasicScheduler",
+      "input": "scheduler",
+      "kind": "combo",
+      "includes": [
+        "simple",
+        "beta"
+      ]
+    },
+    {
+      "class_type": "BasicScheduler",
+      "input": "steps",
+      "kind": "range",
+      "covers": [
+        1,
+        100
+      ]
+    }
+  ],
+  "output": {
+    "node_id": "20",
+    "accepted_keys": [
+      "text"
+    ],
+    "required_folder_type": "output",
+    "extension": ".mp4",
+    "mime": "video/mp4",
+    "retrieve_via": "/view",
+    "path_text_folder": "studio-h3",
+    "sidecar_suffix": ".mctx.safetensors"
+  },
+  "policy": {
+    "graph_mutation": "declared_pointers_only",
+    "custom_node_install": "never",
+    "model_download": "never_automatic",
+    "submission_requires_explicit_user_intent": true,
+    "overwrite_comfy_output": false,
+    "media_delivery": "stage_take_pair_to_output_then_remove",
+    "comfy_input_folder": "never"
+  }
+}

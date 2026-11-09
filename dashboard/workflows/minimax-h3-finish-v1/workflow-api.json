@@ -1,0 +1,156 @@
+{
+  "15": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "43",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    }
+  },
+  "16": {
+    "class_type": "VAEDecodeAudio",
+    "inputs": {
+      "samples": [
+        "40",
+        2
+      ],
+      "vae": [
+        "4",
+        0
+      ]
+    }
+  },
+  "18": {
+    "class_type": "CreateVideo",
+    "inputs": {
+      "images": [
+        "51",
+        0
+      ],
+      "audio": [
+        "45",
+        0
+      ],
+      "fps": 48.0,
+      "bit_depth": 8
+    }
+  },
+  "19": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "video": [
+        "18",
+        0
+      ],
+      "filename_prefix": "video/Studio_MiniMax_H3_finish",
+      "format": "auto",
+      "codec": "auto"
+    }
+  },
+  "3": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "minimax_h3_video_vae_int8_convrot.safetensors"
+    }
+  },
+  "4": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "minimax_h3_audio_vae_fp32.safetensors"
+    }
+  },
+  "40": {
+    "class_type": "H3LoadMCtx",
+    "inputs": {
+      "clip": "__STUDIO_SOURCE__",
+      "create_pins": "none",
+      "pin_window": "39"
+    }
+  },
+  "41": {
+    "class_type": "LTXVSeparateAVLatent",
+    "inputs": {
+      "av_latent": [
+        "40",
+        2
+      ]
+    }
+  },
+  "42": {
+    "class_type": "MinimaxH3LatentUpscaler3D",
+    "inputs": {
+      "latent": [
+        "41",
+        0
+      ],
+      "model_name": "minimax_h3_latent_upscaler_3d_fp16.safetensors",
+      "mode": "megapixels",
+      "mode.megapixels": 1.5,
+      "align": 32,
+      "enable_temporal_chunking": true,
+      "force_unload": false,
+      "device": "cuda",
+      "precision": "fp16"
+    }
+  },
+  "43": {
+    "class_type": "LTXVConcatAVLatent",
+    "inputs": {
+      "video_latent": [
+        "42",
+        0
+      ],
+      "audio_latent": [
+        "41",
+        1
+      ]
+    }
+  },
+  "44": {
+    "class_type": "ImageFromBatch",
+    "inputs": {
+      "image": [
+        "15",
+        0
+      ],
+      "batch_index": 0,
+      "length": 124
+    }
+  },
+  "45": {
+    "class_type": "TrimAudioDuration",
+    "inputs": {
+      "audio": [
+        "16",
+        0
+      ],
+      "start_index": 0.0,
+      "duration": 5.1667
+    }
+  },
+  "50": {
+    "class_type": "FrameInterpolationModelLoader",
+    "inputs": {
+      "model_name": "rife_v4.26.safetensors"
+    }
+  },
+  "51": {
+    "class_type": "FrameInterpolate",
+    "inputs": {
+      "interp_model": [
+        "50",
+        0
+      ],
+      "images": [
+        "44",
+        0
+      ],
+      "multiplier": 2
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+ "1": {
+  "class_type": "LoadAudio",
+  "inputs": {
+   "audio": "__SOURCE__ [temp]"
+  },
+  "_meta": {
+   "title": "Song"
+  }
+ },
+ "2": {
+  "class_type": "MelBandRoFormerModelLoader",
+  "inputs": {
+   "model_name": "MelBandRoformer_fp16.safetensors"
+  },
+  "_meta": {
+   "title": "Mel-Band RoFormer"
+  }
+ },
+ "3": {
+  "class_type": "MelBandRoFormerSampler",
+  "inputs": {
+   "model": [
+    "2",
+    0
+   ],
+   "audio": [
+    "1",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "Separate"
+  }
+ },
+ "4": {
+  "class_type": "SaveAudio",
+  "inputs": {
+   "audio": [
+    "3",
+    0
+   ],
+   "filename_prefix": "fs-stems/vocals"
+  },
+  "_meta": {
+   "title": "Vocals"
+  }
+ },
+ "5": {
+  "class_type": "SaveAudio",
+  "inputs": {
+   "audio": [
+    "3",
+    1
+   ],
+   "filename_prefix": "fs-stems/rest"
+  },
+  "_meta": {
+   "title": "Rest"
+  }
+ }
+}

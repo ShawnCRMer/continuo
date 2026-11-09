@@ -1,0 +1,127 @@
+{
+ "schema": "studio.voice-workflow/1",
+ "id": "omnivoice-clone-v1",
+ "version": 1,
+ "kind": "voice",
+ "provider_id": "comfyui-local",
+ "api_file": "workflow-api.json",
+ "api_sha256": "36d4027cea89b5f068efbb30e10a04fa494afa42d641cefd88a124cd030f6b64",
+ "engine": "omnivoice",
+ "engine_label": "OmniVoice",
+ "operation": "speak_clone",
+ "label": "OmniVoice · Clip",
+ "voice_from": "clip",
+ "cue_dialect": "omnivoice_bracket",
+ "direction": "cues_only",
+ "sample_rate": 24000,
+ "text": {
+  "pointer": "/2/inputs/text"
+ },
+ "words": {
+  "pointer": "/2/inputs/ref_text",
+  "required": false
+ },
+ "reference": {
+  "pointer": "/1/inputs/audio"
+ },
+ "description": null,
+ "parameters": {
+  "seed": {
+   "pointer": "/2/inputs/seed"
+  },
+  "speed": {
+   "pointer": "/2/inputs/speed"
+  },
+  "duration": {
+   "pointer": "/2/inputs/duration"
+  },
+  "guidance_scale": {
+   "pointer": "/2/inputs/guidance_scale"
+  },
+  "steps": {
+   "pointer": "/2/inputs/steps"
+  }
+ },
+ "controls": [
+  {
+   "id": "seed",
+   "label": "Seed",
+   "section": "delivery",
+   "kind": "integer",
+   "default": 4711,
+   "min": 1,
+   "max": 2147483647,
+   "step": 1
+  },
+  {
+   "id": "speed",
+   "label": "Speed",
+   "section": "delivery",
+   "kind": "number",
+   "default": 0.9,
+   "min": 0.5,
+   "max": 2.0,
+   "step": 0.05
+  },
+  {
+   "id": "duration",
+   "label": "Length (s, 0 = free)",
+   "section": "delivery",
+   "kind": "number",
+   "default": 0.0,
+   "min": 0.0,
+   "max": 60.0,
+   "step": 0.5
+  },
+  {
+   "id": "guidance_scale",
+   "label": "Guidance",
+   "section": "performance",
+   "kind": "number",
+   "default": 2.0,
+   "min": 0.0,
+   "max": 10.0,
+   "step": 0.1
+  },
+  {
+   "id": "steps",
+   "label": "Steps",
+   "section": "performance",
+   "kind": "integer",
+   "default": 64,
+   "min": 4,
+   "max": 64,
+   "step": 1
+  }
+ ],
+ "fixed": {
+  "/2/inputs/keep_model_loaded": false,
+  "/2/inputs/model": "OmniVoice",
+  "/2/inputs/denoise": true,
+  "/2/class_type": "OmniVoiceVoiceCloneTTS",
+  "/3/class_type": "SaveAudio"
+ },
+ "required_classes": [
+  "LoadAudio",
+  "OmniVoiceVoiceCloneTTS",
+  "SaveAudio"
+ ],
+ "models": [
+  {
+   "folder": "omnivoice",
+   "name": "OmniVoice/model.safetensors"
+  }
+ ],
+ "output": {
+  "node_id": "3",
+  "key": "audio",
+  "extension": ".flac"
+ },
+ "source": "Saganaki22/ComfyUI-OmniVoice-TTS 0.4.7 live (object_info 21.10.); settings = artist's omnivoice-hoerspiel-pipeline (steps 64, guidance 2.0, speed 0.9); keep_model_loaded false (fs-tf5 RESULT item 8: true keeps ~6 GB RAM per take)",
+ "policy": {
+  "graph_mutation": "declared_pointers_only",
+  "custom_node_install": "never",
+  "model_download": "never_automatic",
+  "submission_requires_explicit_user_intent": true
+ }
+}

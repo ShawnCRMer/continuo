@@ -1,0 +1,57 @@
+{
+ "schema": "studio.image-edit-capability/1",
+ "id": "krea2-edit-turbo-v1",
+ "family": "krea2",
+ "variant": "general-edit-v2",
+ "preset": "turbo",
+ "provider_id": "comfyui-local",
+ "source": {
+  "path": "workflows/krea2-general-edit-v2/workflow-api.json",
+  "bytes": 2227,
+  "sha256": "10f67b6dffdedcce0b1cedbfe4a298c37952917c91b41b271103acc526b2857d",
+  "note": "The Suite's pinned Krea 2 General Edit V2 graph (comfyui-krea2edit 2.0.0; settings from huggingface.co/conradlocke/krea2-identity-edit, General Edit V2 card: 8 steps, CFG 1, ref_boost 4, grounding 768) reduced to ONE picture (the Suite's crop): the second loader 6 and every *_b input pruned, the prompt echo 90 dropped. UNET = Krea 2 Turbo: the base for Restyle and Relight, where Kroma left the photo unchanged in the study."
+ },
+ "mutable_json_pointers": {
+  "image": "/5/inputs/image",
+  "instruction": "/2/inputs/value",
+  "seed": "/27/inputs/seed"
+ },
+ "fixed_assertions": {
+  "/10/inputs/unet_name": "krea2_turbo_int8_convrot.safetensors",
+  "/11/inputs/clip_name": "qwen3vl_4b_fp8_scaled.safetensors",
+  "/11/inputs/type": "krea2",
+  "/12/inputs/vae_name": "qwen_image_vae.safetensors",
+  "/13/inputs/lora_name": "krea2\\krea2_general_edit_v2.safetensors",
+  "/13/inputs/strength_model": 1.0,
+  "/24/inputs/ref_boost": 4.0,
+  "/24/inputs/ref_position": "aligned (trained)",
+  "/24/inputs/fit_mode": "fit",
+  "/25/inputs/grounding_px": 768,
+  "/26/inputs/grounding_px": 768,
+  "/26/inputs/prompt": "",
+  "/27/inputs/steps": 8,
+  "/27/inputs/cfg": 1.0,
+  "/27/inputs/sampler_name": "euler",
+  "/27/inputs/scheduler": "simple",
+  "/99/class_type": "PreviewImage"
+ },
+ "outputs": {
+  "image": {
+   "node_id": "99",
+   "class_type": "PreviewImage",
+   "key": "images",
+   "type": "temp"
+  }
+ },
+ "size_rule": {
+  "resolution": 1024,
+  "multiple": 16,
+  "rule": "ImageScaleToTotalPixels 1.0 MP on /16 = the Suite's work size of the crop (sent at that size, no second resample)"
+ },
+ "live_preview": null,
+ "measured": "w24-krea render study 2026-11-07 (docs/studies/w24-krea-RESEARCH.md, 124 cells on the Harbour kf0 and Sample shot-03, seeds 7 and 111).",
+ "workflow": {
+  "api_sha256": "68c9e62705b0b3018d7dfd9e91ebc09013df24cb8fa7044a99012bf8cbe6ffe3",
+  "node_count": 16
+ }
+}

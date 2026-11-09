@@ -1,0 +1,4206 @@
+{
+  "schema": "studio.model-catalog/1",
+  "families": [
+    {
+      "id": "krea2",
+      "label": "Krea 2",
+      "kind": "image",
+      "prompt_grammar": "krea_prose",
+      "variants": [
+        {
+          "id": "turbo",
+          "label": "Turbo",
+          "operations": [
+            "create"
+          ],
+          "prompt_grammar": "krea_prose",
+          "inputs": [],
+          "files": {
+            "diffusion_model": {
+              "folder": "diffusion_models",
+              "names": [
+                "krea2_turbo_int8_convrot.safetensors"
+              ],
+              "required": true
+            },
+            "text_encoder": {
+              "folder": "text_encoders",
+              "names": [
+                "qwen3vl_4b_fp8_scaled.safetensors"
+              ],
+              "required": true
+            },
+            "vae": {
+              "folder": "vae",
+              "names": [
+                "qwen_image_vae.safetensors"
+              ],
+              "required": true
+            }
+          },
+          "required_classes": [
+            "UNETLoader",
+            "CLIPLoader",
+            "VAELoader",
+            "CLIPTextEncode",
+            "ConditioningZeroOut",
+            "EmptyLatentImage",
+            "KSampler",
+            "VAEDecode",
+            "PreviewImage",
+            "LoraLoaderModelOnly"
+          ],
+          "presets": [
+            {
+              "id": "turbo",
+              "label": "Turbo",
+              "values": {
+                "steps": 8,
+                "cfg": 1.0,
+                "sampler": "euler",
+                "scheduler": "simple",
+                "denoise": 1.0
+              },
+              "source": "Inventory 1 Krea 2 Turbo house default (CE05 notes 01/02); pinned workflows/krea2-turbo-t2i-create graph node 38"
+            },
+            {
+              "id": "official",
+              "label": "Official Turbo",
+              "values": {
+                "cfg": 0.0,
+                "mu": 1.15
+              },
+              "source": "Inventory 1 Krea 2 Turbo: official Turbo CFG 0, mu 1.15 (ref-krea2.md 1-3)"
+            }
+          ],
+          "lora_max": 32,
+          "resolution": {
+            "min_px": 16,
+            "max_px": 4096,
+            "multiple": 8,
+            "default_megapixels": 1.0
+          },
+          "stages": [],
+          "notes": [
+            "Turbo and Raw are presets over one Suite target; the model file follows the profile."
+          ],
+          "suite_targets": [
+            "krea2-turbo-t2i-create"
+          ],
+          "source": "Inventory 1 + 1a; workflows/krea2-turbo-t2i-create/manifest.json; krea2_render_spec.py"
+        },
+        {
+          "id": "raw",
+          "label": "Raw",
+          "operations": [
+            "create"
+          ],
+          "prompt_grammar": "krea_prose",
+          "inputs": [],
+          "files": {
+            "diffusion_model": {
+              "folder": "diffusion_models",
+              "names": [
+                "krea2_raw_int8_convrot.safetensors"
+              ],
+              "required": true
+            },
+            "text_encoder": {
+              "folder": "text_encoders",
+              "names": [
+                "qwen3vl_4b_fp8_scaled.safetensors"
+              ],
+              "required": true
+            },
+            "vae": {
+              "folder": "vae",
+              "names": [
+                "qwen_image_vae.safetensors"
+              ],
+              "required": true
+            }
+          },
+          "required_classes": [
+            "UNETLoader",
+            "CLIPLoader",
+            "VAELoader",
+            "CLIPTextEncode",
+            "ConditioningZeroOut",
+            "EmptyLatentImage",
+            "KSampler",
+            "VAEDecode",
+            "PreviewImage",
+            "LoraLoaderModelOnly"
+          ],
+          "presets": [
+            {
+              "id": "raw",
+              "label": "Raw",
+              "values": {
+                "steps": 52,
+                "cfg": 3.5
+              },
+              "source": "Inventory 1 Krea 2 Raw: official ~52 steps, CFG 3.5 (ref-krea2.md 1)"
+            }
+          ],
+          "lora_max": 32,
+          "resolution": {
+            "min_px": 16,
+            "max_px": 4096,
+            "multiple": 8,
+            "default_megapixels": 1.0
+          },
+          "stages": [],
+          "notes": [
+            "Suite Raw graph is derived from the Turbo graph; no canonical Raw T2I workflow exists."
+          ],
+          "suite_targets": [
+            "krea2-turbo-t2i-create"
+          ],
+          "source": "Inventory 1 Krea 2 Raw; workflows/krea2-raw-t2i-create/manifest.json"
+        },
+        {
+          "id": "identity_edit_v2",
+          "label": "Identity Edit V2",
+          "operations": [
+            "edit",
+            "multi_reference"
+          ],
+          "prompt_grammar": "krea_edit_instruction",
+          "inputs": [
+            {
+              "id": "image_1",
+              "kind": "image",
+              "role": "source",
+              "min": 1,
+              "max": 1,
+              "notes": "Person photo; in two-image mode the scene."
+            },
+            {
+              "id": "image_2",
+              "kind": "image",
+              "role": "subject",
+              "min": 0,
+              "max": 1,
+              "notes": "Optional person for add-to-scene (scene first, person second)."
+            }
+          ],
+          "files": {
+            "diffusion_model": {
+              "folder": "diffusion_models",
+              "names": [
+                "krea2_turbo_int8_convrot.safetensors",
+                "krea2_raw_int8_convrot.safetensors"
+              ],
+              "required": true
+            },
+            "text_encoder": {
+              "folder": "text_encoders",
+              "names": [
+                "qwen3vl_4b_fp8_scaled.safetensors"
+              ],
+              "required": true
+            },
+            "vae": {
+              "folder": "vae",
+              "names": [
+                "qwen_image_vae.safetensors"
+              ],
+              "required": true
+            },
+            "lora": {
+              "folder": "loras",
+              "names": [
+                "krea2/krea2_identity_edit_v2.safetensors"
+              ],
+              "required": true
+            }
+          },
+          "required_classes": [
+            "UNETLoader",
+            "CLIPLoader",
+            "VAELoader",
+            "LoraLoaderModelOnly",
+            "LoadImage",
+            "ImageScaleToTotalPixels",
+            "GetImageSize",
+            "EmptySD3LatentImage",
+            "VAEEncode",
+            "Krea2EditModelPatch",
+            "Krea2EditGroundedEncode",
+            "KSampler",
+            "VAEDecode"
+          ],
+          "presets": [
+            {
+              "id": "restage",
+              "label": "Restage one person",
+              "values": {
+                "steps": 8,
+                "cfg": 1.0,
+                "sampler": "euler",
+                "scheduler": "simple",
+                "ref_boost": 2.0,
+                "grounding_px": 768
+              },
+              "source": "conradlocke/krea2-identity-edit V2 model card: restage one person, Turbo 8 / CFG 1 / ref_boost 2 / grounding 768, beside or aligned"
+            },
+            {
+              "id": "add_to_scene",
+              "label": "Add person to scene",
+              "values": {
+                "steps": 8,
+                "cfg": 1.0,
+                "ref_boost": 2.5,
+                "grounding_px": 768
+              },
+              "source": "conradlocke/krea2-identity-edit V2 model card: add a person, person ref_boost 2-3, scene 1, scene aligned + person beside"
+            },
+            {
+              "id": "face_locked",
+              "label": "Face-locked portrait",
+              "values": {
+                "steps": 8,
+                "cfg": 1.0,
+                "ref_boost": 1.5,
+                "grounding_px": 768
+              },
+              "source": "conradlocke/krea2-identity-edit V2 model card: face-locked portraits, ref_boost 1-2, aligned"
+            }
+          ],
+          "lora_max": null,
+          "resolution": {
+            "min_px": 384,
+            "max_px": null,
+            "multiple": 16,
+            "default_megapixels": 1.0
+          },
+          "stages": [],
+          "notes": [
+            "Use one edit LoRA per task; both at 1.0 give noise (card: about 0.6 each if combined).",
+            "Say how much of the person is visible and name the outfit concretely; at most 2 MP."
+          ],
+          "suite_targets": [],
+          "workflow": {
+            "manifest_sha256": "abda89a0a652d656cc35e5b2c03f15e85aa6b70032b340a1ecbdbfa04a754706",
+            "api_sha256": "65ab2143ceda2c63eb62e5877c6c462b7908aa6a62a6857b473c0a24a8c04af8",
+            "descriptor": {
+              "descriptor_version": 1,
+              "target_id": "krea2-identity-edit-v2",
+              "request_schema": "studio.image-workflow-request/1",
+              "availability": "backend_only",
+              "reason": "Krea 2 Identity Edit V2: one person photo into any scene, pose, outfit, light. Card: Turbo 8 steps, CFG 1, ref_boost 2, grounding 768; two images = scene (1) + person (2), scene aligned + person beside.",
+              "controls": [
+                {
+                  "id": "model",
+                  "label": "Model",
+                  "kind": "select",
+                  "default": "krea2_turbo_int8_convrot.safetensors",
+                  "options": [
+                    "krea2_turbo_int8_convrot.safetensors",
+                    "krea2_raw_int8_convrot.safetensors"
+                  ]
+                },
+                {
+                  "id": "lora_strength",
+                  "label": "LoRA strength",
+                  "kind": "number",
+                  "default": 1.0,
+                  "min": 0.0,
+                  "max": 2.0,
+                  "step": 0.05
+                },
+                {
+                  "id": "seed",
+                  "label": "Seed",
+                  "kind": "integer",
+                  "default": 0,
+                  "min": 0,
+                  "max": 18446744073709551615
+                },
+                {
+                  "id": "steps",
+                  "label": "Steps",
+                  "kind": "integer",
+                  "default": 8,
+                  "min": 1,
+                  "max": 10000
+                },
+                {
+                  "id": "cfg",
+                  "label": "Guidance",
+                  "kind": "number",
+                  "default": 1.0,
+                  "min": 0.0,
+                  "max": 100.0,
+                  "step": 0.1
+                },
+                {
+                  "id": "sampler",
+                  "label": "Sampler",
+                  "kind": "select",
+                  "default": "euler",
+                  "options": [
+                    "euler",
+                    "euler_cfg_pp",
+                    "euler_ancestral",
+                    "euler_ancestral_cfg_pp",
+                    "heun",
+                    "heunpp2",
+                    "exp_heun_2_x0",
+                    "exp_heun_2_x0_sde",
+                    "dpm_2",
+                    "dpm_2_ancestral",
+                    "lms",
+                    "dpm_fast",
+                    "dpm_adaptive",
+                    "dpmpp_2s_ancestral",
+                    "dpmpp_2s_ancestral_cfg_pp",
+                    "dpmpp_sde",
+                    "dpmpp_sde_gpu",
+                    "dpmpp_2m",
+                    "dpmpp_2m_cfg_pp",
+                    "dpmpp_2m_sde",
+                    "dpmpp_2m_sde_gpu",
+                    "dpmpp_2m_sde_heun",
+                    "dpmpp_2m_sde_heun_gpu",
+                    "dpmpp_3m_sde",
+                    "dpmpp_3m_sde_gpu",
+                    "ddpm",
+                    "lcm",
+                    "ipndm",
+                    "ipndm_v",
+                    "deis",
+                    "cfgpp_ud10_ab",
+                    "res_multistep",
+                    "res_multistep_cfg_pp",
+                    "res_multistep_ancestral",
+                    "res_multistep_ancestral_cfg_pp",
+                    "gradient_estimation",
+                    "gradient_estimation_cfg_pp",
+                    "er_sde",
+                    "seeds_2",
+                    "seeds_3",
+                    "sa_solver",
+                    "sa_solver_pece",
+                    "ddim",
+                    "uni_pc",
+                    "uni_pc_bh2",
+                    "legacy_rk",
+                    "rk",
+                    "rk_beta",
+                    "deis_3m_ode",
+                    "deis_2m_ode",
+                    "deis_3m",
+                    "deis_2m",
+                    "res_6s_ode",
+                    "res_5s_ode",
+                    "res_3s_ode",
+                    "res_2s_ode",
+                    "res_3m_ode",
+                    "res_2m_ode",
+                    "res_6s",
+                    "res_5s",
+                    "res_3s",
+                    "res_2s",
+                    "res_3m",
+                    "res_2m"
+                  ]
+                },
+                {
+                  "id": "scheduler",
+                  "label": "Schedule",
+                  "kind": "select",
+                  "default": "simple",
+                  "options": [
+                    "simple",
+                    "sgm_uniform",
+                    "karras",
+                    "exponential",
+                    "ddim_uniform",
+                    "beta",
+                    "normal",
+                    "linear_quadratic",
+                    "kl_optimal",
+                    "bong_tangent",
+                    "beta57"
+                  ]
+                },
+                {
+                  "id": "ref_boost",
+                  "label": "Reference boost (last image)",
+                  "kind": "number",
+                  "default": 2.0,
+                  "min": 0.0,
+                  "max": 20.0,
+                  "step": 0.1
+                },
+                {
+                  "id": "ref_boost_a",
+                  "label": "Scene boost (image 1, two images)",
+                  "kind": "number",
+                  "default": 1.0,
+                  "min": 0.0,
+                  "max": 20.0,
+                  "step": 0.1
+                },
+                {
+                  "id": "grounding_px",
+                  "label": "Grounding size",
+                  "kind": "integer",
+                  "default": 768,
+                  "min": 0,
+                  "max": 4096,
+                  "step": 64
+                },
+                {
+                  "id": "ref_position",
+                  "label": "Placement (last image)",
+                  "kind": "select",
+                  "default": "beside (right of target)",
+                  "options": [
+                    "aligned (trained)",
+                    "beside (right of target)",
+                    "bag of features"
+                  ]
+                },
+                {
+                  "id": "ref_position_a",
+                  "label": "Placement (image 1, two images)",
+                  "kind": "select",
+                  "default": "aligned (trained)",
+                  "options": [
+                    "aligned (trained)",
+                    "beside (right of target)",
+                    "bag of features"
+                  ]
+                },
+                {
+                  "id": "megapixels",
+                  "label": "Megapixels",
+                  "kind": "number",
+                  "default": 1.0,
+                  "min": 0.1,
+                  "max": 2.0,
+                  "step": 0.1
+                }
+              ],
+              "media_roles": [
+                {
+                  "id": "image_1",
+                  "label": "Image 1 · person photo, or scene in two-image mode",
+                  "kind": "image",
+                  "min": 1,
+                  "max": 1,
+                  "roles": [
+                    "target"
+                  ]
+                },
+                {
+                  "id": "image_2",
+                  "label": "Image 2 · person (optional)",
+                  "kind": "image",
+                  "min": 0,
+                  "max": 1,
+                  "roles": [
+                    "identity"
+                  ]
+                }
+              ],
+              "capabilities": {
+                "create": false,
+                "edit": true,
+                "multi_reference": true,
+                "native_mask": false,
+                "prompt_enhancer": false,
+                "effective_prompt": false
+              },
+              "output": {
+                "kind": "image",
+                "format": "png",
+                "size_policy": "first_reference"
+              }
+            }
+          },
+          "source": "conradlocke/krea2-identity-edit V2 model card; comfyui-krea2edit 2.0.0; CE05 04 KREA EDIT wiring; workflows/krea2-identity-edit-v2"
+        },
+        {
+          "id": "general_edit_v2",
+          "label": "General Edit V2",
+          "operations": [
+            "edit",
+            "multi_reference"
+          ],
+          "prompt_grammar": "krea_edit_instruction",
+          "inputs": [
+            {
+              "id": "image_1",
+              "kind": "image",
+              "role": "source",
+              "min": 1,
+              "max": 1,
+              "notes": "Picture to edit."
+            },
+            {
+              "id": "image_2",
+              "kind": "image",
+              "role": "subject",
+              "min": 0,
+              "max": 1,
+              "notes": "Optional second reference."
+            }
+          ],
+          "files": {
+            "diffusion_model": {
+              "folder": "diffusion_models",
+              "names": [
+                "krea2_turbo_int8_convrot.safetensors",
+                "krea2_raw_int8_convrot.safetensors"
+              ],
+              "required": true
+            },
+            "text_encoder": {
+              "folder": "text_encoders",
+              "names": [
+                "qwen3vl_4b_fp8_scaled.safetensors"
+              ],
+              "required": true
+            },
+            "vae": {
+              "folder": "vae",
+              "names": [
+                "qwen_image_vae.safetensors"
+              ],
+              "required": true
+            },
+            "lora": {
+              "folder": "loras",
+              "names": [
+                "krea2/krea2_general_edit_v2.safetensors"
+              ],
+              "required": true
+            }
+          },
+          "required_classes": [
+            "UNETLoader",
+            "CLIPLoader",
+            "VAELoader",
+            "LoraLoaderModelOnly",
+            "LoadImage",
+            "ImageScaleToTotalPixels",
+            "GetImageSize",
+            "EmptySD3LatentImage",
+            "VAEEncode",
+            "Krea2EditModelPatch",
+            "Krea2EditGroundedEncode",
+            "KSampler",
+            "VAEDecode"
+          ],
+          "presets": [
+            {
+              "id": "edit",
+              "label": "Most edits",
+              "values": {
+                "steps": 8,
+                "cfg": 1.0,
+                "sampler": "euler",
+                "scheduler": "simple",
+                "ref_boost": 4.0,
+                "grounding_px": 768
+              },
+              "source": "conradlocke/krea2-identity-edit V2 model card: most edits, Turbo 8 / CFG 1 / ref_boost 4 / grounding 768"
+            },
+            {
+              "id": "removal_raw",
+              "label": "Removals (Raw)",
+              "values": {
+                "steps": 20,
+                "cfg": 3.0,
+                "ref_boost": 4.0,
+                "grounding_px": 768
+              },
+              "source": "conradlocke/krea2-identity-edit V2 model card: removals / large deletions, Raw 20 / CFG 3, negative grounded (empty prompt + same image)"
+            }
+          ],
+          "lora_max": null,
+          "resolution": {
+            "min_px": 384,
+            "max_px": null,
+            "multiple": 16,
+            "default_megapixels": 1.0
+          },
+          "stages": [],
+          "notes": [
+            "Instruction editing: remove, recolor, relight, backgrounds, sign text, outfits, restyle, flat lays.",
+            "For removals pick the Raw model, 20 steps, CFG 3."
+          ],
+          "suite_targets": [],
+          "workflow": {
+            "manifest_sha256": "c48240ca0865fb3e170e0d6b9871f3b50d8c496f58466d0094bbc71b05562e2d",
+            "api_sha256": "10f67b6dffdedcce0b1cedbfe4a298c37952917c91b41b271103acc526b2857d",
+            "descriptor": {
+              "descriptor_version": 1,
+              "target_id": "krea2-general-edit-v2",
+              "request_schema": "studio.image-workflow-request/1",
+              "availability": "backend_only",
+              "reason": "Krea 2 General Edit V2: instruction editing (remove, recolor, relight, backgrounds, text, outfits, restyle). Card: Turbo 8 steps, CFG 1, ref_boost 4, grounding 768; removals: Raw, 20 steps, CFG 3.",
+              "controls": [
+                {
+                  "id": "model",
+                  "label": "Model",
+                  "kind": "select",
+                  "default": "krea2_turbo_int8_convrot.safetensors",
+                  "options": [
+                    "krea2_turbo_int8_convrot.safetensors",
+                    "krea2_raw_int8_convrot.safetensors"
+                  ]
+                },
+                {
+                  "id": "lora_strength",
+                  "label": "LoRA strength",
+                  "kind": "number",
+                  "default": 1.0,
+                  "min": 0.0,
+                  "max": 2.0,
+                  "step": 0.05
+                },
+                {
+                  "id": "seed",
+                  "label": "Seed",
+                  "kind": "integer",
+                  "default": 0,
+                  "min": 0,
+                  "max": 18446744073709551615
+                },
+                {
+                  "id": "steps",
+                  "label": "Steps",
+                  "kind": "integer",
+                  "default": 8,
+                  "min": 1,
+                  "max": 10000
+                },
+                {
+                  "id": "cfg",
+                  "label": "Guidance",
+                  "kind": "number",
+                  "default": 1.0,
+                  "min": 0.0,
+                  "max": 100.0,
+                  "step": 0.1
+                },
+                {
+                  "id": "sampler",
+                  "label": "Sampler",
+                  "kind": "select",
+                  "default": "euler",
+                  "options": [
+                    "euler",
+                    "euler_cfg_pp",
+                    "euler_ancestral",
+                    "euler_ancestral_cfg_pp",
+                    "heun",
+                    "heunpp2",
+                    "exp_heun_2_x0",
+                    "exp_heun_2_x0_sde",
+                    "dpm_2",
+                    "dpm_2_ancestral",
+                    "lms",
+                    "dpm_fast",
+                    "dpm_adaptive",
+                    "dpmpp_2s_ancestral",
+                    "dpmpp_2s_ancestral_cfg_pp",
+                    "dpmpp_sde",
+                    "dpmpp_sde_gpu",
+                    "dpmpp_2m",
+                    "dpmpp_2m_cfg_pp",
+                    "dpmpp_2m_sde",
+                    "dpmpp_2m_sde_gpu",
+                    "dpmpp_2m_sde_heun",
+                    "dpmpp_2m_sde_heun_gpu",
+                    "dpmpp_3m_sde",
+                    "dpmpp_3m_sde_gpu",
+                    "ddpm",
+                    "lcm",
+                    "ipndm",
+                    "ipndm_v",
+                    "deis",
+                    "cfgpp_ud10_ab",
+                    "res_multistep",
+                    "res_multistep_cfg_pp",
+                    "res_multistep_ancestral",
+                    "res_multistep_ancestral_cfg_pp",
+                    "gradient_estimation",
+                    "gradient_estimation_cfg_pp",
+                    "er_sde",
+                    "seeds_2",
+                    "seeds_3",
+                    "sa_solver",
+                    "sa_solver_pece",
+                    "ddim",
+                    "uni_pc",
+                    "uni_pc_bh2",
+                    "legacy_rk",
+                    "rk",
+                    "rk_beta",
+                    "deis_3m_ode",
+                    "deis_2m_ode",
+                    "deis_3m",
+                    "deis_2m",
+                    "res_6s_ode",
+                    "res_5s_ode",
+                    "res_3s_ode",
+                    "res_2s_ode",
+                    "res_3m_ode",
+                    "res_2m_ode",
+                    "res_6s",
+                    "res_5s",
+                    "res_3s",
+                    "res_2s",
+                    "res_3m",
+                    "res_2m"
+                  ]
+                },
+                {
+                  "id": "scheduler",
+                  "label": "Schedule",
+                  "kind": "select",
+                  "default": "simple",
+                  "options": [
+                    "simple",
+                    "sgm_uniform",
+                    "karras",
+                    "exponential",
+                    "ddim_uniform",
+                    "beta",
+                    "normal",
+                    "linear_quadratic",
+                    "kl_optimal",
+                    "bong_tangent",
+                    "beta57"
+                  ]
+                },
+                {
+                  "id": "ref_boost",
+                  "label": "Reference boost (last image)",
+                  "kind": "number",
+                  "default": 4.0,
+                  "min": 0.0,
+                  "max": 20.0,
+                  "step": 0.1
+                },
+                {
+                  "id": "ref_boost_a",
+                  "label": "Scene boost (image 1, two images)",
+                  "kind": "number",
+                  "default": 1.0,
+                  "min": 0.0,
+                  "max": 20.0,
+                  "step": 0.1
+                },
+                {
+                  "id": "grounding_px",
+                  "label": "Grounding size",
+                  "kind": "integer",
+                  "default": 768,
+                  "min": 0,
+                  "max": 4096,
+                  "step": 64
+                },
+                {
+                  "id": "ref_position",
+                  "label": "Placement (last image)",
+                  "kind": "select",
+                  "default": "aligned (trained)",
+                  "options": [
+                    "aligned (trained)",
+                    "beside (right of target)",
+                    "bag of features"
+                  ]
+                },
+                {
+                  "id": "ref_position_a",
+                  "label": "Placement (image 1, two images)",
+                  "kind": "select",
+                  "default": "aligned (trained)",
+                  "options": [
+                    "aligned (trained)",
+                    "beside (right of target)",
+                    "bag of features"
+                  ]
+                },
+                {
+                  "id": "megapixels",
+                  "label": "Megapixels",
+                  "kind": "number",
+                  "default": 1.0,
+                  "min": 0.1,
+                  "max": 2.0,
+                  "step": 0.1
+                }
+              ],
+              "media_roles": [
+                {
+                  "id": "image_1",
+                  "label": "Image 1 · picture to edit",
+                  "kind": "image",
+                  "min": 1,
+                  "max": 1,
+                  "roles": [
+                    "target"
+                  ]
+                },
+                {
+                  "id": "image_2",
+                  "label": "Image 2 · extra reference (optional)",
+                  "kind": "image",
+                  "min": 0,
+                  "max": 1,
+                  "roles": [
+                    "identity"
+                  ]
+                }
+              ],
+              "capabilities": {
+                "create": false,
+                "edit": true,
+                "multi_reference": true,
+                "native_mask": false,
+                "prompt_enhancer": false,
+                "effective_prompt": false
+              },
+              "output": {
+                "kind": "image",
+                "format": "png",
+                "size_policy": "first_reference"
+              }
+            }
+          },
+          "source": "conradlocke/krea2-identity-edit V2 model card; comfyui-krea2edit 2.0.0; CE05 04 KREA EDIT wiring; workflows/krea2-general-edit-v2"
+        }
+      ]
+    },
+    {
+      "id": "anima",
+      "label": "Anima",
+      "kind": "image",
+      "prompt_grammar": "anima_booru_hybrid",
+      "variants": [
+        {
+          "id": "create",
+          "label": "Create",
+          "operations": [
+            "create"
+          ],
+          "prompt_grammar": "anima_booru_hybrid",
+          "inputs": [],
+          "files": {
+            "diffusion_model": {
+              "folder": "diffusion_models",
+              "names": [
+                "anima-turbo-v1.1.safetensors",
+                "anima-base-v1.0.safetensors",
+                "hosekiLustrousmixAnima_animaV10.safetensors"
+              ],
+              "required": true
+            },
+            "text_encoder": {
+              "folder": "text_encoders",
+              "names": [
+                "qwen_3_06b_base.safetensors"
+              ],
+              "required": true
+            },
+            "vae": {
+              "folder": "vae",
+              "names": [
+                "qwen_image_vae.safetensors"
+              ],
+              "required": true
+            }
+          },
+          "required_classes": [
+            "UNETLoader",
+            "CLIPLoader",
+            "VAELoader",
+            "CLIPTextEncode",
+            "EmptyLatentImage",
+            "KSampler",
+            "VAEDecode"
+          ],
+          "presets": [
+            {
+              "id": "create",
+              "label": "Turbo",
+              "values": {
+                "steps": 10,
+                "cfg": 1.0,
+                "sampler": "euler_ancestral",
+                "scheduler": "beta"
+              },
+              "source": "Inventory 1 Anima CREATE Turbo 10 steps, CFG 1, euler_ancestral/beta (house, not official; CE05 02 CREATE)"
+            },
+            {
+              "id": "base",
+              "label": "Base",
+              "values": {
+                "steps": 30,
+                "cfg": 4.0,
+                "sampler": "euler_ancestral",
+                "scheduler": "beta"
+              },
+              "source": "Inventory 1 Anima Base 30 steps, CFG 4, euler_ancestral/beta (ref-anima.md)"
+            }
+          ],
+          "lora_max": null,
+          "resolution": null,
+          "stages": [],
+          "notes": [
+            "Not an edit model.",
+            "SHARK sampler variant: exponential/res_2s, beta57."
+          ],
+          "suite_targets": [],
+          "workflow": {
+            "manifest_sha256": "af497492a81939fe90eeba38e86d4d7034784ca74ee4124d5c9f50eccf5a7235",
+            "api_sha256": "ee308c511359d4ebd8c2f707a76a44de4953436845a9dbf3c75f505d0ac359b6",
+            "descriptor": {
+              "descriptor_version": 1,
+              "target_id": "anima-turbo-create-v1",
+              "request_schema": "studio.image-workflow-request/1",
+              "availability": "backend_only",
+              "reason": "Anima Turbo text-to-image; CE05 02 CREATE settings (10 steps, CFG 1, euler_ancestral/beta).",
+              "controls": [
+                {
+                  "id": "seed",
+                  "label": "Seed",
+                  "kind": "integer",
+                  "default": 0,
+                  "min": 0,
+                  "max": 18446744073709551615
+                },
+                {
+                  "id": "steps",
+                  "label": "Steps",
+                  "kind": "integer",
+                  "default": 10,
+                  "min": 1,
+                  "max": 10000
+                },
+                {
+                  "id": "cfg",
+                  "label": "Guidance",
+                  "kind": "number",
+                  "default": 1.0,
+                  "min": 0.0,
+                  "max": 100.0,
+                  "step": 0.1
+                },
+                {
+                  "id": "sampler",
+                  "label": "Sampler",
+                  "kind": "select",
+                  "default": "euler_ancestral",
+                  "options": [
+                    "euler",
+                    "euler_cfg_pp",
+                    "euler_ancestral",
+                    "euler_ancestral_cfg_pp",
+                    "heun",
+                    "heunpp2",
+                    "exp_heun_2_x0",
+                    "exp_heun_2_x0_sde",
+                    "dpm_2",
+                    "dpm_2_ancestral",
+                    "lms",
+                    "dpm_fast",
+                    "dpm_adaptive",
+                    "dpmpp_2s_ancestral",
+                    "dpmpp_2s_ancestral_cfg_pp",
+                    "dpmpp_sde",
+                    "dpmpp_sde_gpu",
+                    "dpmpp_2m",
+                    "dpmpp_2m_cfg_pp",
+                    "dpmpp_2m_sde",
+                    "dpmpp_2m_sde_gpu",
+                    "dpmpp_2m_sde_heun",
+                    "dpmpp_2m_sde_heun_gpu",
+                    "dpmpp_3m_sde",
+                    "dpmpp_3m_sde_gpu",
+                    "ddpm",
+                    "lcm",
+                    "ipndm",
+                    "ipndm_v",
+                    "deis",
+                    "cfgpp_ud10_ab",
+                    "res_multistep",
+                    "res_multistep_cfg_pp",
+                    "res_multistep_ancestral",
+                    "res_multistep_ancestral_cfg_pp",
+                    "gradient_estimation",
+                    "gradient_estimation_cfg_pp",
+                    "er_sde",
+                    "seeds_2",
+                    "seeds_3",
+                    "sa_solver",
+                    "sa_solver_pece",
+                    "ddim",
+                    "uni_pc",
+                    "uni_pc_bh2",
+                    "legacy_rk",
+                    "rk",
+                    "rk_beta",
+                    "deis_3m_ode",
+                    "deis_2m_ode",
+                    "deis_3m",
+                    "deis_2m",
+                    "res_6s_ode",
+                    "res_5s_ode",
+                    "res_3s_ode",
+                    "res_2s_ode",
+                    "res_3m_ode",
+                    "res_2m_ode",
+                    "res_6s",
+                    "res_5s",
+                    "res_3s",
+                    "res_2s",
+                    "res_3m",
+                    "res_2m"
+                  ]
+                },
+                {
+                  "id": "scheduler",
+                  "label": "Schedule",
+                  "kind": "select",
+                  "default": "beta",
+                  "options": [
+                    "simple",
+                    "sgm_uniform",
+                    "karras",
+                    "exponential",
+                    "ddim_uniform",
+                    "beta",
+                    "normal",
+                    "linear_quadratic",
+                    "kl_optimal",
+                    "bong_tangent",
+                    "beta57"
+                  ]
+                },
+                {
+                  "id": "aspect_ratio",
+                  "label": "Format",
+                  "kind": "select",
+                  "default": "1:1 (Square)",
+                  "options": [
+                    "1:1 (Square)",
+                    "2:3 (Portrait Photo)",
+                    "3:2 (Photo)",
+                    "3:4 (Portrait Standard)",
+                    "4:3 (Standard)",
+                    "9:16 (Portrait Widescreen)",
+                    "16:9 (Widescreen)",
+                    "21:9 (Ultrawide)"
+                  ]
+                },
+                {
+                  "id": "megapixels",
+                  "label": "Megapixels",
+                  "kind": "number",
+                  "default": 1.0,
+                  "min": 0.1,
+                  "max": 4.0,
+                  "step": 0.1
+                }
+              ],
+              "media_roles": [],
+              "capabilities": {
+                "create": true,
+                "edit": false,
+                "multi_reference": false,
+                "native_mask": false,
+                "prompt_enhancer": false,
+                "effective_prompt": false
+              },
+              "output": {
+                "kind": "image",
+                "format": "png",
+                "size_policy": "explicit"
+              }
+            }
+          },
+          "source": "Inventory 1 Anima (02 CREATE); ref-anima.md 1-4"
+        },
+        {
+          "id": "control",
+          "label": "Control",
+          "operations": [
+            "control"
+          ],
+          "prompt_grammar": "anima_booru_hybrid",
+          "inputs": [
+            {
+              "id": "control_image",
+              "kind": "image",
+              "role": "control",
+              "min": 1,
+              "max": 1,
+              "notes": "One image through AIO_Preprocessor (default LineArt) with start/end percent window."
+            }
+          ],
+          "files": {
+            "diffusion_model": {
+              "folder": "diffusion_models",
+              "names": [
+                "anima-base-v1.0.safetensors",
+                "anima-turbo-v1.1.safetensors",
+                "hosekiLustrousmixAnima_animaV10.safetensors"
+              ],
+              "required": true
+            },
+            "text_encoder": {
+              "folder": "text_encoders",
+              "names": [
+                "qwen_3_06b_base.safetensors"
+              ],
+              "required": true
+            },
+            "vae": {
+              "folder": "vae",
+              "names": [
+                "qwen_image_vae.safetensors"
+              ],
+              "required": true
+            },
+            "patch": {
+              "folder": "model_patches",
+              "names": [
+                "anima-lllite-any-test-like-v2.safetensors"
+              ],
+              "required": true
+            }
+          },
+          "required_classes": [
+            "UNETLoader",
+            "CLIPLoader",
+            "VAELoader",
+            "CLIPTextEncode",
+            "EmptyLatentImage",
+            "KSampler",
+            "VAEDecode",
+            "ModelPatchLoader",
+            "AIO_Preprocessor",
+            [
+              "AnimaLLLiteApply_sdscripts",
+              "AnimaLLLiteApply"
+            ]
+          ],
+          "presets": [
+            {
+              "id": "base",
+              "label": "Base",
+              "values": {
+                "steps": 30,
+                "cfg": 4.0,
+                "sampler": "euler_ancestral",
+                "scheduler": "beta"
+              },
+              "source": "Inventory 1 Anima Control Base 30 steps, CFG 4, euler_ancestral/beta (CE05 06 CONTROL)"
+            }
+          ],
+          "lora_max": null,
+          "resolution": null,
+          "stages": [],
+          "notes": [
+            "AnimaLLLiteApply was renamed AnimaLLLiteApply_sdscripts (Aug 2026); either class satisfies health."
+          ],
+          "suite_targets": [],
+          "source": "Inventory 1 Anima (06 CONTROL); 6 gap 1"
+        },
+        {
+          "id": "inpaint",
+          "label": "Inpaint",
+          "operations": [
+            "inpaint"
+          ],
+          "prompt_grammar": "anima_booru_hybrid",
+          "inputs": [
+            {
+              "id": "source",
+              "kind": "image",
+              "role": "source",
+              "min": 1,
+              "max": 1,
+              "notes": "Picture to repaint."
+            },
+            {
+              "id": "mask",
+              "kind": "mask",
+              "role": "mask",
+              "min": 1,
+              "max": 1,
+              "notes": "White = regenerate, black = keep; binarized at 0.5."
+            }
+          ],
+          "files": {
+            "diffusion_model": {
+              "folder": "diffusion_models",
+              "names": [
+                "anima-base-v1.0.safetensors",
+                "anima-turbo-v1.1.safetensors",
+                "hosekiLustrousmixAnima_animaV10.safetensors"
+              ],
+              "required": true
+            },
+            "text_encoder": {
+              "folder": "text_encoders",
+              "names": [
+                "qwen_3_06b_base.safetensors"
+              ],
+              "required": true
+            },
+            "vae": {
+              "folder": "vae",
+              "names": [
+                "qwen_image_vae.safetensors"
+              ],
+              "required": true
+            },
+            "patch": {
+              "folder": "model_patches",
+              "names": [
+                "anima-lllite-inpainting-v2.safetensors"
+              ],
+              "required": true
+            }
+          },
+          "required_classes": [
+            "UNETLoader",
+            "CLIPLoader",
+            "VAELoader",
+            "CLIPTextEncode",
+            "KSampler",
+            "VAEDecode",
+            "VAEEncodeForInpaint",
+            "ModelPatchLoader",
+            [
+              "AnimaLLLiteApply_sdscripts",
+              "AnimaLLLiteApply"
+            ]
+          ],
+          "presets": [
+            {
+              "id": "base",
+              "label": "Base",
+              "values": {
+                "steps": 30,
+                "cfg": 4.0,
+                "sampler": "euler_ancestral",
+                "scheduler": "beta"
+              },
+              "source": "Inventory 1 Anima Inpaint Base 30 steps, CFG 4, euler_ancestral/beta (CE05 07 INPAINT)"
+            }
+          ],
+          "lora_max": null,
+          "resolution": {
+            "min_px": 512,
+            "max_px": 1536,
+            "multiple": null,
+            "default_megapixels": null
+          },
+          "stages": [],
+          "notes": [
+            "Conditioning size 512-1536 px."
+          ],
+          "suite_targets": [],
+          "source": "Inventory 1 Anima (07 INPAINT); CE05 note 05"
+        },
+        {
+          "id": "i2i",
+          "label": "Image to image",
+          "operations": [
+            "i2i"
+          ],
+          "prompt_grammar": "anima_booru_hybrid",
+          "inputs": [
+            {
+              "id": "source",
+              "kind": "image",
+              "role": "source",
+              "min": 1,
+              "max": 1,
+              "notes": "Picture to re-render."
+            }
+          ],
+          "files": {
+            "diffusion_model": {
+              "folder": "diffusion_models",
+              "names": [
+                "anima-base-v1.0.safetensors",
+                "anima-turbo-v1.1.safetensors",
+                "hosekiLustrousmixAnima_animaV10.safetensors"
+              ],
+              "required": true
+            },
+            "text_encoder": {
+              "folder": "text_encoders",
+              "names": [
+                "qwen_3_06b_base.safetensors"
+              ],
+              "required": true
+            },
+            "vae": {
+              "folder": "vae",
+              "names": [
+                "qwen_image_vae.safetensors"
+              ],
+              "required": true
+            }
+          },
+          "required_classes": [
+            "UNETLoader",
+            "CLIPLoader",
+            "VAELoader",
+            "CLIPTextEncode",
+            "VAEEncode",
+            "KSampler",
+            "VAEDecode"
+          ],
+          "presets": [
+            {
+              "id": "base",
+              "label": "Base",
+              "values": {
+                "steps": 30,
+                "cfg": 4.0,
+                "sampler": "euler_ancestral",
+                "scheduler": "beta",
+                "denoise": 0.55
+              },
+              "source": "Inventory 1 Anima I2I Base 30 steps, CFG 4, euler_ancestral/beta, denoise 0.55 (CE05 08 I2I)"
+            }
+          ],
+          "lora_max": null,
+          "resolution": null,
+          "stages": [],
+          "notes": [],
+          "suite_targets": [],
+          "source": "Inventory 1 Anima (08 I2I)"
+        }
+      ]
+    },
+    {
+      "id": "ideogram4",
+      "label": "Ideogram 4",
+      "kind": "image",
+      "prompt_grammar": "ideogram_json",
+      "variants": [
+        {
+          "id": "create",
+          "label": "Create",
+          "operations": [
+            "create"
+          ],
+          "prompt_grammar": "ideogram_json",
+          "inputs": [],
+          "files": {
+            "diffusion_model": {
+              "folder": "diffusion_models",
+              "names": [
+                "ideogram4_int8_convrot.safetensors"
+              ],
+              "required": true
+            },
+            "diffusion_model_unconditional": {
+              "folder": "diffusion_models",
+              "names": [
+                "ideogram4_unconditional_int8_convrot.safetensors"
+              ],
+              "required": true
+            },
+            "text_encoder": {
+              "folder": "text_encoders",
+              "names": [
+                "qwen3vl_8b_fp8_scaled.safetensors"
+              ],
+              "required": true
+            },
+            "vae": {
+              "folder": "vae",
+              "names": [
+                "flux2-vae.safetensors"
+              ],
+              "required": true
+            }
+          },
+          "required_classes": [
+            "UNETLoader",
+            "CLIPLoader",
+            "VAELoader",
+            "Ideogram4Scheduler",
+            "DualModelGuider",
+            "CFGOverride",
+            "VAEDecode"
+          ],
+          "presets": [
+            {
+              "id": "standard",
+              "label": "Standard",
+              "values": {
+                "steps": 20,
+                "cfg": 7.0,
+                "mu": 0.0,
+                "std": 1.75,
+                "sampler": "euler"
+              },
+              "source": "Inventory 1 Ideogram 4: 20 steps, CFG 7 constant, mu 0, std 1.75, Euler (Ideogram4Scheduler; CE05 03 CREATE)"
+            },
+            {
+              "id": "hq",
+              "label": "High quality",
+              "values": {
+                "steps": 48,
+                "cfg": 7.0,
+                "mu": 0.0,
+                "std": 1.5,
+                "sampler": "euler"
+              },
+              "source": "Inventory 1 Ideogram 4 HQ: 48 steps, mu 0, std 1.5 (~V4_QUALITY_48 without 3-step polish)"
+            }
+          ],
+          "lora_max": null,
+          "resolution": {
+            "min_px": 256,
+            "max_px": 2048,
+            "multiple": 16,
+            "default_megapixels": null
+          },
+          "stages": [],
+          "notes": [
+            "No native image-to-image; prompt is JSON only.",
+            "Per-step guidance schedule (45x7 + 3x3) is not expressed."
+          ],
+          "suite_targets": [],
+          "workflow": {
+            "manifest_sha256": "ca14315fbb523945b03cf5ef38fbd265bf5ff605b67de99dfc9f12e3973ba835",
+            "api_sha256": "b96b5df7f0dfe347623eee407e1f60a2a3ca737052b62a33c6487d1fb4603bb8",
+            "descriptor": {
+              "descriptor_version": 1,
+              "target_id": "ideogram4-create-v1",
+              "request_schema": "studio.image-workflow-request/1",
+              "availability": "backend_only",
+              "reason": "Ideogram 4 text-to-image from a structured JSON caption; CE05 03 CREATE (20 steps, CFG 7, CFGOverride 3 from 70 %, mu 0, std 1.75).",
+              "controls": [
+                {
+                  "id": "seed",
+                  "label": "Seed",
+                  "kind": "integer",
+                  "default": 0,
+                  "min": 0,
+                  "max": 18446744073709551615
+                },
+                {
+                  "id": "steps",
+                  "label": "Steps",
+                  "kind": "integer",
+                  "default": 20,
+                  "min": 1,
+                  "max": 200
+                },
+                {
+                  "id": "cfg",
+                  "label": "Guidance",
+                  "kind": "number",
+                  "default": 7.0,
+                  "min": 0.0,
+                  "max": 100.0,
+                  "step": 0.1
+                },
+                {
+                  "id": "mu",
+                  "label": "Schedule mu",
+                  "kind": "number",
+                  "default": 0.0,
+                  "min": -10.0,
+                  "max": 10.0,
+                  "step": 0.05
+                },
+                {
+                  "id": "std",
+                  "label": "Schedule std",
+                  "kind": "number",
+                  "default": 1.75,
+                  "min": 0.1,
+                  "max": 5.0,
+                  "step": 0.05
+                },
+                {
+                  "id": "aspect_ratio",
+                  "label": "Format",
+                  "kind": "select",
+                  "default": "1:1 (Square)",
+                  "options": [
+                    "1:1 (Square)",
+                    "2:3 (Portrait Photo)",
+                    "3:2 (Photo)",
+                    "3:4 (Portrait Standard)",
+                    "4:3 (Standard)",
+                    "9:16 (Portrait Widescreen)",
+                    "16:9 (Widescreen)",
+                    "21:9 (Ultrawide)"
+                  ]
+                },
+                {
+                  "id": "megapixels",
+                  "label": "Megapixels",
+                  "kind": "number",
+                  "default": 1.0,
+                  "min": 0.1,
+                  "max": 4.0,
+                  "step": 0.1
+                }
+              ],
+              "media_roles": [],
+              "capabilities": {
+                "create": true,
+                "edit": false,
+                "multi_reference": false,
+                "native_mask": false,
+                "prompt_enhancer": false,
+                "effective_prompt": false
+              },
+              "output": {
+                "kind": "image",
+                "format": "png",
+                "size_policy": "explicit"
+              }
+            }
+          },
+          "source": "Inventory 1 Ideogram 4; ref-ideogram4.md 1-8"
+        }
+      ]
+    },
+    {
+      "id": "flux2_klein",
+      "label": "FLUX.2 Klein",
+      "kind": "image",
+      "prompt_grammar": "klein_image_n",
+      "variants": [
+        {
+          "id": "compose",
+          "label": "Compose",
+          "operations": [
+            "multi_reference"
+          ],
+          "prompt_grammar": "klein_image_n",
+          "inputs": [
+            {
+              "id": "image_1",
+              "kind": "image",
+              "role": "primary_sets_format",
+              "min": 1,
+              "max": 1,
+              "notes": "Required; output follows its aspect at ~1 MP. Prompt says image 1."
+            },
+            {
+              "id": "references",
+              "kind": "image",
+              "role": "reference",
+              "min": 0,
+              "max": 3,
+              "notes": "Images 2-4 optional; 1-2 clean, 3-4 role drift."
+            }
+          ],
+          "files": {
+            "diffusion_model": {
+              "folder": "diffusion_models",
+              "names": [
+                "flux-2-klein-9b-kv-fp8.safetensors"
+              ],
+              "required": true
+            },
+            "text_encoder": {
+              "folder": "text_encoders",
+              "names": [
+                "qwen_3_8b_fp8mixed.safetensors"
+              ],
+              "required": true
+            },
+            "vae": {
+              "folder": "vae",
+              "names": [
+                "flux2-vae.safetensors"
+              ],
+              "required": true
+            }
+          },
+          "required_classes": [
+            "UNETLoader",
+            "CLIPLoader",
+            "VAELoader",
+            "FluxKVCache",
+            "Flux2Scheduler",
+            "EmptyFlux2LatentImage",
+            "VAEDecode"
+          ],
+          "presets": [
+            {
+              "id": "default",
+              "label": "Default",
+              "values": {
+                "steps": 4,
+                "cfg": 1.0,
+                "sampler": "euler"
+              },
+              "source": "Inventory 1 FLUX.2 Klein 9B KV: 4 steps, CFG 1, Euler (Flux2Scheduler; CE05 05 COMPOSE)"
+            }
+          ],
+          "lora_max": null,
+          "resolution": {
+            "min_px": null,
+            "max_px": null,
+            "multiple": null,
+            "default_megapixels": 1.0
+          },
+          "stages": [],
+          "notes": [
+            "Prep step: clean single references out of character sheets."
+          ],
+          "suite_targets": [],
+          "source": "Inventory 1 FLUX.2 Klein; ref-flux2-klein.md 1-3, 6"
+        },
+        {
+          "id": "t2i",
+          "label": "Text to image",
+          "operations": [
+            "create"
+          ],
+          "prompt_grammar": "klein_image_n",
+          "inputs": [],
+          "files": {
+            "diffusion_model": {
+              "folder": "diffusion_models",
+              "names": [
+                "flux-2-klein-9b-kv-fp8.safetensors"
+              ],
+              "required": true
+            },
+            "text_encoder": {
+              "folder": "text_encoders",
+              "names": [
+                "qwen_3_8b_fp8mixed.safetensors"
+              ],
+              "required": true
+            },
+            "vae": {
+              "folder": "vae",
+              "names": [
+                "flux2-vae.safetensors"
+              ],
+              "required": true
+            }
+          },
+          "required_classes": [
+            "UNETLoader",
+            "CLIPLoader",
+            "VAELoader",
+            "FluxKVCache",
+            "Flux2Scheduler",
+            "EmptyFlux2LatentImage",
+            "SamplerCustomAdvanced",
+            "VAEDecode"
+          ],
+          "presets": [
+            {
+              "id": "default",
+              "label": "Default",
+              "values": {
+                "steps": 4,
+                "cfg": 1.0,
+                "sampler": "euler"
+              },
+              "source": "CE05 05 model path: FluxKVCache, CFGGuider 1, Flux2Scheduler 4, Euler; reference chain removed for T2I"
+            }
+          ],
+          "lora_max": null,
+          "resolution": {
+            "min_px": null,
+            "max_px": null,
+            "multiple": 16,
+            "default_megapixels": 1.0
+          },
+          "stages": [],
+          "notes": [
+            "No reference image; size from format and megapixels."
+          ],
+          "suite_targets": [],
+          "workflow": {
+            "manifest_sha256": "a61a674e98b3a6134e94f8c23035480c85b800ceacfb8d6dd5d4ff580d08b8d1",
+            "api_sha256": "e44a91cc9ec5d05660777eada681e16b4a2b760ecc4d22712e30eb5626adb379",
+            "descriptor": {
+              "descriptor_version": 1,
+              "target_id": "flux2-klein-9b-t2i-v1",
+              "request_schema": "studio.image-workflow-request/1",
+              "availability": "backend_only",
+              "reason": "FLUX.2 Klein 9B KV text-to-image without references; CE05 05 model path (FluxKVCache, CFG 1, 4 steps, Euler).",
+              "controls": [
+                {
+                  "id": "seed",
+                  "label": "Seed",
+                  "kind": "integer",
+                  "default": 0,
+                  "min": 0,
+                  "max": 18446744073709551615
+                },
+                {
+                  "id": "steps",
+                  "label": "Steps",
+                  "kind": "integer",
+                  "default": 4,
+                  "min": 1,
+                  "max": 4096
+                },
+                {
+                  "id": "sampler",
+                  "label": "Sampler",
+                  "kind": "select",
+                  "default": "euler",
+                  "options": [
+                    "euler",
+                    "euler_cfg_pp",
+                    "euler_ancestral",
+                    "euler_ancestral_cfg_pp",
+                    "heun",
+                    "heunpp2",
+                    "exp_heun_2_x0",
+                    "exp_heun_2_x0_sde",
+                    "dpm_2",
+                    "dpm_2_ancestral",
+                    "lms",
+                    "dpm_fast",
+                    "dpm_adaptive",
+                    "dpmpp_2s_ancestral",
+                    "dpmpp_2s_ancestral_cfg_pp",
+                    "dpmpp_sde",
+                    "dpmpp_sde_gpu",
+                    "dpmpp_2m",
+                    "dpmpp_2m_cfg_pp",
+                    "dpmpp_2m_sde",
+                    "dpmpp_2m_sde_gpu",
+                    "dpmpp_2m_sde_heun",
+                    "dpmpp_2m_sde_heun_gpu",
+                    "dpmpp_3m_sde",
+                    "dpmpp_3m_sde_gpu",
+                    "ddpm",
+                    "lcm",
+                    "ipndm",
+                    "ipndm_v",
+                    "deis",
+                    "cfgpp_ud10_ab",
+                    "res_multistep",
+                    "res_multistep_cfg_pp",
+                    "res_multistep_ancestral",
+                    "res_multistep_ancestral_cfg_pp",
+                    "gradient_estimation",
+                    "gradient_estimation_cfg_pp",
+                    "er_sde",
+                    "seeds_2",
+                    "seeds_3",
+                    "sa_solver",
+                    "sa_solver_pece",
+                    "ddim",
+                    "uni_pc",
+                    "uni_pc_bh2",
+                    "legacy_rk",
+                    "rk",
+                    "rk_beta",
+                    "deis_3m_ode",
+                    "deis_2m_ode",
+                    "deis_3m",
+                    "deis_2m",
+                    "res_6s_ode",
+                    "res_5s_ode",
+                    "res_3s_ode",
+                    "res_2s_ode",
+                    "res_3m_ode",
+                    "res_2m_ode",
+                    "res_6s",
+                    "res_5s",
+                    "res_3s",
+                    "res_2s",
+                    "res_3m",
+                    "res_2m"
+                  ]
+                },
+                {
+                  "id": "aspect_ratio",
+                  "label": "Format",
+                  "kind": "select",
+                  "default": "1:1 (Square)",
+                  "options": [
+                    "1:1 (Square)",
+                    "2:3 (Portrait Photo)",
+                    "3:2 (Photo)",
+                    "3:4 (Portrait Standard)",
+                    "4:3 (Standard)",
+                    "9:16 (Portrait Widescreen)",
+                    "16:9 (Widescreen)",
+                    "21:9 (Ultrawide)"
+                  ]
+                },
+                {
+                  "id": "megapixels",
+                  "label": "Megapixels",
+                  "kind": "number",
+                  "default": 1.0,
+                  "min": 0.1,
+                  "max": 4.0,
+                  "step": 0.1
+                }
+              ],
+              "media_roles": [],
+              "capabilities": {
+                "create": true,
+                "edit": false,
+                "multi_reference": false,
+                "native_mask": false,
+                "prompt_enhancer": false,
+                "effective_prompt": false
+              },
+              "output": {
+                "kind": "image",
+                "format": "png",
+                "size_policy": "explicit"
+              }
+            }
+          },
+          "source": "CE05 image_create_edit_CE_v0.5.json group 05 model path; workflows/flux2-klein-9b-t2i-v1"
+        }
+      ]
+    },
+    {
+      "id": "qwen_image_2_1",
+      "label": "Qwen-Image 2.1",
+      "kind": "image",
+      "prompt_grammar": "qwen_image_n_enhancer",
+      "variants": [
+        {
+          "id": "create",
+          "label": "Create",
+          "operations": [
+            "create"
+          ],
+          "prompt_grammar": "qwen_image_n_enhancer",
+          "inputs": [],
+          "files": {
+            "diffusion_model": {
+              "folder": "diffusion_models",
+              "names": [
+                "qwen_image_2.1_int8_convrot.safetensors"
+              ],
+              "required": true
+            },
+            "text_encoder": {
+              "folder": "text_encoders",
+              "names": [
+                "qwen3vl_8b_int8_convrot.safetensors"
+              ],
+              "required": true
+            },
+            "vae": {
+              "folder": "vae",
+              "names": [
+                "qwen_image_2.1_vae_bf16.safetensors",
+                "texture_fix_vae_for_qwen_image_2.1_bf16.safetensors"
+              ],
+              "required": true
+            },
+            "lora": {
+              "folder": "loras",
+              "names": [
+                "p_qwen_image_2.1_8step_v0.1.safetensors"
+              ],
+              "required": false
+            },
+            "prompt_enhancer": {
+              "folder": "text_encoders",
+              "names": [
+                "qwen3.5_9b_qwen_image_2.1_pe_t2i.int8_convrot.safetensors"
+              ],
+              "required": false
+            }
+          },
+          "required_classes": [
+            "UNETLoader",
+            "CLIPLoader",
+            "VAELoader",
+            "TextEncodeQwenImage21",
+            "QwenImage21Cache",
+            "ResolutionSelector",
+            "KSampler",
+            "VAEDecode",
+            "LoraLoaderModelOnly"
+          ],
+          "presets": [
+            {
+              "id": "turbo",
+              "label": "Turbo",
+              "values": {
+                "lora_strength": 1.0,
+                "steps": 12,
+                "cfg": 1.5,
+                "sampler": "er_sde",
+                "scheduler": "beta",
+                "denoise": 1.0
+              },
+              "source": "Inventory 1 Qwen 2.1 artist workflow PE v3 TURBO (shipped): LoRA 1.0, 12 steps, CFG 1.5, er_sde/beta, denoise 1"
+            },
+            {
+              "id": "fastest",
+              "label": "Fastest",
+              "values": {
+                "steps": 8,
+                "cfg": 1.0,
+                "sampler": "er_sde",
+                "scheduler": "beta"
+              },
+              "source": "Inventory 1 Qwen 2.1 artist workflow PE v3 FASTEST: 8 / CFG 1 / er_sde-beta"
+            },
+            {
+              "id": "quality",
+              "label": "Quality",
+              "values": {
+                "lora_strength": 0.0,
+                "steps": 40,
+                "steps_max": 50,
+                "cfg": 1.0,
+                "sampler": "euler",
+                "scheduler": "beta"
+              },
+              "source": "Inventory 1 Qwen 2.1 artist workflow PE v3 QUALITY: LoRA 0, 40-50 steps, CFG 1, euler/beta"
+            },
+            {
+              "id": "template",
+              "label": "Official template",
+              "values": {
+                "steps": 25,
+                "cfg": 1.0,
+                "sampler": "euler",
+                "scheduler": "simple",
+                "denoise": 1.0
+              },
+              "source": "Inventory 1 Qwen 2.1 Create official template image_qwen_image_2_1_t2i.json: 25 steps, CFG 1, euler/simple"
+            }
+          ],
+          "lora_max": null,
+          "resolution": {
+            "min_px": null,
+            "max_px": 2048,
+            "multiple": 8,
+            "default_megapixels": 1.0
+          },
+          "stages": [],
+          "notes": [
+            "Prompt enhancer is on by default in the artist workflow; its prompt is shown and stored."
+          ],
+          "suite_targets": [],
+          "workflow": {
+            "manifest_sha256": "e54ec6bd4f358b244b657331d0c10496a99aab4f9a63a7613d6ddee3a4cd25e2",
+            "api_sha256": "a1cfe09703301ce6a0e777eec3fef703a05bd15de951094950dae663080d9832",
+            "descriptor": {
+              "descriptor_version": 1,
+              "target_id": "qwen-image-2.1-create-pe-v3-v2",
+              "request_schema": "studio.image-workflow-request/1",
+              "availability": "backend_only",
+              "reason": "Image model selection and durable generic image submission are not bound to catalog descriptors yet.",
+              "controls": [
+                {
+                  "id": "negative",
+                  "label": "Negative prompt",
+                  "kind": "textarea",
+                  "default": ""
+                },
+                {
+                  "id": "seed",
+                  "label": "Seed",
+                  "kind": "integer",
+                  "default": 0,
+                  "min": 0,
+                  "max": 18446744073709551615
+                },
+                {
+                  "id": "steps",
+                  "label": "Steps",
+                  "kind": "integer",
+                  "default": 12,
+                  "min": 1,
+                  "max": 10000
+                },
+                {
+                  "id": "cfg",
+                  "label": "Guidance",
+                  "kind": "number",
+                  "default": 1.5,
+                  "min": 0.0,
+                  "max": 100.0,
+                  "step": 0.1
+                },
+                {
+                  "id": "sampler",
+                  "label": "Sampler",
+                  "kind": "select",
+                  "default": "er_sde",
+                  "options": [
+                    "euler",
+                    "euler_cfg_pp",
+                    "euler_ancestral",
+                    "euler_ancestral_cfg_pp",
+                    "heun",
+                    "heunpp2",
+                    "exp_heun_2_x0",
+                    "exp_heun_2_x0_sde",
+                    "dpm_2",
+                    "dpm_2_ancestral",
+                    "lms",
+                    "dpm_fast",
+                    "dpm_adaptive",
+                    "dpmpp_2s_ancestral",
+                    "dpmpp_2s_ancestral_cfg_pp",
+                    "dpmpp_sde",
+                    "dpmpp_sde_gpu",
+                    "dpmpp_2m",
+                    "dpmpp_2m_cfg_pp",
+                    "dpmpp_2m_sde",
+                    "dpmpp_2m_sde_gpu",
+                    "dpmpp_2m_sde_heun",
+                    "dpmpp_2m_sde_heun_gpu",
+                    "dpmpp_3m_sde",
+                    "dpmpp_3m_sde_gpu",
+                    "ddpm",
+                    "lcm",
+                    "ipndm",
+                    "ipndm_v",
+                    "deis",
+                    "cfgpp_ud10_ab",
+                    "res_multistep",
+                    "res_multistep_cfg_pp",
+                    "res_multistep_ancestral",
+                    "res_multistep_ancestral_cfg_pp",
+                    "gradient_estimation",
+                    "gradient_estimation_cfg_pp",
+                    "er_sde",
+                    "seeds_2",
+                    "seeds_3",
+                    "sa_solver",
+                    "sa_solver_pece",
+                    "ddim",
+                    "uni_pc",
+                    "uni_pc_bh2",
+                    "legacy_rk",
+                    "rk",
+                    "rk_beta",
+                    "deis_3m_ode",
+                    "deis_2m_ode",
+                    "deis_3m",
+                    "deis_2m",
+                    "res_6s_ode",
+                    "res_5s_ode",
+                    "res_3s_ode",
+                    "res_2s_ode",
+                    "res_3m_ode",
+                    "res_2m_ode",
+                    "res_6s",
+                    "res_5s",
+                    "res_3s",
+                    "res_2s",
+                    "res_3m",
+                    "res_2m"
+                  ]
+                },
+                {
+                  "id": "scheduler",
+                  "label": "Schedule",
+                  "kind": "select",
+                  "default": "beta",
+                  "options": [
+                    "simple",
+                    "sgm_uniform",
+                    "karras",
+                    "exponential",
+                    "ddim_uniform",
+                    "beta",
+                    "normal",
+                    "linear_quadratic",
+                    "kl_optimal",
+                    "bong_tangent",
+                    "beta57"
+                  ]
+                },
+                {
+                  "id": "denoise",
+                  "label": "Denoise",
+                  "kind": "number",
+                  "default": 1,
+                  "min": 0.0,
+                  "max": 1.0,
+                  "step": 0.01
+                },
+                {
+                  "id": "prompt_enhancer",
+                  "label": "Enhance prompt",
+                  "kind": "boolean",
+                  "default": false
+                },
+                {
+                  "id": "aspect_ratio",
+                  "label": "Format",
+                  "kind": "select",
+                  "default": "1:1 (Square)",
+                  "options": [
+                    "1:1 (Square)",
+                    "2:3 (Portrait Photo)",
+                    "3:2 (Photo)",
+                    "3:4 (Portrait Standard)",
+                    "4:3 (Standard)",
+                    "9:16 (Portrait Widescreen)",
+                    "16:9 (Widescreen)",
+                    "21:9 (Ultrawide)"
+                  ]
+                },
+                {
+                  "id": "megapixels",
+                  "label": "Megapixels",
+                  "kind": "number",
+                  "default": 1.0,
+                  "min": 0.1,
+                  "max": 16.0,
+                  "step": 0.1
+                },
+                {
+                  "id": "reference_resolution",
+                  "label": "Reference size",
+                  "kind": "integer",
+                  "default": 1024,
+                  "min": 0,
+                  "max": 4096,
+                  "step": 32
+                },
+                {
+                  "id": "lora_strength",
+                  "label": "Turbo LoRA strength",
+                  "kind": "number",
+                  "default": 1,
+                  "min": -100.0,
+                  "max": 100.0,
+                  "step": 0.01
+                }
+              ],
+              "media_roles": [
+                {
+                  "id": "references",
+                  "kind": "image",
+                  "min": 0,
+                  "max": 10,
+                  "roles": [
+                    "identity",
+                    "outfit",
+                    "location",
+                    "style",
+                    "composition",
+                    "object",
+                    "reference"
+                  ],
+                  "label": "References"
+                }
+              ],
+              "capabilities": {
+                "create": true,
+                "edit": false,
+                "multi_reference": true,
+                "prompt_enhancer": true,
+                "effective_prompt": true,
+                "native_mask": false
+              },
+              "output": {
+                "kind": "image",
+                "format": "png",
+                "size_policy": "explicit"
+              }
+            }
+          },
+          "source": "Inventory 1 Qwen-Image 2.1 Create; WF qwen_image_2_1_edit_PE_v3_v0.1_EDITOR.json"
+        },
+        {
+          "id": "edit",
+          "label": "Edit",
+          "operations": [
+            "edit",
+            "multi_reference"
+          ],
+          "prompt_grammar": "qwen_image_n_enhancer",
+          "inputs": [
+            {
+              "id": "image_1",
+              "kind": "image",
+              "role": "target",
+              "min": 1,
+              "max": 1,
+              "notes": "Edit target; output follows image_1. Prompt says <image1>."
+            },
+            {
+              "id": "references",
+              "kind": "image",
+              "role": "reference",
+              "min": 0,
+              "max": 9,
+              "notes": "References <image2> ... <image10>."
+            }
+          ],
+          "files": {
+            "diffusion_model": {
+              "folder": "diffusion_models",
+              "names": [
+                "qwen_image_2.1_int8_convrot.safetensors"
+              ],
+              "required": true
+            },
+            "text_encoder": {
+              "folder": "text_encoders",
+              "names": [
+                "qwen3vl_8b_int8_convrot.safetensors"
+              ],
+              "required": true
+            },
+            "vae": {
+              "folder": "vae",
+              "names": [
+                "qwen_image_2.1_vae_bf16.safetensors",
+                "texture_fix_vae_for_qwen_image_2.1_bf16.safetensors"
+              ],
+              "required": true
+            },
+            "lora": {
+              "folder": "loras",
+              "names": [
+                "p_qwen_image_2.1_8step_v0.1.safetensors"
+              ],
+              "required": false
+            },
+            "prompt_enhancer": {
+              "folder": "text_encoders",
+              "names": [
+                "qwen3.5_9b_qwen_image_2.1_pe_i2i.int8_convrot.safetensors"
+              ],
+              "required": false
+            }
+          },
+          "required_classes": [
+            "UNETLoader",
+            "CLIPLoader",
+            "VAELoader",
+            "TextEncodeQwenImage21",
+            "QwenImage21Cache",
+            "ResolutionSelector",
+            "KSampler",
+            "VAEDecode",
+            "LoraLoaderModelOnly",
+            "BatchImagesNode",
+            "TextGenerate",
+            "ComfySwitchNode",
+            "RegexReplace",
+            "PreviewAny"
+          ],
+          "presets": [
+            {
+              "id": "turbo",
+              "label": "Turbo",
+              "values": {
+                "lora_strength": 1.0,
+                "steps": 12,
+                "cfg": 1.5,
+                "sampler": "er_sde",
+                "scheduler": "beta",
+                "denoise": 1.0
+              },
+              "source": "Inventory 1 Qwen 2.1 artist workflow PE v3 TURBO (shipped): LoRA 1.0, 12 steps, CFG 1.5, er_sde/beta, denoise 1"
+            },
+            {
+              "id": "fastest",
+              "label": "Fastest",
+              "values": {
+                "steps": 8,
+                "cfg": 1.0,
+                "sampler": "er_sde",
+                "scheduler": "beta"
+              },
+              "source": "Inventory 1 Qwen 2.1 artist workflow PE v3 FASTEST: 8 / CFG 1 / er_sde-beta"
+            },
+            {
+              "id": "quality",
+              "label": "Quality",
+              "values": {
+                "lora_strength": 0.0,
+                "steps": 40,
+                "steps_max": 50,
+                "cfg": 1.0,
+                "sampler": "euler",
+                "scheduler": "beta"
+              },
+              "source": "Inventory 1 Qwen 2.1 artist workflow PE v3 QUALITY: LoRA 0, 40-50 steps, CFG 1, euler/beta"
+            },
+            {
+              "id": "template",
+              "label": "Official template",
+              "values": {
+                "steps": 25,
+                "cfg": 1.0,
+                "sampler": "euler",
+                "scheduler": "simple"
+              },
+              "source": "Inventory 1 Qwen 2.1 Edit official template image_qwen_image_2_1_image_edit.json: 25 / CFG 1 / euler / simple"
+            }
+          ],
+          "lora_max": null,
+          "resolution": {
+            "min_px": null,
+            "max_px": 2048,
+            "multiple": 8,
+            "default_megapixels": 1.0
+          },
+          "stages": [],
+          "notes": [
+            "Partial edits can shift colours of the whole picture; 2K mitigates."
+          ],
+          "suite_targets": [],
+          "workflow": {
+            "manifest_sha256": "f654573c23394a3822b1d6829ca628279bbea0ed9aef4694f68293ab069e2b33",
+            "api_sha256": "7fcd3357703e967f3c0d65c7e591fc0604b45c402d6854549d5a3bf981fc8525",
+            "descriptor": {
+              "descriptor_version": 1,
+              "target_id": "qwen-image-2.1-edit-pe-v3-v2",
+              "request_schema": "studio.image-workflow-request/1",
+              "availability": "backend_only",
+              "reason": "Image model selection and durable generic image submission are not bound to catalog descriptors yet.",
+              "controls": [
+                {
+                  "id": "negative",
+                  "label": "Negative prompt",
+                  "kind": "textarea",
+                  "default": ""
+                },
+                {
+                  "id": "seed",
+                  "label": "Seed",
+                  "kind": "integer",
+                  "default": 0,
+                  "min": 0,
+                  "max": 18446744073709551615
+                },
+                {
+                  "id": "steps",
+                  "label": "Steps",
+                  "kind": "integer",
+                  "default": 12,
+                  "min": 1,
+                  "max": 10000
+                },
+                {
+                  "id": "cfg",
+                  "label": "Guidance",
+                  "kind": "number",
+                  "default": 1.5,
+                  "min": 0.0,
+                  "max": 100.0,
+                  "step": 0.1
+                },
+                {
+                  "id": "sampler",
+                  "label": "Sampler",
+                  "kind": "select",
+                  "default": "er_sde",
+                  "options": [
+                    "euler",
+                    "euler_cfg_pp",
+                    "euler_ancestral",
+                    "euler_ancestral_cfg_pp",
+                    "heun",
+                    "heunpp2",
+                    "exp_heun_2_x0",
+                    "exp_heun_2_x0_sde",
+                    "dpm_2",
+                    "dpm_2_ancestral",
+                    "lms",
+                    "dpm_fast",
+                    "dpm_adaptive",
+                    "dpmpp_2s_ancestral",
+                    "dpmpp_2s_ancestral_cfg_pp",
+                    "dpmpp_sde",
+                    "dpmpp_sde_gpu",
+                    "dpmpp_2m",
+                    "dpmpp_2m_cfg_pp",
+                    "dpmpp_2m_sde",
+                    "dpmpp_2m_sde_gpu",
+                    "dpmpp_2m_sde_heun",
+                    "dpmpp_2m_sde_heun_gpu",
+                    "dpmpp_3m_sde",
+                    "dpmpp_3m_sde_gpu",
+                    "ddpm",
+                    "lcm",
+                    "ipndm",
+                    "ipndm_v",
+                    "deis",
+                    "cfgpp_ud10_ab",
+                    "res_multistep",
+                    "res_multistep_cfg_pp",
+                    "res_multistep_ancestral",
+                    "res_multistep_ancestral_cfg_pp",
+                    "gradient_estimation",
+                    "gradient_estimation_cfg_pp",
+                    "er_sde",
+                    "seeds_2",
+                    "seeds_3",
+                    "sa_solver",
+                    "sa_solver_pece",
+                    "ddim",
+                    "uni_pc",
+                    "uni_pc_bh2",
+                    "legacy_rk",
+                    "rk",
+                    "rk_beta",
+                    "deis_3m_ode",
+                    "deis_2m_ode",
+                    "deis_3m",
+                    "deis_2m",
+                    "res_6s_ode",
+                    "res_5s_ode",
+                    "res_3s_ode",
+                    "res_2s_ode",
+                    "res_3m_ode",
+                    "res_2m_ode",
+                    "res_6s",
+                    "res_5s",
+                    "res_3s",
+                    "res_2s",
+                    "res_3m",
+                    "res_2m"
+                  ]
+                },
+                {
+                  "id": "scheduler",
+                  "label": "Schedule",
+                  "kind": "select",
+                  "default": "beta",
+                  "options": [
+                    "simple",
+                    "sgm_uniform",
+                    "karras",
+                    "exponential",
+                    "ddim_uniform",
+                    "beta",
+                    "normal",
+                    "linear_quadratic",
+                    "kl_optimal",
+                    "bong_tangent",
+                    "beta57"
+                  ]
+                },
+                {
+                  "id": "denoise",
+                  "label": "Denoise",
+                  "kind": "number",
+                  "default": 1,
+                  "min": 0.0,
+                  "max": 1.0,
+                  "step": 0.01
+                },
+                {
+                  "id": "prompt_enhancer",
+                  "label": "Enhance prompt",
+                  "kind": "boolean",
+                  "default": false
+                },
+                {
+                  "id": "reference_resolution",
+                  "label": "Reference size",
+                  "kind": "integer",
+                  "default": 1024,
+                  "min": 0,
+                  "max": 4096,
+                  "step": 32
+                },
+                {
+                  "id": "lora_strength",
+                  "label": "Turbo LoRA strength",
+                  "kind": "number",
+                  "default": 1,
+                  "min": -100.0,
+                  "max": 100.0,
+                  "step": 0.01
+                }
+              ],
+              "media_roles": [
+                {
+                  "id": "target",
+                  "kind": "image",
+                  "min": 1,
+                  "max": 1,
+                  "roles": [
+                    "target"
+                  ],
+                  "label": "Edit target"
+                },
+                {
+                  "id": "references",
+                  "kind": "image",
+                  "min": 0,
+                  "max": 9,
+                  "roles": [
+                    "identity",
+                    "outfit",
+                    "location",
+                    "style",
+                    "composition",
+                    "object",
+                    "reference"
+                  ],
+                  "label": "References"
+                }
+              ],
+              "capabilities": {
+                "create": false,
+                "edit": true,
+                "multi_reference": true,
+                "prompt_enhancer": true,
+                "effective_prompt": true,
+                "native_mask": false
+              },
+              "output": {
+                "kind": "image",
+                "format": "png",
+                "size_policy": "first_reference"
+              }
+            }
+          },
+          "source": "Inventory 1 Qwen-Image 2.1 Edit + artist workflow PE v3"
+        }
+      ]
+    },
+    {
+      "id": "minimax_h3",
+      "label": "MiniMax H3",
+      "kind": "video",
+      "prompt_grammar": "h3_picture_n_literal",
+      "variants": [
+        {
+          "id": "ce_0_6",
+          "label": "CE 0.6",
+          "operations": [
+            "t2v",
+            "i2v",
+            "fflf",
+            "r2v"
+          ],
+          "prompt_grammar": "h3_picture_n_literal",
+          "inputs": [
+            {
+              "id": "first_frame",
+              "kind": "image",
+              "role": "first_frame",
+              "min": 0,
+              "max": 1,
+              "notes": "First frame = I2V; scene frame, not a character sheet."
+            },
+            {
+              "id": "last_frame",
+              "kind": "image",
+              "role": "last_frame",
+              "min": 0,
+              "max": 1,
+              "notes": "First + last = FFLF."
+            },
+            {
+              "id": "reference_images",
+              "kind": "image",
+              "role": "reference",
+              "min": 0,
+              "max": 9,
+              "notes": "References = R2V; prompt numbering <Picture 1> ... after first/last."
+            },
+            {
+              "id": "reference_videos",
+              "kind": "video",
+              "role": "reference",
+              "min": 0,
+              "max": 3,
+              "notes": "Media loader videos."
+            },
+            {
+              "id": "reference_audio",
+              "kind": "audio",
+              "role": "reference",
+              "min": 0,
+              "max": 1,
+              "notes": "Media loader audio."
+            }
+          ],
+          "files": {
+            "diffusion_model": {
+              "folder": "diffusion_models",
+              "names": [
+                "minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+                "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+                "minimax_h3_hybrid_fl2va_ref2va_b25-49-int8.safetensors",
+                "10Eros_Max_h3_hybrid_beta5_int8.safetensors",
+                "10Eros_Max_h3_TURBO-hybrid_beta5_int8.safetensors"
+              ],
+              "required": true
+            },
+            "text_encoder": {
+              "folder": "text_encoders",
+              "names": [
+                "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors"
+              ],
+              "required": true
+            },
+            "vae_video": {
+              "folder": "vae",
+              "names": [
+                "minimax_h3_video_vae_int8_convrot.safetensors",
+                "minimax_h3_video_vae_fp16.safetensors"
+              ],
+              "required": true
+            },
+            "vae_audio": {
+              "folder": "vae",
+              "names": [
+                "minimax_h3_audio_vae_fp32.safetensors"
+              ],
+              "required": true
+            },
+            "turbo_lora": {
+              "folder": "loras",
+              "names": [
+                "minimax_h3_turbo_v4_step600_ema_pruned_comfyui.safetensors"
+              ],
+              "required": false
+            },
+            "latent_upscaler": {
+              "folder": "latent_upscale_models",
+              "names": [
+                "minimax_h3_latent_upscaler_3d_fp16.safetensors"
+              ],
+              "required": false
+            },
+            "frame_interpolation": {
+              "folder": "frame_interpolation",
+              "names": [
+                "rife_v4.26.safetensors"
+              ],
+              "required": false
+            }
+          },
+          "required_classes": [
+            "UNETLoader",
+            "CLIPLoader",
+            "VAELoader",
+            "LoraLoaderModelOnly",
+            "MiniMaxH3SigmaShift",
+            "MiniMaxH3ImageToVideo",
+            "MiniMaxH3ReferenceToVideo",
+            "MiniMaxH3AddGuide",
+            "SamplerCustomAdvanced",
+            "CreateVideo",
+            "SaveVideo"
+          ],
+          "presets": [
+            {
+              "id": "native",
+              "label": "Native",
+              "values": {
+                "steps": 25,
+                "sampler": "er_sde",
+                "scheduler": "beta",
+                "sigma_shift_video": 12.0,
+                "sigma_shift_audio": 3.0,
+                "megapixels": 0.5
+              },
+              "source": "Inventory 3d NATIVE controls [er_sde, beta, 25]; MiniMaxH3SigmaShift video 12 / audio 3; ResolutionSelector 0.5 MP (RC2)"
+            },
+            {
+              "id": "turbo",
+              "label": "Turbo",
+              "values": {
+                "lora_strength": 0.8,
+                "steps": 12,
+                "sampler": "er_sde",
+                "scheduler": "beta"
+              },
+              "source": "RC2 TURBO main pass: Turbo LoRA 0.8 (node 978; 0.7 is node 1046 in the upscale chain), KSamplerSelect er_sde, BasicScheduler beta/12/1"
+            }
+          ],
+          "lora_max": null,
+          "resolution": {
+            "min_px": null,
+            "max_px": null,
+            "multiple": 32,
+            "default_megapixels": 0.5
+          },
+          "stages": [
+            {
+              "id": "engine",
+              "label": "Engine",
+              "options": [
+                "native",
+                "shark"
+              ],
+              "classes": [],
+              "notes": []
+            },
+            {
+              "id": "sampling_recipe",
+              "label": "Sampling recipe",
+              "options": [
+                "native",
+                "sandwich",
+                "fast_0903",
+                "custom_single"
+              ],
+              "classes": [],
+              "notes": []
+            },
+            {
+              "id": "attention",
+              "label": "Attention",
+              "options": [
+                "comfy_kitchen",
+                "sage",
+                "pytorch"
+              ],
+              "classes": [],
+              "notes": [
+                "Optional SLA / native sparse."
+              ]
+            },
+            {
+              "id": "cache",
+              "label": "Cache",
+              "options": [
+                "none",
+                "t8",
+                "spectrum"
+              ],
+              "classes": [],
+              "notes": []
+            },
+            {
+              "id": "upscale",
+              "label": "Upscale",
+              "options": [
+                "lbh",
+                "lbh_refine",
+                "ref2v"
+              ],
+              "classes": [
+                "MinimaxH3LatentUpscaler3D"
+              ],
+              "notes": [
+                "Shared target 1.5 MP, multiple of 32; optional LMS sharpening."
+              ]
+            },
+            {
+              "id": "temporal",
+              "label": "Time",
+              "options": [
+                "none",
+                "de_rope",
+                "simple_temporal_2x",
+                "simple_temporal_3x"
+              ],
+              "classes": [
+                "ImageBatchRepeatInterleaving",
+                "AudioSpeedShift",
+                "LTXVConcatAVLatent",
+                "VHS_SelectEveryNthImage"
+              ],
+              "notes": [
+                "needs_padding_fix",
+                "H3_CE_0.6.json (2026-10-02) removed the 17k+5 padding/crop nodes of Simple Temporal that RC2 verified."
+              ]
+            },
+            {
+              "id": "rife",
+              "label": "RIFE 48 fps",
+              "options": [
+                "off",
+                "on"
+              ],
+              "classes": [
+                "FrameInterpolationModelLoader",
+                "FrameInterpolate"
+              ],
+              "notes": []
+            },
+            {
+              "id": "audio",
+              "label": "Audio finish",
+              "options": [
+                "generated",
+                "audio_refine"
+              ],
+              "classes": [],
+              "notes": [
+                "Delivered audio is never replaced by the temporal pass."
+              ]
+            }
+          ],
+          "notes": [
+            "Mode follows the inputs: none = T2V, first = I2V, first + last = FFLF, references = R2V.",
+            "Mask retake, bridge and sequence need their own qualification; trim stays outside the Suite."
+          ],
+          "suite_targets": [
+            "minimax-h3-frames-v1",
+            "minimax-h3-references-v1"
+          ],
+          "source": "Inventory 3a-3g (H3_CE_0.6_TEMPORAL_RC2, Downloads/H3_CE_0.6.json)"
+        }
+      ]
+    },
+    {
+      "id": "moss_image",
+      "label": "MOSS-Image",
+      "kind": "image",
+      "prompt_grammar": "moss_prose",
+      "variants": [
+        {
+          "id": "sft",
+          "label": "SFT",
+          "operations": [
+            "create"
+          ],
+          "prompt_grammar": "moss_prose",
+          "inputs": [],
+          "files": {
+            "diffusion_model": {
+              "folder": "diffusion_models",
+              "names": [
+                "moss_image_sft_bf16.safetensors",
+                "moss_image_sft_int8_convrot.safetensors"
+              ],
+              "required": true
+            },
+            "text_encoder": {
+              "folder": "text_encoders",
+              "names": [
+                "qwen3.5_9b_int8_convrot.safetensors"
+              ],
+              "required": true
+            },
+            "vae": {
+              "folder": "vae",
+              "names": [
+                "flux2-vae.safetensors"
+              ],
+              "required": true
+            }
+          },
+          "required_classes": [
+            "UNETLoader",
+            "CLIPLoader",
+            "VAELoader",
+            "SkipLayerGuidanceDiTSimple",
+            "EmptyFlux2LatentImage",
+            "KSampler",
+            "VAEDecode"
+          ],
+          "presets": [
+            {
+              "id": "official",
+              "label": "Official",
+              "values": {
+                "steps": 50,
+                "cfg": 3.0,
+                "sampler": "euler",
+                "scheduler": "sgm_uniform"
+              },
+              "source": "MOSS-Image USERGUIDE + repo example: Euler 50 steps (default), CFG 3, sgm_uniform, SLG single layer 22, shift 5 model default"
+            }
+          ],
+          "lora_max": null,
+          "resolution": {
+            "min_px": 512,
+            "max_px": 2048,
+            "multiple": 16,
+            "default_megapixels": 1.0
+          },
+          "stages": [],
+          "notes": [
+            "bf16 and int8 model files are both offered; the artist compares them.",
+            "Official negative prompt is prefilled and editable."
+          ],
+          "suite_targets": [],
+          "workflow": {
+            "manifest_sha256": "15c2be476c6beff6e6d55e74f74b4b3ef70664f0aabd3665a6907b62897146c8",
+            "api_sha256": "bcc215df682ae46e795885b60d1866d927e0e66234f665bc8e053299c7f3c08e",
+            "descriptor": {
+              "descriptor_version": 1,
+              "target_id": "moss-image-sft-create-v1",
+              "request_schema": "studio.image-workflow-request/1",
+              "availability": "backend_only",
+              "reason": "MOSS-Image SFT text-to-image (native, PR #17095); bf16 or int8 model file; Euler 50 steps, CFG 3, sgm_uniform, SLG single layer 22, shift 5 = model default.",
+              "controls": [
+                {
+                  "id": "model",
+                  "label": "Model file",
+                  "kind": "select",
+                  "default": "moss_image_sft_bf16.safetensors",
+                  "options": [
+                    "moss_image_sft_bf16.safetensors",
+                    "moss_image_sft_int8_convrot.safetensors"
+                  ]
+                },
+                {
+                  "id": "negative",
+                  "label": "Negative prompt",
+                  "kind": "textarea",
+                  "default": "nsfw, worst quality, bad anatomy, watermark, jpeg artifact"
+                },
+                {
+                  "id": "seed",
+                  "label": "Seed",
+                  "kind": "integer",
+                  "default": 0,
+                  "min": 0,
+                  "max": 18446744073709551615
+                },
+                {
+                  "id": "steps",
+                  "label": "Steps",
+                  "kind": "integer",
+                  "default": 50,
+                  "min": 1,
+                  "max": 10000
+                },
+                {
+                  "id": "cfg",
+                  "label": "Guidance",
+                  "kind": "number",
+                  "default": 3.0,
+                  "min": 0.0,
+                  "max": 100.0,
+                  "step": 0.1
+                },
+                {
+                  "id": "sampler",
+                  "label": "Sampler",
+                  "kind": "select",
+                  "default": "euler",
+                  "options": [
+                    "euler",
+                    "euler_cfg_pp",
+                    "euler_ancestral",
+                    "euler_ancestral_cfg_pp",
+                    "heun",
+                    "heunpp2",
+                    "exp_heun_2_x0",
+                    "exp_heun_2_x0_sde",
+                    "dpm_2",
+                    "dpm_2_ancestral",
+                    "lms",
+                    "dpm_fast",
+                    "dpm_adaptive",
+                    "dpmpp_2s_ancestral",
+                    "dpmpp_2s_ancestral_cfg_pp",
+                    "dpmpp_sde",
+                    "dpmpp_sde_gpu",
+                    "dpmpp_2m",
+                    "dpmpp_2m_cfg_pp",
+                    "dpmpp_2m_sde",
+                    "dpmpp_2m_sde_gpu",
+                    "dpmpp_2m_sde_heun",
+                    "dpmpp_2m_sde_heun_gpu",
+                    "dpmpp_3m_sde",
+                    "dpmpp_3m_sde_gpu",
+                    "ddpm",
+                    "lcm",
+                    "ipndm",
+                    "ipndm_v",
+                    "deis",
+                    "cfgpp_ud10_ab",
+                    "res_multistep",
+                    "res_multistep_cfg_pp",
+                    "res_multistep_ancestral",
+                    "res_multistep_ancestral_cfg_pp",
+                    "gradient_estimation",
+                    "gradient_estimation_cfg_pp",
+                    "er_sde",
+                    "seeds_2",
+                    "seeds_3",
+                    "sa_solver",
+                    "sa_solver_pece",
+                    "ddim",
+                    "uni_pc",
+                    "uni_pc_bh2",
+                    "legacy_rk",
+                    "rk",
+                    "rk_beta",
+                    "deis_3m_ode",
+                    "deis_2m_ode",
+                    "deis_3m",
+                    "deis_2m",
+                    "res_6s_ode",
+                    "res_5s_ode",
+                    "res_3s_ode",
+                    "res_2s_ode",
+                    "res_3m_ode",
+                    "res_2m_ode",
+                    "res_6s",
+                    "res_5s",
+                    "res_3s",
+                    "res_2s",
+                    "res_3m",
+                    "res_2m"
+                  ]
+                },
+                {
+                  "id": "scheduler",
+                  "label": "Schedule",
+                  "kind": "select",
+                  "default": "sgm_uniform",
+                  "options": [
+                    "simple",
+                    "sgm_uniform",
+                    "karras",
+                    "exponential",
+                    "ddim_uniform",
+                    "beta",
+                    "normal",
+                    "linear_quadratic",
+                    "kl_optimal",
+                    "bong_tangent",
+                    "beta57"
+                  ]
+                },
+                {
+                  "id": "aspect_ratio",
+                  "label": "Format",
+                  "kind": "select",
+                  "default": "1:1 (Square)",
+                  "options": [
+                    "1:1 (Square)",
+                    "2:3 (Portrait Photo)",
+                    "3:2 (Photo)",
+                    "3:4 (Portrait Standard)",
+                    "4:3 (Standard)",
+                    "9:16 (Portrait Widescreen)",
+                    "16:9 (Widescreen)",
+                    "21:9 (Ultrawide)"
+                  ]
+                },
+                {
+                  "id": "megapixels",
+                  "label": "Megapixels",
+                  "kind": "number",
+                  "default": 1.0,
+                  "min": 0.1,
+                  "max": 4.0,
+                  "step": 0.1
+                }
+              ],
+              "media_roles": [],
+              "capabilities": {
+                "create": true,
+                "edit": false,
+                "multi_reference": false,
+                "native_mask": false,
+                "prompt_enhancer": false,
+                "effective_prompt": false
+              },
+              "output": {
+                "kind": "image",
+                "format": "png",
+                "size_policy": "explicit"
+              }
+            }
+          },
+          "source": "ComfyUI PR #17095 native MOSS-Image; moss-repo USERGUIDE.md + example_workflows/moss-image-api.json"
+        }
+      ]
+    },
+    {
+      "id": "flux3_klein",
+      "label": "FLUX.3 Klein",
+      "kind": "image",
+      "prompt_grammar": "flux3_upsampled_prose",
+      "variants": [
+        {
+          "id": "sd",
+          "label": "Distilled",
+          "operations": [
+            "create"
+          ],
+          "prompt_grammar": "flux3_upsampled_prose",
+          "inputs": [],
+          "files": {
+            "diffusion_model": {
+              "folder": "diffusion_models",
+              "names": [
+                "flux3_image_klein_sd_int8_convrot.safetensors"
+              ],
+              "required": true
+            },
+            "text_encoder": {
+              "folder": "text_encoders",
+              "names": [
+                "qwen3vl_4b_int8_convrot.safetensors"
+              ],
+              "required": true
+            },
+            "vae": {
+              "folder": "vae",
+              "names": [
+                "flux2-vae.safetensors"
+              ],
+              "required": true
+            },
+            "prompt_enhancer": {
+              "folder": "text_encoders",
+              "names": [
+                "qwen3.5_9b_flux3_prompt_upsampler_int8_convrot.safetensors"
+              ],
+              "required": false
+            }
+          },
+          "required_classes": [
+            "UNETLoader",
+            "CLIPLoader",
+            "VAELoader",
+            "TextGenerate",
+            "ComfySwitchNode",
+            "EmptyFlux2LatentImage",
+            "KSampler",
+            "VAEDecode"
+          ],
+          "presets": [
+            {
+              "id": "default",
+              "label": "Default",
+              "values": {
+                "steps": 16,
+                "cfg": 1.0,
+                "sampler": "er_sde",
+                "scheduler": "simple"
+              },
+              "source": "BFL distilled template image_flux3_klein_distilled_t2i.json: 16 steps, CFG 1, er_sde/simple"
+            }
+          ],
+          "lora_max": null,
+          "resolution": {
+            "min_px": null,
+            "max_px": null,
+            "multiple": 16,
+            "default_megapixels": 1.0
+          },
+          "stages": [],
+          "notes": [
+            "Prompt upsampler is a manual checkbox, off by default (artist's rule IMG-073; BFL: trained on upsampled captions); its caption is shown and stored."
+          ],
+          "suite_targets": [],
+          "workflow": {
+            "manifest_sha256": "53ed535bf242deee77418254bc6a1b8688b557a966db62be80b1f0ab97958029",
+            "api_sha256": "f6ed7094e8b6d44497abcc12cf3b2717c34619e4903b259e4e6dbbbca48cd987",
+            "descriptor": {
+              "descriptor_version": 1,
+              "target_id": "flux3-klein-sd-create-v1",
+              "request_schema": "studio.image-workflow-request/1",
+              "availability": "backend_only",
+              "reason": "FLUX.3 Klein self-distilled (_sd_) text-to-image, 16 steps without CFG; BFL prompt upsampler as a manual switch (off by default), its caption is shown and stored.",
+              "controls": [
+                {
+                  "id": "prompt_upsampler",
+                  "label": "Enhance prompt",
+                  "kind": "boolean",
+                  "default": false
+                },
+                {
+                  "id": "seed",
+                  "label": "Seed",
+                  "kind": "integer",
+                  "default": 0,
+                  "min": 0,
+                  "max": 18446744073709551615
+                },
+                {
+                  "id": "steps",
+                  "label": "Steps",
+                  "kind": "integer",
+                  "default": 16,
+                  "min": 1,
+                  "max": 10000
+                },
+                {
+                  "id": "sampler",
+                  "label": "Sampler",
+                  "kind": "select",
+                  "default": "er_sde",
+                  "options": [
+                    "euler",
+                    "euler_cfg_pp",
+                    "euler_ancestral",
+                    "euler_ancestral_cfg_pp",
+                    "heun",
+                    "heunpp2",
+                    "exp_heun_2_x0",
+                    "exp_heun_2_x0_sde",
+                    "dpm_2",
+                    "dpm_2_ancestral",
+                    "lms",
+                    "dpm_fast",
+                    "dpm_adaptive",
+                    "dpmpp_2s_ancestral",
+                    "dpmpp_2s_ancestral_cfg_pp",
+                    "dpmpp_sde",
+                    "dpmpp_sde_gpu",
+                    "dpmpp_2m",
+                    "dpmpp_2m_cfg_pp",
+                    "dpmpp_2m_sde",
+                    "dpmpp_2m_sde_gpu",
+                    "dpmpp_2m_sde_heun",
+                    "dpmpp_2m_sde_heun_gpu",
+                    "dpmpp_3m_sde",
+                    "dpmpp_3m_sde_gpu",
+                    "ddpm",
+                    "lcm",
+                    "ipndm",
+                    "ipndm_v",
+                    "deis",
+                    "cfgpp_ud10_ab",
+                    "res_multistep",
+                    "res_multistep_cfg_pp",
+                    "res_multistep_ancestral",
+                    "res_multistep_ancestral_cfg_pp",
+                    "gradient_estimation",
+                    "gradient_estimation_cfg_pp",
+                    "er_sde",
+                    "seeds_2",
+                    "seeds_3",
+                    "sa_solver",
+                    "sa_solver_pece",
+                    "ddim",
+                    "uni_pc",
+                    "uni_pc_bh2",
+                    "legacy_rk",
+                    "rk",
+                    "rk_beta",
+                    "deis_3m_ode",
+                    "deis_2m_ode",
+                    "deis_3m",
+                    "deis_2m",
+                    "res_6s_ode",
+                    "res_5s_ode",
+                    "res_3s_ode",
+                    "res_2s_ode",
+                    "res_3m_ode",
+                    "res_2m_ode",
+                    "res_6s",
+                    "res_5s",
+                    "res_3s",
+                    "res_2s",
+                    "res_3m",
+                    "res_2m"
+                  ]
+                },
+                {
+                  "id": "scheduler",
+                  "label": "Schedule",
+                  "kind": "select",
+                  "default": "simple",
+                  "options": [
+                    "simple",
+                    "sgm_uniform",
+                    "karras",
+                    "exponential",
+                    "ddim_uniform",
+                    "beta",
+                    "normal",
+                    "linear_quadratic",
+                    "kl_optimal",
+                    "bong_tangent",
+                    "beta57"
+                  ]
+                },
+                {
+                  "id": "aspect_ratio",
+                  "label": "Format",
+                  "kind": "select",
+                  "default": "1:1 (Square)",
+                  "options": [
+                    "1:1 (Square)",
+                    "2:3 (Portrait Photo)",
+                    "3:2 (Photo)",
+                    "3:4 (Portrait Standard)",
+                    "4:3 (Standard)",
+                    "9:16 (Portrait Widescreen)",
+                    "16:9 (Widescreen)",
+                    "21:9 (Ultrawide)"
+                  ]
+                },
+                {
+                  "id": "megapixels",
+                  "label": "Megapixels",
+                  "kind": "number",
+                  "default": 1.0,
+                  "min": 0.1,
+                  "max": 4.0,
+                  "step": 0.1
+                }
+              ],
+              "media_roles": [],
+              "capabilities": {
+                "create": true,
+                "edit": false,
+                "multi_reference": false,
+                "native_mask": false,
+                "prompt_enhancer": true,
+                "effective_prompt": true
+              },
+              "output": {
+                "kind": "image",
+                "format": "png",
+                "size_policy": "explicit"
+              }
+            }
+          },
+          "source": "ComfyUI #17064 native FLUX.3; black-forest-labs/flux-3-image-klein-comfy distilled template"
+        }
+      ]
+    },
+    {
+      "id": "omnivoice",
+      "label": "OmniVoice",
+      "kind": "voice",
+      "prompt_grammar": "spoken_line",
+      "variants": [
+        {
+          "id": "base",
+          "label": "Base",
+          "operations": [
+            "speak_clone",
+            "speak_design"
+          ],
+          "prompt_grammar": "spoken_line",
+          "inputs": [
+            {
+              "id": "voice_clip",
+              "kind": "audio",
+              "role": "voice",
+              "min": 0,
+              "max": 1,
+              "notes": "A clip of the voice (3-10 s best; over 20 s the pack trims to 15 s) and, optionally, its words; empty words = local Whisper."
+            }
+          ],
+          "files": {
+            "voice_model": {
+              "folder": "omnivoice",
+              "names": [
+                "OmniVoice/model.safetensors"
+              ],
+              "required": true
+            },
+            "asr": {
+              "folder": "audio_encoders",
+              "names": [
+                "openai_whisper-large-v3-turbo/model.safetensors"
+              ],
+              "required": false
+            }
+          },
+          "required_classes": [
+            "LoadAudio",
+            "OmniVoiceVoiceCloneTTS",
+            "OmniVoiceVoiceDesignTTS",
+            "SaveAudio"
+          ],
+          "presets": [
+            {
+              "id": "house",
+              "label": "House",
+              "values": {
+                "steps": 64,
+                "cfg": 2.0,
+                "speed": 0.9
+              },
+              "source": "Artist skill omnivoice-hoerspiel-pipeline:282-284 (num_step 64, guidance 2.0, speed 0.9); fs-voice-prep OMNIVOICE-WORKFLOWS.md 1"
+            }
+          ],
+          "lora_max": null,
+          "resolution": null,
+          "stages": [],
+          "notes": [
+            "keep_model_loaded is pinned false: true keeps about 6 GB of RAM per take (fs-tf5 RESULT item 8)."
+          ],
+          "suite_targets": [
+            "omnivoice-clone-v1",
+            "omnivoice-design-v1"
+          ],
+          "source": "Saganaki22/ComfyUI-OmniVoice-TTS 0.4.7 live 21.10.; workflows/omnivoice-clone-v1, omnivoice-design-v1"
+        }
+      ]
+    },
+    {
+      "id": "drama3",
+      "label": "Drama 3",
+      "kind": "voice",
+      "prompt_grammar": "spoken_line",
+      "variants": [
+        {
+          "id": "fp8",
+          "label": "FP8 experts",
+          "operations": [
+            "speak_clone"
+          ],
+          "prompt_grammar": "spoken_line",
+          "inputs": [
+            {
+              "id": "voice_clip",
+              "kind": "audio",
+              "role": "voice",
+              "min": 1,
+              "max": 1,
+              "notes": "A clip of the voice and its exact words (required: no speech recognition weights are installed for Drama 3)."
+            }
+          ],
+          "files": {
+            "diffusion_model": {
+              "folder": "diffusion_models",
+              "names": [
+                "drama3_fp8experts_bf16.safetensors"
+              ],
+              "required": true
+            },
+            "codec": {
+              "folder": "vae",
+              "names": [
+                "drama3_codec.safetensors"
+              ],
+              "required": true
+            }
+          },
+          "required_classes": [
+            "Drama3Loader",
+            "Drama3CodecLoader",
+            "LoadAudio",
+            "Drama3EncodeVoice",
+            "Drama3Generate",
+            "Drama3Decode",
+            "SaveAudio"
+          ],
+          "presets": [
+            {
+              "id": "space",
+              "label": "Fish Audio defaults",
+              "values": {
+                "temperature": 1.0,
+                "top_p": 0.9,
+                "top_k": 0
+              },
+              "source": "ComfyUI-Drama3 nodes.py:207-213 tooltips (Fish Audio server/Space defaults)"
+            }
+          ],
+          "lora_max": null,
+          "resolution": null,
+          "stages": [],
+          "notes": [
+            "Experts stay in system RAM (about 17 GB with 22 layers in VRAM, the artist's NTU_VO_v06b settings)."
+          ],
+          "suite_targets": [
+            "drama3-clone-v1"
+          ],
+          "source": "PedroMarinhoDev/ComfyUI-Drama3 live 21.10.; workflows/drama3-clone-v1"
+        }
+      ]
+    },
+    {
+      "id": "gpt_image",
+      "label": "GPT Image",
+      "kind": "image",
+      "prompt_grammar": "gpt_image_prose",
+      "provider_group": {
+        "id": "chatgpt-codex",
+        "label": "ChatGPT (Codex)",
+        "billing": "subscription"
+      },
+      "variants": [
+        {
+          "id": "create",
+          "label": "Create",
+          "operations": [
+            "create"
+          ],
+          "prompt_grammar": "gpt_image_prose",
+          "inputs": [],
+          "files": {},
+          "required_classes": [],
+          "presets": [],
+          "lora_max": null,
+          "resolution": null,
+          "stages": [],
+          "notes": [
+            "Billed to the artist's ChatGPT (Codex) subscription; no API key."
+          ],
+          "suite_targets": [
+            "gpt-image-2-create-v1"
+          ],
+          "workflow": {
+            "manifest_sha256": "7140ec02b73bba359ed202e732bfb24acd7fcc90e3f07e9266705e3af96c96c1",
+            "api_sha256": "16b77d161bbd248d05c0495cfcfd58d783b9b112d5966970857fae05c22ff3bd",
+            "descriptor": {
+              "descriptor_version": 1,
+              "target_id": "gpt-image-2-create-v1",
+              "request_schema": "studio.image-workflow-request/1",
+              "availability": "backend_only",
+              "reason": "GPT Image 2 from a prompt, made by your ChatGPT (Codex) subscription through Hermes.",
+              "controls": [
+                {
+                  "id": "aspect_ratio",
+                  "label": "Format",
+                  "kind": "select",
+                  "default": "Landscape 1536×1024",
+                  "options": [
+                    "Landscape 1536×1024"
+                  ]
+                },
+                {
+                  "id": "quality",
+                  "label": "Quality",
+                  "kind": "select",
+                  "default": "medium",
+                  "options": [
+                    "low",
+                    "medium",
+                    "high"
+                  ]
+                }
+              ],
+              "media_roles": [],
+              "capabilities": {
+                "create": true,
+                "edit": false,
+                "multi_reference": false,
+                "native_mask": false,
+                "prompt_enhancer": false,
+                "effective_prompt": false
+              },
+              "output": {
+                "kind": "image",
+                "format": "png",
+                "size_policy": "explicit"
+              }
+            }
+          },
+          "source": "Hermes image_gen provider openai-codex (plugins/image_gen/openai-codex): gpt-image-2, quality low/medium/high, sizes 1024x1024, 1536x1024, 1024x1536; generation/subscription_image_provider.py"
+        },
+        {
+          "id": "edit",
+          "label": "Edit",
+          "operations": [
+            "edit",
+            "multi_reference"
+          ],
+          "prompt_grammar": "gpt_image_prose",
+          "inputs": [
+            {
+              "id": "image_1",
+              "kind": "image",
+              "role": "source",
+              "min": 1,
+              "max": 1,
+              "notes": "Picture to edit."
+            },
+            {
+              "id": "references",
+              "kind": "image",
+              "role": "reference",
+              "min": 0,
+              "max": 15,
+              "notes": "Extra reference pictures."
+            }
+          ],
+          "files": {},
+          "required_classes": [],
+          "presets": [],
+          "lora_max": null,
+          "resolution": null,
+          "stages": [],
+          "notes": [
+            "No mask: not offered in Box."
+          ],
+          "suite_targets": [
+            "gpt-image-2-edit-v1"
+          ],
+          "workflow": {
+            "manifest_sha256": "ba8ad79b9b4134f829cdbb86ea3dbee701f40d836f8d94ad107c915af4546175",
+            "api_sha256": "8d435b18ca2eb6e0299ba6fd580c175718fd5f1da39caeafeaf08cf0809952d6",
+            "descriptor": {
+              "descriptor_version": 1,
+              "target_id": "gpt-image-2-edit-v1",
+              "request_schema": "studio.image-workflow-request/1",
+              "availability": "backend_only",
+              "reason": "GPT Image 2 edit with reference images, made by your ChatGPT (Codex) subscription through Hermes.",
+              "controls": [
+                {
+                  "id": "aspect_ratio",
+                  "label": "Format",
+                  "kind": "select",
+                  "default": "Landscape 1536×1024",
+                  "options": [
+                    "Landscape 1536×1024"
+                  ]
+                },
+                {
+                  "id": "quality",
+                  "label": "Quality",
+                  "kind": "select",
+                  "default": "medium",
+                  "options": [
+                    "low",
+                    "medium",
+                    "high"
+                  ]
+                }
+              ],
+              "media_roles": [
+                {
+                  "id": "image_1",
+                  "label": "Image 1 · picture to edit",
+                  "kind": "image",
+                  "min": 1,
+                  "max": 1,
+                  "roles": [
+                    "target"
+                  ]
+                },
+                {
+                  "id": "references",
+                  "label": "References",
+                  "kind": "image",
+                  "min": 0,
+                  "max": 15,
+                  "roles": [
+                    "reference"
+                  ]
+                }
+              ],
+              "capabilities": {
+                "create": false,
+                "edit": true,
+                "multi_reference": true,
+                "native_mask": false,
+                "prompt_enhancer": false,
+                "effective_prompt": false
+              },
+              "output": {
+                "kind": "image",
+                "format": "png",
+                "size_policy": "explicit"
+              }
+            }
+          },
+          "source": "Hermes image_gen provider openai-codex (plugins/image_gen/openai-codex): gpt-image-2, quality low/medium/high, sizes 1024x1024, 1536x1024, 1024x1536; generation/subscription_image_provider.py"
+        }
+      ]
+    },
+    {
+      "id": "p_h3_image",
+      "label": "P-H3-Image",
+      "kind": "image",
+      "prompt_grammar": "h3_picture_n_literal",
+      "variants": [
+        {
+          "id": "create",
+          "label": "Create",
+          "operations": [
+            "create"
+          ],
+          "prompt_grammar": "h3_picture_n_literal",
+          "inputs": [],
+          "files": {
+            "diffusion_model": {
+              "folder": "diffusion_models",
+              "names": [
+                "minimax_h3_fl2va_pruned_int8_convrot.safetensors"
+              ],
+              "required": true
+            },
+            "lora": {
+              "folder": "loras",
+              "names": [
+                "p-h3-image_lora_bf16.safetensors"
+              ],
+              "required": true
+            },
+            "text_encoder": {
+              "folder": "text_encoders",
+              "names": [
+                "p-h3-image_text_encoder_int8_convrot.safetensors"
+              ],
+              "required": true
+            },
+            "vae": {
+              "folder": "vae",
+              "names": [
+                "p-h3-image_vae_int8_convrot.safetensors"
+              ],
+              "required": true
+            }
+          },
+          "required_classes": [
+            "UNETLoader",
+            "LoraLoaderBypassModelOnly",
+            "MiniMaxH3SigmaShift",
+            "CLIPLoader",
+            "VAELoader",
+            "ResolutionSelector",
+            "PH3ImageConditioning",
+            "BasicGuider",
+            "KSamplerSelect",
+            "RandomNoise",
+            "ManualSigmas",
+            "SamplerCustomAdvanced",
+            "VAEDecode"
+          ],
+          "presets": [
+            {
+              "id": "card",
+              "label": "Model card",
+              "values": {
+                "steps": 8,
+                "sampler": "euler",
+                "lora_strength": 1.0,
+                "sigma_shift_video": 1.0,
+                "sigma_shift_audio": 1.0,
+                "megapixels": 8.0
+              },
+              "source": "PrunaAI P-H3-Image-Comfy card + p-h3-image_lora_text_to_image.json: ManualSigmas 8 steps, euler, no CFG, LoRA bypass 1.0, MiniMaxH3SigmaShift 1.0/1.0, 8 MP"
+            }
+          ],
+          "lora_max": null,
+          "resolution": {
+            "min_px": null,
+            "max_px": null,
+            "multiple": 32,
+            "default_megapixels": 2.0
+          },
+          "stages": [],
+          "notes": [
+            "Card sizes at 8 MP: 1:1 2912x2912, 4:3 3360x2496, 3:2 3552x2368, 16:9 3872x2176 (portrait swapped); best at 8 MP, artefacts below (community).",
+            "Sensitive to prompting: full, specific prompts render much better than short requests; the prompt upsampler is not installed, so the request goes in as written."
+          ],
+          "suite_targets": [],
+          "workflow": {
+            "manifest_sha256": "9cc637ab7c16583f39239f6cf4ad09cbaf6b8ae52abf99e479e2105d06972bb6",
+            "api_sha256": "8c817d5e1fc371777ac7028c471eb4fb3ad9d341e8e6deb98b910c3557a49c51",
+            "descriptor": {
+              "availability": "backend_only",
+              "capabilities": {
+                "create": true,
+                "edit": false,
+                "effective_prompt": true,
+                "multi_reference": false,
+                "native_mask": false,
+                "prompt_enhancer": false
+              },
+              "controls": [
+                {
+                  "default": 0,
+                  "id": "seed",
+                  "kind": "integer",
+                  "label": "Seed",
+                  "max": 18446744073709551615,
+                  "min": 0
+                },
+                {
+                  "default": "16:9 (Widescreen)",
+                  "id": "aspect_ratio",
+                  "kind": "select",
+                  "label": "Format",
+                  "options": [
+                    "1:1 (Square)",
+                    "2:3 (Portrait Photo)",
+                    "3:2 (Photo)",
+                    "3:4 (Portrait Standard)",
+                    "4:3 (Standard)",
+                    "9:16 (Portrait Widescreen)",
+                    "16:9 (Widescreen)",
+                    "21:9 (Ultrawide)"
+                  ]
+                },
+                {
+                  "default": 2.0,
+                  "id": "megapixels",
+                  "kind": "number",
+                  "label": "Megapixels",
+                  "max": 16.0,
+                  "min": 1.0,
+                  "step": 0.1
+                },
+                {
+                  "default": 1.0,
+                  "id": "lora_strength",
+                  "kind": "number",
+                  "label": "LoRA strength",
+                  "max": 2.0,
+                  "min": 0.0,
+                  "step": 0.05
+                },
+                {
+                  "default": 8,
+                  "id": "steps",
+                  "kind": "integer",
+                  "label": "Steps",
+                  "max": 16,
+                  "min": 4,
+                  "step": 1
+                },
+                {
+                  "default": "euler",
+                  "id": "sampler",
+                  "kind": "select",
+                  "label": "Sampler",
+                  "options": [
+                    "euler",
+                    "euler_cfg_pp",
+                    "euler_ancestral",
+                    "euler_ancestral_cfg_pp",
+                    "heun",
+                    "heunpp2",
+                    "exp_heun_2_x0",
+                    "exp_heun_2_x0_sde",
+                    "dpm_2",
+                    "dpm_2_ancestral",
+                    "lms",
+                    "dpm_fast",
+                    "dpm_adaptive",
+                    "dpmpp_2s_ancestral",
+                    "dpmpp_2s_ancestral_cfg_pp",
+                    "dpmpp_sde",
+                    "dpmpp_sde_gpu",
+                    "dpmpp_2m",
+                    "dpmpp_2m_cfg_pp",
+                    "dpmpp_2m_sde",
+                    "dpmpp_2m_sde_gpu",
+                    "dpmpp_2m_sde_heun",
+                    "dpmpp_2m_sde_heun_gpu",
+                    "dpmpp_3m_sde",
+                    "dpmpp_3m_sde_gpu",
+                    "ddpm",
+                    "lcm",
+                    "ipndm",
+                    "ipndm_v",
+                    "deis",
+                    "cfgpp_ud10_ab",
+                    "res_multistep",
+                    "res_multistep_cfg_pp",
+                    "res_multistep_ancestral",
+                    "res_multistep_ancestral_cfg_pp",
+                    "gradient_estimation",
+                    "gradient_estimation_cfg_pp",
+                    "er_sde",
+                    "seeds_2",
+                    "seeds_3",
+                    "sa_solver",
+                    "sa_solver_pece",
+                    "ddim",
+                    "uni_pc",
+                    "uni_pc_bh2",
+                    "legacy_rk",
+                    "rk",
+                    "rk_beta",
+                    "deis_3m_ode",
+                    "deis_2m_ode",
+                    "deis_3m",
+                    "deis_2m",
+                    "res_6s_ode",
+                    "res_5s_ode",
+                    "res_3s_ode",
+                    "res_2s_ode",
+                    "res_3m_ode",
+                    "res_2m_ode",
+                    "res_6s",
+                    "res_5s",
+                    "res_3s",
+                    "res_2s",
+                    "res_3m",
+                    "res_2m"
+                  ]
+                }
+              ],
+              "descriptor_version": 1,
+              "media_roles": [],
+              "output": {
+                "format": "png",
+                "kind": "image",
+                "size_policy": "explicit"
+              },
+              "reason": "P-H3-Image: the PrunaAI LoRA on the MiniMax H3 FL2VA transformer, 8 sigmas by default (Steps resamples the card's grid) without CFG, starts at 16:9 about 2 MP like the other local models, best at 8 MP (offered up to 16); the request reaches the model as written (no prompt upsampler).",
+              "request_schema": "studio.image-workflow-request/1",
+              "target_id": "p-h3-image-lora-t2i-v1"
+            }
+          },
+          "source": "PrunaAI/P-H3-Image-Comfy rev 44a0fb73 (LoRA route on our MiniMax H3 FL2VA int8); ComfyUI 0.44.0 PH3ImageConditioning"
+        },
+        {
+          "id": "edit",
+          "label": "Edit",
+          "operations": [
+            "edit",
+            "multi_reference"
+          ],
+          "prompt_grammar": "h3_picture_n_literal",
+          "inputs": [
+            {
+              "id": "image_1",
+              "kind": "image",
+              "role": "target",
+              "min": 1,
+              "max": 1,
+              "notes": "Picture 1, the picture to edit; the edit keeps its aspect at 4 MP."
+            },
+            {
+              "id": "references",
+              "kind": "image",
+              "role": "reference",
+              "min": 0,
+              "max": 7,
+              "notes": "Pictures 2-8 (card: up to 8 input images); the prompt names them <Picture N>."
+            }
+          ],
+          "files": {
+            "diffusion_model": {
+              "folder": "diffusion_models",
+              "names": [
+                "minimax_h3_fl2va_pruned_int8_convrot.safetensors"
+              ],
+              "required": true
+            },
+            "lora": {
+              "folder": "loras",
+              "names": [
+                "p-h3-image_lora_bf16.safetensors"
+              ],
+              "required": true
+            },
+            "text_encoder": {
+              "folder": "text_encoders",
+              "names": [
+                "p-h3-image_text_encoder_int8_convrot.safetensors"
+              ],
+              "required": true
+            },
+            "vae": {
+              "folder": "vae",
+              "names": [
+                "p-h3-image_vae_int8_convrot.safetensors"
+              ],
+              "required": true
+            }
+          },
+          "required_classes": [
+            "UNETLoader",
+            "LoraLoaderBypassModelOnly",
+            "MiniMaxH3SigmaShift",
+            "CLIPLoader",
+            "VAELoader",
+            "LoadImage",
+            "ImageScaleToTotalPixels",
+            "PH3ImageConditioning",
+            "BasicGuider",
+            "KSamplerSelect",
+            "RandomNoise",
+            "ManualSigmas",
+            "SamplerCustomAdvanced",
+            "VAEDecode"
+          ],
+          "presets": [
+            {
+              "id": "card",
+              "label": "Model card",
+              "values": {
+                "steps": 8,
+                "sampler": "euler",
+                "lora_strength": 1.0,
+                "sigma_shift_video": 1.0,
+                "sigma_shift_audio": 1.0,
+                "megapixels": 4.0
+              },
+              "source": "PrunaAI P-H3-Image-Comfy card + p-h3-image_lora_edit.json: image_1 at 4 MP, 8 sigmas, euler, no CFG, LoRA bypass 1.0, SigmaShift 1.0/1.0"
+            }
+          ],
+          "lora_max": null,
+          "resolution": {
+            "min_px": null,
+            "max_px": null,
+            "multiple": 32,
+            "default_megapixels": 4.0
+          },
+          "stages": [],
+          "notes": [
+            "Edits work best at 4 or 8 MP (card); name the region concretely (community: 'the center woman is wearing a green shirt' worked where 'she is wearing' did not)."
+          ],
+          "suite_targets": [],
+          "workflow": {
+            "manifest_sha256": "9077fa79fa7f03e7fbd565e3e38b136ed84da849fd53545f5289479d52e28c90",
+            "api_sha256": "6753056a8d63ac6b249e1001a883ab462b2c8f8aa842d62d1ecc93fc730446d8",
+            "descriptor": {
+              "availability": "backend_only",
+              "capabilities": {
+                "create": false,
+                "edit": true,
+                "effective_prompt": true,
+                "multi_reference": true,
+                "native_mask": false,
+                "prompt_enhancer": false
+              },
+              "controls": [
+                {
+                  "default": 0,
+                  "id": "seed",
+                  "kind": "integer",
+                  "label": "Seed",
+                  "max": 18446744073709551615,
+                  "min": 0
+                },
+                {
+                  "default": 4.0,
+                  "id": "megapixels",
+                  "kind": "number",
+                  "label": "Megapixels",
+                  "max": 8.0,
+                  "min": 1.0,
+                  "step": 0.1
+                },
+                {
+                  "default": 1.0,
+                  "id": "lora_strength",
+                  "kind": "number",
+                  "label": "LoRA strength",
+                  "max": 2.0,
+                  "min": 0.0,
+                  "step": 0.05
+                },
+                {
+                  "default": "euler",
+                  "id": "sampler",
+                  "kind": "select",
+                  "label": "Sampler",
+                  "options": [
+                    "euler",
+                    "euler_cfg_pp",
+                    "euler_ancestral",
+                    "euler_ancestral_cfg_pp",
+                    "heun",
+                    "heunpp2",
+                    "exp_heun_2_x0",
+                    "exp_heun_2_x0_sde",
+                    "dpm_2",
+                    "dpm_2_ancestral",
+                    "lms",
+                    "dpm_fast",
+                    "dpm_adaptive",
+                    "dpmpp_2s_ancestral",
+                    "dpmpp_2s_ancestral_cfg_pp",
+                    "dpmpp_sde",
+                    "dpmpp_sde_gpu",
+                    "dpmpp_2m",
+                    "dpmpp_2m_cfg_pp",
+                    "dpmpp_2m_sde",
+                    "dpmpp_2m_sde_gpu",
+                    "dpmpp_2m_sde_heun",
+                    "dpmpp_2m_sde_heun_gpu",
+                    "dpmpp_3m_sde",
+                    "dpmpp_3m_sde_gpu",
+                    "ddpm",
+                    "lcm",
+                    "ipndm",
+                    "ipndm_v",
+                    "deis",
+                    "cfgpp_ud10_ab",
+                    "res_multistep",
+                    "res_multistep_cfg_pp",
+                    "res_multistep_ancestral",
+                    "res_multistep_ancestral_cfg_pp",
+                    "gradient_estimation",
+                    "gradient_estimation_cfg_pp",
+                    "er_sde",
+                    "seeds_2",
+                    "seeds_3",
+                    "sa_solver",
+                    "sa_solver_pece",
+                    "ddim",
+                    "uni_pc",
+                    "uni_pc_bh2",
+                    "legacy_rk",
+                    "rk",
+                    "rk_beta",
+                    "deis_3m_ode",
+                    "deis_2m_ode",
+                    "deis_3m",
+                    "deis_2m",
+                    "res_6s_ode",
+                    "res_5s_ode",
+                    "res_3s_ode",
+                    "res_2s_ode",
+                    "res_3m_ode",
+                    "res_2m_ode",
+                    "res_6s",
+                    "res_5s",
+                    "res_3s",
+                    "res_2s",
+                    "res_3m",
+                    "res_2m"
+                  ]
+                }
+              ],
+              "descriptor_version": 1,
+              "media_roles": [
+                {
+                  "id": "target",
+                  "kind": "image",
+                  "label": "Picture 1",
+                  "max": 1,
+                  "min": 1,
+                  "roles": [
+                    "target"
+                  ]
+                },
+                {
+                  "id": "references",
+                  "kind": "image",
+                  "label": "References",
+                  "max": 7,
+                  "min": 0,
+                  "roles": [
+                    "identity",
+                    "outfit",
+                    "location",
+                    "style",
+                    "composition",
+                    "object",
+                    "reference"
+                  ]
+                }
+              ],
+              "output": {
+                "format": "png",
+                "kind": "image",
+                "size_policy": "first_reference"
+              },
+              "reason": "P-H3-Image edit: Picture 1 is edited at 4 MP (card), Pictures 2-8 are references named in the prompt as <Picture N>; 8 fixed sigmas without CFG, no prompt upsampler.",
+              "request_schema": "studio.image-workflow-request/1",
+              "target_id": "p-h3-image-lora-edit-v1"
+            }
+          },
+          "source": "PrunaAI/P-H3-Image-Comfy rev 44a0fb73 p-h3-image_lora_edit.json (LoRA route on our MiniMax H3 FL2VA int8)"
+        }
+      ]
+    }
+  ]
+}

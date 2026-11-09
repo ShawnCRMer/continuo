@@ -1,0 +1,51 @@
+{
+ "schema": "studio.image-edit-capability/1",
+ "id": "flux2-klein-9b-kv-edit-v1",
+ "family": "flux2-klein",
+ "variant": "edit-9b-kv",
+ "preset": "distilled",
+ "provider_id": "comfyui-local",
+ "source": {
+  "path": "comfyui_workflow_templates_json/templates/image_flux2_klein_9b_kv_image_edit.json",
+  "bytes": 46553,
+  "sha256": "23cb1b1d9a0f7851d99b122cb89a99c77b185af1e4d28a6fdfa47629db200f16",
+  "package": "comfyui_workflow_templates_json 0.1.112",
+  "license": "MIT",
+  "license_file": "COMFYUI-WORKFLOW-TEMPLATES-LICENSE.txt",
+  "note": "Official FLUX.2 Klein 9B KV edit template flattened to API form. Kept: files, FluxKVCache, ReferenceLatent on positive and zeroed negative, CFGGuider cfg 1, euler, Flux2Scheduler 4 steps at the reference size, EmptyFlux2LatentImage at the reference size. Changed: one reference picture (the Suite's crop) instead of two, no ImageScaleToTotalPixels (the Suite already sends the crop at its work size), RandomNoise seed fixed by the Suite, SaveImage -> PreviewImage (temp). Dropped: notes, the second reference chain. The template has no prompt upsampler."
+ },
+ "mutable_json_pointers": {
+  "image": "/76/inputs/image",
+  "instruction": "/135/inputs/text",
+  "seed": "/125/inputs/noise_seed"
+ },
+ "fixed_assertions": {
+  "/126/inputs/unet_name": "flux-2-klein-9b-kv-fp8.safetensors",
+  "/133/inputs/clip_name": "qwen_3_8b_fp8mixed.safetensors",
+  "/133/inputs/type": "flux2",
+  "/127/inputs/vae_name": "flux2-vae.safetensors",
+  "/137/inputs/steps": 4,
+  "/138/inputs/cfg": 1.0,
+  "/122/inputs/sampler_name": "euler",
+  "/94/class_type": "PreviewImage"
+ },
+ "outputs": {
+  "image": {
+   "node_id": "94",
+   "class_type": "PreviewImage",
+   "key": "images",
+   "type": "temp"
+  }
+ },
+ "size_rule": {
+  "resolution": 1024,
+  "multiple": 16,
+  "rule": "output follows the reference picture (GetImageSize); the Suite sends the crop at its work size"
+ },
+ "live_preview": null,
+ "measured": "Measured 18 Oct 2026 on an RTX 5090 against Qwen-Image 2.1 Edit and FLUX.3 Klein on the same pictures and masks: about 2-3 s per edit (Qwen-Image 2.1 Edit 6.2 s), weaker in Fill and Remove; offered as the fast choice.",
+ "workflow": {
+  "api_sha256": "7f2ab1757c7cc36378b01a65f266d78d8015f99d095b62f5cb96e2034231b245",
+  "node_count": 19
+ }
+}

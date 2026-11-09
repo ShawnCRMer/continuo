@@ -1,0 +1,80 @@
+{
+ "schema": "studio.audio-stems-workflow/1",
+ "id": "audio-stems-v1",
+ "provider_id": "comfyui-local",
+ "splits": {
+  "vocals_rest": {
+   "label": "Vocals + rest",
+   "model_label": "Mel-Band RoFormer",
+   "api_file": "vocals-rest.json",
+   "api_sha256": "c63bd52b2c42e3d122031354c657da5d238c3f97ce77cd35e07a1563e6dba012",
+   "source_pointer": "/1/inputs/audio",
+   "outputs": [
+    {
+     "id": "vocals",
+     "label": "Vocals",
+     "node_id": "4"
+    },
+    {
+     "id": "rest",
+     "label": "Rest",
+     "node_id": "5"
+    }
+   ],
+   "required_classes": [
+    "LoadAudio",
+    "MelBandRoFormerModelLoader",
+    "MelBandRoFormerSampler",
+    "SaveAudio"
+   ],
+   "models": [
+    {
+     "folder": "diffusion_models",
+     "name": "MelBandRoformer_fp16.safetensors"
+    }
+   ]
+  },
+  "four": {
+   "label": "4 stems",
+   "model_label": "HDEMUCS",
+   "api_file": "four-stems.json",
+   "api_sha256": "3f1bf5d5acb8caf8f30f579c746e670ded335eaf7f7fc5dd93497e5a04844f54",
+   "source_pointer": "/1/inputs/audio",
+   "outputs": [
+    {
+     "id": "vocals",
+     "label": "Vocals",
+     "node_id": "6"
+    },
+    {
+     "id": "drums",
+     "label": "Drums",
+     "node_id": "4"
+    },
+    {
+     "id": "bass",
+     "label": "Bass",
+     "node_id": "3"
+    },
+    {
+     "id": "other",
+     "label": "Other",
+     "node_id": "5"
+    }
+   ],
+   "required_classes": [
+    "LoadAudio",
+    "AudioSeparation",
+    "SaveAudio"
+   ],
+   "models": []
+  }
+ },
+ "source": "Local node packs already installed in the artist's ComfyUI (object_info 22.10.2026): audio-separation-nodes-comfyui (AudioSeparation = torchaudio HDEMUCS_HIGH_MUSDB_PLUS, checkpoint already in the torch hub cache) and ComfyUI-MelBandRoFormer (MelBandRoformer_fp16.safetensors present). Pack defaults; outputs saved by core SaveAudio (FLAC).",
+ "policy": {
+  "graph_mutation": "declared_pointers_only",
+  "custom_node_install": "never",
+  "model_download": "never_automatic",
+  "submission_requires_explicit_user_intent": true
+ }
+}

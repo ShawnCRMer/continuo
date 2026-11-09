@@ -1,0 +1,24 @@
+{
+  "builder_options_removed": {
+    "character": 27,
+    "lora": 17,
+    "outfit": 50,
+    "scene": 25,
+    "shot": 17,
+    "style": 24
+  },
+  "desktop_bytes": 6297324,
+  "excluded": [
+    "__pycache__",
+    "dashboard/generation/paid",
+    "dashboard/workflows",
+    "tests",
+    "README.md"
+  ],
+  "files": 424,
+  "license": "MIT",
+  "requires_hermes": ">=0.22.7",
+  "schema": "film-suite.catalog-build/1",
+  "source_commit": "9bff64672ebb3c3bb914b301698b550b0ef68468",
+  "tools": 209
+}

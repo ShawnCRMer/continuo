@@ -1,0 +1,151 @@
+{
+ "schema": "studio.music-workflow/1",
+ "id": "sa3-small-music-v1",
+ "version": 1,
+ "kind": "music",
+ "provider_id": "comfyui-local",
+ "engine": "sa3",
+ "engine_label": "Stable Audio 3",
+ "label": "Stable Audio 3 Small Music",
+ "graphs": {
+  "main": {
+   "api_file": "workflow-api.json",
+   "api_sha256": "10cc4fb1c0b5f52921354894d500a640968caa0d60336adaaf1355655d0c4e90",
+   "label": "Music",
+   "output": {
+    "node_id": "8",
+    "kind": "audio",
+    "key": "audio",
+    "extension": ".flac"
+   },
+   "writes": {
+    "text": [
+     "/3/inputs/text"
+    ],
+    "seconds": [
+     "/5/inputs/seconds",
+     "/11/inputs/duration"
+    ],
+    "seed": [
+     "/6/inputs/seed"
+    ]
+   },
+   "fixed": {
+    "/1/inputs/ckpt_name": "stable_audio_3_small_music.safetensors",
+    "/2/inputs/clip_name": "t5gemma_b_b_ul2.safetensors",
+    "/2/inputs/type": "stable_audio",
+    "/4/inputs/text": "",
+    "/5/inputs/batch_size": 1,
+    "/6/inputs/steps": 8,
+    "/6/inputs/cfg": 1.0,
+    "/6/inputs/sampler_name": "lcm",
+    "/6/inputs/scheduler": "simple",
+    "/6/inputs/denoise": 1.0,
+    "/13/class_type": "AudioAdjustVolume",
+    "/13/inputs/volume": -6,
+    "/8/class_type": "PreviewAudio",
+    "/11/inputs/start_index": 0.0,
+    "/11/class_type": "TrimAudioDuration"
+   },
+   "required_classes": [
+    "AudioAdjustVolume",
+    "CLIPLoader",
+    "CLIPTextEncode",
+    "CheckpointLoaderSimple",
+    "EmptyLatentAudio",
+    "KSampler",
+    "PreviewAudio",
+    "TrimAudioDuration",
+    "VAEDecodeAudio"
+   ]
+  }
+ },
+ "controls": [
+  {
+   "id": "prompt",
+   "label": "Prompt",
+   "kind": "text",
+   "default": "",
+   "max_chars": 600,
+   "required": true
+  },
+  {
+   "id": "length",
+   "label": "Length",
+   "kind": "integer",
+   "default": 30,
+   "min": 1,
+   "max": 120,
+   "step": 1
+  },
+  {
+   "id": "bpm",
+   "label": "BPM",
+   "kind": "integer",
+   "default": 100,
+   "min": 40,
+   "max": 220,
+   "step": 1
+  },
+  {
+   "id": "key",
+   "label": "Key",
+   "kind": "choice",
+   "default": "",
+   "options": [
+    "",
+    "C major",
+    "C# major",
+    "D major",
+    "D# major",
+    "E major",
+    "F major",
+    "F# major",
+    "G major",
+    "G# major",
+    "A major",
+    "A# major",
+    "B major",
+    "C minor",
+    "C# minor",
+    "D minor",
+    "D# minor",
+    "E minor",
+    "F minor",
+    "F# minor",
+    "G minor",
+    "G# minor",
+    "A minor",
+    "A# minor",
+    "B minor"
+   ]
+  },
+  {
+   "id": "seed",
+   "label": "Seed",
+   "kind": "integer",
+   "default": 1004,
+   "min": 0,
+   "max": 2147483647,
+   "step": 1
+  }
+ ],
+ "models": [
+  {
+   "folder": "checkpoints",
+   "name": "stable_audio_3_small_music.safetensors"
+  },
+  {
+   "folder": "text_encoders",
+   "name": "t5gemma_b_b_ul2.safetensors"
+  }
+ ],
+ "source": "The ComfyUI Stable Audio template: lcm/simple, 8 steps, CFG 1, negative empty; TrimAudioDuration to the whole-second length (the VAE answers whole 2048-sample frames: 30 s came back 30.093 s, measured 3 Nov 2026); prompt format of the authors' prompt assistant; AudioAdjustVolume -6 dB; PreviewAudio = ComfyUI temp only",
+ "policy": {
+  "graph_mutation": "declared_pointers_only",
+  "custom_node_install": "never",
+  "model_download": "never_automatic",
+  "output_folder": "temp_only",
+  "submission_requires_explicit_user_intent": true
+ }
+}

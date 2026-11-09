@@ -1,0 +1,210 @@
+{
+  "116": {
+    "class_type": "ReferenceLatent",
+    "inputs": {
+      "conditioning": [
+        "685",
+        0
+      ],
+      "latent": [
+        "117",
+        0
+      ]
+    }
+  },
+  "117": {
+    "class_type": "VAEEncode",
+    "inputs": {
+      "pixels": [
+        "76",
+        0
+      ],
+      "vae": [
+        "127",
+        0
+      ]
+    }
+  },
+  "118": {
+    "class_type": "ReferenceLatent",
+    "inputs": {
+      "conditioning": [
+        "135",
+        0
+      ],
+      "latent": [
+        "117",
+        0
+      ]
+    }
+  },
+  "122": {
+    "class_type": "KSamplerSelect",
+    "inputs": {
+      "sampler_name": "euler"
+    }
+  },
+  "123": {
+    "class_type": "SamplerCustomAdvanced",
+    "inputs": {
+      "guider": [
+        "138",
+        0
+      ],
+      "latent_image": [
+        "129",
+        0
+      ],
+      "noise": [
+        "125",
+        0
+      ],
+      "sampler": [
+        "122",
+        0
+      ],
+      "sigmas": [
+        "137",
+        0
+      ]
+    }
+  },
+  "124": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "123",
+        0
+      ],
+      "vae": [
+        "127",
+        0
+      ]
+    }
+  },
+  "125": {
+    "class_type": "RandomNoise",
+    "inputs": {
+      "noise_seed": 720512742793301
+    }
+  },
+  "126": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "flux-2-klein-9b-kv-fp8.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "127": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "flux2-vae.safetensors"
+    }
+  },
+  "128": {
+    "class_type": "GetImageSize",
+    "inputs": {
+      "image": [
+        "76",
+        0
+      ]
+    }
+  },
+  "129": {
+    "class_type": "EmptyFlux2LatentImage",
+    "inputs": {
+      "batch_size": 1,
+      "height": [
+        "128",
+        1
+      ],
+      "width": [
+        "128",
+        0
+      ]
+    }
+  },
+  "133": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen_3_8b_fp8mixed.safetensors",
+      "device": "default",
+      "type": "flux2"
+    }
+  },
+  "135": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "133",
+        0
+      ],
+      "text": "Change the background environment to an African savannah. Keep all other parts of the image completely unchanged."
+    }
+  },
+  "137": {
+    "class_type": "Flux2Scheduler",
+    "inputs": {
+      "height": [
+        "128",
+        1
+      ],
+      "steps": 4,
+      "width": [
+        "128",
+        0
+      ]
+    }
+  },
+  "138": {
+    "class_type": "CFGGuider",
+    "inputs": {
+      "cfg": 1.0,
+      "model": [
+        "139",
+        0
+      ],
+      "negative": [
+        "116",
+        0
+      ],
+      "positive": [
+        "118",
+        0
+      ]
+    }
+  },
+  "139": {
+    "class_type": "FluxKVCache",
+    "inputs": {
+      "model": [
+        "126",
+        0
+      ]
+    }
+  },
+  "685": {
+    "class_type": "ConditioningZeroOut",
+    "inputs": {
+      "conditioning": [
+        "135",
+        0
+      ]
+    }
+  },
+  "76": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "man_in_street.png"
+    }
+  },
+  "94": {
+    "class_type": "PreviewImage",
+    "inputs": {
+      "images": [
+        "124",
+        0
+      ]
+    }
+  }
+}

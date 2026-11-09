@@ -1,0 +1,36 @@
+{
+ "1": {
+  "class_type": "CheckpointLoaderSimple",
+  "inputs": {
+   "ckpt_name": "yue2_3b_int8_convrot.safetensors"
+  }
+ },
+ "2": {
+  "class_type": "YuE2GenerateABC",
+  "inputs": {
+   "clip": [
+    "1",
+    1
+   ],
+   "style": "",
+   "lyrics": "",
+   "seed": 831054,
+   "mode": "full",
+   "temperature": 0.7,
+   "top_p": 0.9,
+   "top_k": 30,
+   "repetition_penalty": 1.005,
+   "penalty_window": 100,
+   "max_abc_tokens": 4096
+  }
+ },
+ "3": {
+  "class_type": "PreviewAny",
+  "inputs": {
+   "source": [
+    "2",
+    0
+   ]
+  }
+ }
+}

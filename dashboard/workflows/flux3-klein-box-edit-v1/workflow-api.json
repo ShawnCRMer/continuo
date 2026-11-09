@@ -1,0 +1,152 @@
+{
+ "1": {
+  "class_type": "UNETLoader",
+  "inputs": {
+   "unet_name": "flux3_image_klein_sd_int8_convrot.safetensors",
+   "weight_dtype": "default"
+  }
+ },
+ "11": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "filmsuite-edit-00000000000000000000000000000000.png [temp]"
+  }
+ },
+ "2": {
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "qwen3vl_4b_int8_convrot.safetensors",
+   "type": "flux3",
+   "device": "default"
+  }
+ },
+ "20": {
+  "class_type": "NKDKleinPresampling",
+  "inputs": {
+   "model": [
+    "1",
+    0
+   ],
+   "clip": [
+    "2",
+    0
+   ],
+   "vae": [
+    "3",
+    0
+   ],
+   "model_family": "Klein 3",
+   "positive": "",
+   "negative": "",
+   "boxes_json": "",
+   "pin_model": false,
+   "resize": false,
+   "aspect_ratio": "As Reference",
+   "megapixels": 1.0,
+   "custom_width": 1024,
+   "custom_height": 1024,
+   "image_fit": "Native",
+   "outpaint_fill": "Gray",
+   "slide": 0.5,
+   "bypass_reference": false,
+   "reference_strength": 0,
+   "mask_expand": 20,
+   "mask_blur": 10,
+   "inpaint_blend": 1.0,
+   "use_detailing": false,
+   "detail_padding": 50,
+   "upsample_prompt": false,
+   "ref_images.ref_0": [
+    "11",
+    0
+   ]
+  }
+ },
+ "21": {
+  "class_type": "NKDKleinPostsampling",
+  "inputs": {
+   "image": [
+    "8",
+    0
+   ],
+   "bundle": [
+    "20",
+    4
+   ],
+   "uncrop_feather": 10,
+   "match_original_colors": 0.0,
+   "seamless_edges": false,
+   "auto_detect_edit_region": false,
+   "edge_softness": 2.0,
+   "region_padding": 0.0,
+   "fill_inner_gaps": false,
+   "remove_specks": 0.1,
+   "extend_to_borders": true,
+   "transparent_background": false
+  }
+ },
+ "3": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "flux2-vae.safetensors"
+  }
+ },
+ "52": {
+  "class_type": "PreviewAny",
+  "inputs": {
+   "source": [
+    "20",
+    7
+   ]
+  }
+ },
+ "7": {
+  "class_type": "KSampler",
+  "inputs": {
+   "model": [
+    "20",
+    0
+   ],
+   "positive": [
+    "20",
+    1
+   ],
+   "negative": [
+    "20",
+    2
+   ],
+   "latent_image": [
+    "20",
+    3
+   ],
+   "seed": 0,
+   "steps": 16,
+   "cfg": 1.0,
+   "sampler_name": "euler",
+   "scheduler": "simple",
+   "denoise": 1.0
+  }
+ },
+ "8": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "7",
+    0
+   ],
+   "vae": [
+    "3",
+    0
+   ]
+  }
+ },
+ "9": {
+  "class_type": "PreviewImage",
+  "inputs": {
+   "images": [
+    "21",
+    0
+   ]
+  }
+ }
+}

@@ -1,0 +1,64 @@
+{
+ "schema": "studio.image-edit-capability/1",
+ "id": "flux3-klein-box-edit-v1",
+ "family": "flux3-klein",
+ "variant": "edit-distilled",
+ "preset": "distilled",
+ "provider_id": "comfyui-local",
+ "source": {
+  "package": "ComfyUI-NKD-Klein-Tools 1.13.2 (a9cc507, MIT, Nekodificador)",
+  "nodes_py_sha256": "dbb89b9c77eb2d5b830a9c2a69abbd1f7638882ad75c0c3d36496cd2a5324d3a",
+  "box_prompt_py_sha256": "2c8de76e55a9da1784e3ea4c2f12e291be39b3614a6724dd9134ada6549070d6",
+  "note": "FLUX.3 Klein distilled edit with boxes through NKD Klein Presampling (model_family Klein 3) and Postsampling. The Suite writes the caption, the box sentences and BFL's element list itself (image_box.compile_prompt, NKD box_prompt._emit rules) into Presampling's positive; boxes_json stays empty. Same files and sampler as flux3-klein-sd-edit-v1 (16 steps, cfg 1, euler/simple). resize off: the canvas is the crop at the Suite's work size (multiple of 16). No mask: img2img, Postsampling passes the picture through; the Suite pastes it back inside the box area. No prompt upsampler (the box list is the Suite's)."
+ },
+ "mutable_json_pointers": {
+  "image": "/11/inputs/image",
+  "instruction": "/20/inputs/positive",
+  "seed": "/7/inputs/seed"
+ },
+ "fixed_assertions": {
+  "/1/inputs/unet_name": "flux3_image_klein_sd_int8_convrot.safetensors",
+  "/2/inputs/clip_name": "qwen3vl_4b_int8_convrot.safetensors",
+  "/2/inputs/type": "flux3",
+  "/3/inputs/vae_name": "flux2-vae.safetensors",
+  "/20/inputs/model_family": "Klein 3",
+  "/20/inputs/boxes_json": "",
+  "/20/inputs/resize": false,
+  "/20/inputs/upsample_prompt": false,
+  "/20/inputs/use_detailing": false,
+  "/7/inputs/steps": 16,
+  "/7/inputs/cfg": 1.0,
+  "/7/inputs/sampler_name": "euler",
+  "/7/inputs/scheduler": "simple",
+  "/7/inputs/denoise": 1.0,
+  "/9/class_type": "PreviewImage"
+ },
+ "outputs": {
+  "image": {
+   "node_id": "9",
+   "class_type": "PreviewImage",
+   "key": "images",
+   "type": "temp"
+  },
+  "sent_prompt": {
+   "node_id": "52",
+   "class_type": "PreviewAny",
+   "key": "text"
+  }
+ },
+ "size_rule": {
+  "resolution": 1024,
+  "multiple": 16,
+  "rule": "output = the crop at its work size (Presampling resize off)"
+ },
+ "live_preview": {
+  "class_type": "ModelPreviewOverrideKJ",
+  "node_id": "900",
+  "model_from": "/7/inputs/model",
+  "tiny_vae": null
+ },
+ "workflow": {
+  "api_sha256": "66da2ca8109a145ef1c5996d6e927e51d929dd583a9cc20c34666b6bdb18aee6",
+  "node_count": 10
+ }
+}

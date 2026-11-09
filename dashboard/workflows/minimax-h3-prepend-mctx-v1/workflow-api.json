@@ -1,0 +1,250 @@
+{
+  "1": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "10": {
+    "class_type": "RandomNoise",
+    "inputs": {
+      "noise_seed": [
+        "9",
+        0
+      ]
+    }
+  },
+  "11": {
+    "class_type": "KSamplerSelect",
+    "inputs": {
+      "sampler_name": "res_multistep"
+    }
+  },
+  "12": {
+    "class_type": "BasicScheduler",
+    "inputs": {
+      "denoise": 1.0,
+      "model": [
+        "5",
+        0
+      ],
+      "scheduler": "simple",
+      "steps": 20
+    }
+  },
+  "13": {
+    "class_type": "BasicGuider",
+    "inputs": {
+      "conditioning": [
+        "60",
+        0
+      ],
+      "model": [
+        "5",
+        0
+      ]
+    }
+  },
+  "14": {
+    "class_type": "SamplerCustomAdvanced",
+    "inputs": {
+      "guider": [
+        "13",
+        0
+      ],
+      "latent_image": [
+        "60",
+        1
+      ],
+      "noise": [
+        "10",
+        0
+      ],
+      "sampler": [
+        "11",
+        0
+      ],
+      "sigmas": [
+        "12",
+        0
+      ]
+    }
+  },
+  "15": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "14",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    }
+  },
+  "16": {
+    "class_type": "VAEDecodeAudio",
+    "inputs": {
+      "samples": [
+        "14",
+        0
+      ],
+      "vae": [
+        "4",
+        0
+      ]
+    }
+  },
+  "19": {
+    "class_type": "H3TrimAndSaveVideoWithMCtx",
+    "inputs": {
+      "audio": [
+        "16",
+        0
+      ],
+      "base_folder": "studio-h3",
+      "crf": 19,
+      "filename_prefix": "Studio_MiniMax_H3_prepend",
+      "images": [
+        "15",
+        0
+      ],
+      "metadata": "",
+      "samples": [
+        "14",
+        0
+      ],
+      "save_conditioning": false,
+      "pins": [
+        "60",
+        2
+      ]
+    }
+  },
+  "2": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+      "device": "default",
+      "type": "minimax"
+    }
+  },
+  "20": {
+    "class_type": "PreviewAny",
+    "inputs": {
+      "source": [
+        "19",
+        0
+      ]
+    }
+  },
+  "3": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "minimax_h3_video_vae_int8_convrot.safetensors"
+    }
+  },
+  "4": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "minimax_h3_audio_vae_fp32.safetensors"
+    }
+  },
+  "40": {
+    "class_type": "H3LoadMCtx",
+    "inputs": {
+      "clip": "__STUDIO_SOURCE__",
+      "create_pins": "none",
+      "pin_window": "39"
+    }
+  },
+  "5": {
+    "class_type": "MiniMaxH3SigmaShift",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "shift_audio": 3.0,
+      "shift_video": 12.0
+    }
+  },
+  "50": {
+    "class_type": "H3MCtxPinSpec",
+    "inputs": {
+      "audio_window": 0,
+      "mask_hold": 0.0,
+      "mask_ramp_edge": 0.0,
+      "mask_ramp_frames": 0,
+      "mctx": [
+        "40",
+        0
+      ],
+      "mode": "both",
+      "place": "after",
+      "place_at_frame": 0,
+      "take_from": "head",
+      "take_from_frame": 0,
+      "window": "39"
+    }
+  },
+  "60": {
+    "class_type": "H3MCtxApplyPins",
+    "inputs": {
+      "audio_denoise": 0.0,
+      "audio_vae": [
+        "4",
+        0
+      ],
+      "conditioning": [
+        "8",
+        0
+      ],
+      "freeze_audio": false,
+      "latent": [
+        "8",
+        1
+      ],
+      "masked_audio_feather": 8,
+      "pin_specs": [
+        "50",
+        0
+      ],
+      "snap_window_down_to_available": false,
+      "video_vae": [
+        "3",
+        0
+      ]
+    }
+  },
+  "8": {
+    "class_type": "MiniMaxH3ReferenceToVideo",
+    "inputs": {
+      "audio_vae": [
+        "4",
+        0
+      ],
+      "clip": [
+        "2",
+        0
+      ],
+      "height": 544,
+      "length": 192,
+      "prompt": "__STUDIO_PROMPT__",
+      "ref_image_size": "match",
+      "vae": [
+        "3",
+        0
+      ],
+      "width": 960
+    }
+  },
+  "9": {
+    "class_type": "PrimitiveInt",
+    "inputs": {
+      "value": 1
+    }
+  }
+}

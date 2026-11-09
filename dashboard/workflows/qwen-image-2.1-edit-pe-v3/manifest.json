@@ -1,0 +1,108 @@
+{
+  "schema": "studio.image-edit-capability/1",
+  "id": "qwen-image-2.1-edit-pe-v3",
+  "family": "qwen-image-2.1",
+  "variant": "edit-pe-v3",
+  "preset": "turbo",
+  "provider_id": "comfyui-local",
+  "source": {
+    "path": "ComfyUI/user/default/workflows/qwen_image_2_1_edit_PE_v3_v0.1_EDITOR.json",
+    "bytes": 59683,
+    "sha256": "d6a1ced64231a040f4963f9829fc407547b57e1e47968c211195c9f021f2dac2",
+    "note": "The artist's PE v3 edit workbench (2026-10-02). Node ids and widget values kept; editor-only notes dropped."
+  },
+  "dropped_editor_nodes": [
+    "463",
+    "476",
+    "517",
+    "518",
+    "519",
+    "520",
+    "521"
+  ],
+  "substitutions": [
+    {
+      "node_id": "477",
+      "from": "PixaromaSaveImage",
+      "to": "PreviewImage",
+      "why": "results go to ComfyUI temp and are fetched through /view, never written to the artist's output folder"
+    },
+    {
+      "node_id": "515",
+      "from": "unwrap a one-key JSON answer (first value only)",
+      "to": "flatten every JSON value",
+      "why": "PE-I2I answers with several keys; the original regex sent only the first value ('add') to the image model (measured in the R4 real run)"
+    },
+    {
+      "node_id": "901",
+      "from": null,
+      "to": "RegexReplace trim (inserted between 515 and 516)",
+      "why": "removes the separators/quotes left by the flatten step"
+    }
+  ],
+  "mutable_json_pointers": {
+    "image": "/492/inputs/image",
+    "instruction": "/502/inputs/value",
+    "negative": "/490/inputs/negative_prompt",
+    "seed": "/487/inputs/seed",
+    "prompt_enhancer": "/505/inputs/switch"
+  },
+  "fixed_assertions": {
+    "/482/inputs/unet_name": "qwen_image_2.1_int8_convrot.safetensors",
+    "/483/inputs/clip_name": "qwen3vl_8b_int8_convrot.safetensors",
+    "/483/inputs/type": "qwen_image",
+    "/484/inputs/vae_name": "qwen_image_2.1_vae_bf16.safetensors",
+    "/496/inputs/lora_name": "p_qwen_image_2.1_8step_v0.1.safetensors",
+    "/496/inputs/strength_model": 1,
+    "/500/inputs/clip_name": "qwen3.5_9b_qwen_image_2.1_pe_i2i.int8_convrot.safetensors",
+    "/487/inputs/steps": 12,
+    "/487/inputs/cfg": 1.5,
+    "/487/inputs/sampler_name": "er_sde",
+    "/487/inputs/scheduler": "beta",
+    "/487/inputs/denoise": 1,
+    "/488/inputs/switch": false,
+    "/490/inputs/resolution": 1024,
+    "/504/inputs/thinking": false,
+    "/504/inputs/max_length": 8192,
+    "/513/inputs/switch": false,
+    "/477/class_type": "PreviewImage",
+    "/515/inputs/regex_pattern": "^\\s*\\{\\s*\"[A-Za-z_ ]+\"\\s*:\\s*\"|\"\\s*,\\s*\"[A-Za-z_ ]+\"\\s*:\\s*\"|\"\\s*\\}\\s*$",
+    "/515/inputs/replace": ". ",
+    "/516/inputs/string": [
+      "901",
+      0
+    ],
+    "/901/inputs/string": [
+      "515",
+      0
+    ]
+  },
+  "outputs": {
+    "image": {
+      "node_id": "477",
+      "class_type": "PreviewImage",
+      "key": "images",
+      "type": "temp"
+    },
+    "sent_prompt": {
+      "node_id": "506",
+      "class_type": "PreviewAny",
+      "key": "text"
+    }
+  },
+  "size_rule": {
+    "resolution": 1024,
+    "multiple": 32,
+    "rule": "output follows image_1: round(sqrt(R*R*ratio)/32)*32 x round(sqrt(R*R/ratio)/32)*32"
+  },
+  "live_preview": {
+    "class_type": "ModelPreviewOverrideKJ",
+    "node_id": "900",
+    "model_from": "/487/inputs/model",
+    "tiny_vae": "TAEQwenImage21_AcademiaSD.safetensors"
+  },
+  "workflow": {
+    "api_sha256": "bdb7cf1acd5cef4c10c13ade7958bacbd42adcbf035354bfdd5633fdbaf982f1",
+    "node_count": 26
+  }
+}

@@ -1,0 +1,78 @@
+{
+ "1": {
+  "class_type": "LoadAudio",
+  "inputs": {
+   "audio": "__SOURCE__ [temp]"
+  },
+  "_meta": {
+   "title": "Song"
+  }
+ },
+ "2": {
+  "class_type": "AudioSeparation",
+  "inputs": {
+   "audio": [
+    "1",
+    0
+   ],
+   "chunk_fade_shape": "linear",
+   "chunk_length": 10.0,
+   "chunk_overlap": 0.1
+  },
+  "_meta": {
+   "title": "Hybrid Demucs (HDEMUCS_HIGH_MUSDB_PLUS)"
+  }
+ },
+ "3": {
+  "class_type": "SaveAudio",
+  "inputs": {
+   "audio": [
+    "2",
+    0
+   ],
+   "filename_prefix": "fs-stems/bass"
+  },
+  "_meta": {
+   "title": "Bass"
+  }
+ },
+ "4": {
+  "class_type": "SaveAudio",
+  "inputs": {
+   "audio": [
+    "2",
+    1
+   ],
+   "filename_prefix": "fs-stems/drums"
+  },
+  "_meta": {
+   "title": "Drums"
+  }
+ },
+ "5": {
+  "class_type": "SaveAudio",
+  "inputs": {
+   "audio": [
+    "2",
+    2
+   ],
+   "filename_prefix": "fs-stems/other"
+  },
+  "_meta": {
+   "title": "Other"
+  }
+ },
+ "6": {
+  "class_type": "SaveAudio",
+  "inputs": {
+   "audio": [
+    "2",
+    3
+   ],
+   "filename_prefix": "fs-stems/vocals"
+  },
+  "_meta": {
+   "title": "Vocals"
+  }
+ }
+}

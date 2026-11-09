@@ -1,0 +1,122 @@
+{
+ "schema": "studio.voice-workflow/1",
+ "id": "omnivoice-design-v1",
+ "version": 1,
+ "kind": "voice",
+ "provider_id": "comfyui-local",
+ "api_file": "workflow-api.json",
+ "api_sha256": "b85fc115459fa808f5dddc88c3f4d8b773bc74376573315c03b2728b399df49a",
+ "engine": "omnivoice",
+ "engine_label": "OmniVoice",
+ "operation": "speak_design",
+ "label": "OmniVoice · Description",
+ "voice_from": "description",
+ "cue_dialect": "omnivoice_bracket",
+ "direction": "cues_only",
+ "sample_rate": 24000,
+ "text": {
+  "pointer": "/1/inputs/text"
+ },
+ "words": null,
+ "reference": null,
+ "description": {
+  "pointer": "/1/inputs/voice_instruct"
+ },
+ "parameters": {
+  "seed": {
+   "pointer": "/1/inputs/seed"
+  },
+  "speed": {
+   "pointer": "/1/inputs/speed"
+  },
+  "duration": {
+   "pointer": "/1/inputs/duration"
+  },
+  "guidance_scale": {
+   "pointer": "/1/inputs/guidance_scale"
+  },
+  "steps": {
+   "pointer": "/1/inputs/steps"
+  }
+ },
+ "controls": [
+  {
+   "id": "seed",
+   "label": "Seed",
+   "section": "delivery",
+   "kind": "integer",
+   "default": 4711,
+   "min": 1,
+   "max": 2147483647,
+   "step": 1
+  },
+  {
+   "id": "speed",
+   "label": "Speed",
+   "section": "delivery",
+   "kind": "number",
+   "default": 0.9,
+   "min": 0.5,
+   "max": 2.0,
+   "step": 0.05
+  },
+  {
+   "id": "duration",
+   "label": "Length (s, 0 = free)",
+   "section": "delivery",
+   "kind": "number",
+   "default": 0.0,
+   "min": 0.0,
+   "max": 60.0,
+   "step": 0.5
+  },
+  {
+   "id": "guidance_scale",
+   "label": "Guidance",
+   "section": "performance",
+   "kind": "number",
+   "default": 2.0,
+   "min": 0.0,
+   "max": 10.0,
+   "step": 0.1
+  },
+  {
+   "id": "steps",
+   "label": "Steps",
+   "section": "performance",
+   "kind": "integer",
+   "default": 64,
+   "min": 4,
+   "max": 64,
+   "step": 1
+  }
+ ],
+ "fixed": {
+  "/1/inputs/keep_model_loaded": false,
+  "/1/inputs/model": "OmniVoice",
+  "/1/class_type": "OmniVoiceVoiceDesignTTS",
+  "/2/class_type": "SaveAudio"
+ },
+ "required_classes": [
+  "OmniVoiceVoiceDesignTTS",
+  "SaveAudio"
+ ],
+ "models": [
+  {
+   "folder": "omnivoice",
+   "name": "OmniVoice/model.safetensors"
+  }
+ ],
+ "output": {
+  "node_id": "2",
+  "key": "audio",
+  "extension": ".flac"
+ },
+ "source": "Saganaki22/ComfyUI-OmniVoice-TTS 0.4.7 live; voice_instruct uses the upstream vocabulary (gender, age, pitch, accent)",
+ "policy": {
+  "graph_mutation": "declared_pointers_only",
+  "custom_node_install": "never",
+  "model_download": "never_automatic",
+  "submission_requires_explicit_user_intent": true
+ }
+}

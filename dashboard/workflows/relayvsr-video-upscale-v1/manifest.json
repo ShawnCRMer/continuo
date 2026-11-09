@@ -1,0 +1,431 @@
+{
+  "schema": "studio.comfy-workflow/1",
+  "id": "relayvsr-video-upscale-v1",
+  "version": 1,
+  "display_name": "RelayVSR · Video upscale",
+  "provider_id": "comfyui-local",
+  "prompt_policy": "none",
+  "runtime_compatibility": {
+    "comfyui_versions": [
+      "0.44.0"
+    ],
+    "frontend_versions": [
+      "1.58.5"
+    ],
+    "workflow_templates_versions": [
+      "0.11.102"
+    ],
+    "policy": "schema_verified"
+  },
+  "workflow": {
+    "api_file": "workflow-api.json",
+    "api_sha256": "47444ecc2521288789c285a9badb9eb5cbce5d6e273994e9037ded9830c082c2",
+    "node_count": 12,
+    "source": "Native core RelayVSR nodes (Kijai, ComfyUI 2f8943324 comfy_extras/nodes_wan.py: RelayVSRConditioning, VSRDecode), wired as the PR example relayvsr_x2_video.json and research RELAYVSR.md 4.3 A/B, measured by the probe intb/relay/relay_vsr.py on the 5090 (480p x4 -> 1080p 38.5 s, detail 0.5 SSIM 0.949). Frames and audio are cut to IN..OUT (ImageFromBatch / TrimAudioDuration); ImageScale is removed for the model's own size. Lane w23-vsr (VID-153)."
+  },
+  "capabilities": {
+    "modalities": [
+      "video_upscale"
+    ],
+    "audio": "kept_from_source",
+    "fps": "source",
+    "models": [
+      "x2",
+      "x4"
+    ],
+    "sizes": [
+      "auto",
+      "native",
+      "1080p",
+      "1440p",
+      "2160p",
+      "custom"
+    ],
+    "filters": [
+      "lanczos",
+      "bicubic",
+      "bilinear",
+      "area",
+      "nearest-exact"
+    ],
+    "detail": {
+      "min": 0.0,
+      "max": 1.0,
+      "default": 0.5
+    },
+    "memory": {
+      "bytes_per_pixel": 12,
+      "rule": "frames x (W*factor) x (H*factor) x 12 <= ram_free - 4 GiB"
+    }
+  },
+  "defaults": {
+    "model": "auto",
+    "detail": 0.5,
+    "size": "auto",
+    "filter": "lanczos",
+    "seed": 0
+  },
+  "mutable_json_pointers": [
+    "/1/inputs/file",
+    "/3/inputs/batch_index",
+    "/3/inputs/length",
+    "/4/inputs/start_index",
+    "/4/inputs/duration",
+    "/5/inputs/unet_name",
+    "/8/inputs/vae_name",
+    "/7/inputs/seed",
+    "/9/inputs/detail",
+    "/10/inputs/upscale_method",
+    "/10/inputs/width",
+    "/10/inputs/height"
+  ],
+  "parameters": {
+    "detail": {
+      "pointer": "/9/inputs/detail",
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "seed": {
+      "pointer": "/7/inputs/seed",
+      "minimum": 0,
+      "maximum": 4294967295
+    },
+    "filter": {
+      "pointer": "/10/inputs/upscale_method",
+      "enum": [
+        "lanczos",
+        "bicubic",
+        "bilinear",
+        "area",
+        "nearest-exact"
+      ]
+    },
+    "width": {
+      "pointer": "/10/inputs/width",
+      "minimum": 64,
+      "maximum": 8192
+    },
+    "height": {
+      "pointer": "/10/inputs/height",
+      "minimum": 64,
+      "maximum": 8192
+    },
+    "length": {
+      "pointer": "/3/inputs/length",
+      "minimum": 1,
+      "maximum": 4096
+    }
+  },
+  "fixed_assertions": {
+    "/1/class_type": "LoadVideo",
+    "/6/class_type": "RelayVSRConditioning",
+    "/7/class_type": "KSampler",
+    "/7/inputs/steps": 1,
+    "/7/inputs/cfg": 1.0,
+    "/7/inputs/sampler_name": "euler",
+    "/7/inputs/scheduler": "simple",
+    "/7/inputs/denoise": 1.0,
+    "/7/inputs/positive": [
+      "6",
+      0
+    ],
+    "/7/inputs/negative": [
+      "6",
+      0
+    ],
+    "/9/class_type": "VSRDecode",
+    "/9/inputs/images": [
+      "3",
+      0
+    ],
+    "/6/inputs/images": [
+      "3",
+      0
+    ],
+    "/10/class_type": "ImageScale",
+    "/10/inputs/crop": "disabled",
+    "/11/inputs/fps": [
+      "2",
+      2
+    ],
+    "/12/class_type": "SaveVideo",
+    "/12/inputs/filename_prefix": "video/Studio_RelayVSR_upscale"
+  },
+  "models": {
+    "unet": {
+      "folder": "diffusion_models",
+      "filename": "relayvsr_x4_int8_convrot.safetensors",
+      "assertion_pointer": "/5/inputs/unet_name"
+    },
+    "vae": {
+      "folder": "vae",
+      "filename": "relayvsr_flash_vae_x4_fp32.safetensors",
+      "assertion_pointer": "/8/inputs/vae_name"
+    }
+  },
+  "model_choices": {
+    "x2": {
+      "unet": {
+        "folder": "diffusion_models",
+        "filename": "relayvsr_x2_lightx2v_int8_convrot.safetensors",
+        "assertion_pointer": "/5/inputs/unet_name"
+      },
+      "vae": {
+        "folder": "vae",
+        "filename": "relayvsr_flash_vae_x2_fp32.safetensors",
+        "assertion_pointer": "/8/inputs/vae_name"
+      }
+    },
+    "x4": {
+      "unet": {
+        "folder": "diffusion_models",
+        "filename": "relayvsr_x4_int8_convrot.safetensors",
+        "assertion_pointer": "/5/inputs/unet_name"
+      },
+      "vae": {
+        "folder": "vae",
+        "filename": "relayvsr_flash_vae_x4_fp32.safetensors",
+        "assertion_pointer": "/8/inputs/vae_name"
+      }
+    }
+  },
+  "required_classes": [
+    "CreateVideo",
+    "GetVideoComponents",
+    "ImageFromBatch",
+    "ImageScale",
+    "KSampler",
+    "LoadVideo",
+    "RelayVSRConditioning",
+    "SaveVideo",
+    "TrimAudioDuration",
+    "UNETLoader",
+    "VAELoader",
+    "VSRDecode"
+  ],
+  "live_schema": [],
+  "output": {
+    "node_id": "12",
+    "accepted_keys": [
+      "images",
+      "videos",
+      "video"
+    ],
+    "required_folder_type": "output",
+    "extension": ".mp4",
+    "mime": "video/mp4",
+    "retrieve_via": "/view"
+  },
+  "policy": {
+    "graph_mutation": "declared_pointers_and_structural_stage_removal",
+    "custom_node_install": "never",
+    "model_download": "never_automatic",
+    "submission_requires_explicit_user_intent": true,
+    "overwrite_comfy_output": false,
+    "media_delivery": "upload_take_to_temp",
+    "comfy_input_folder": "never",
+    "source_take": "read_only"
+  },
+  "schema_fingerprint": {
+    "nodes": {
+      "CreateVideo": {
+        "audio": {
+          "type": "AUDIO"
+        },
+        "fps": {
+          "type": "FLOAT"
+        },
+        "images": {
+          "type": "IMAGE"
+        }
+      },
+      "GetVideoComponents": {
+        "video": {
+          "type": "VIDEO"
+        }
+      },
+      "ImageFromBatch": {
+        "batch_index": {
+          "type": "INT"
+        },
+        "image": {
+          "type": "IMAGE"
+        },
+        "length": {
+          "type": "INT",
+          "covers": [
+            1,
+            4096
+          ]
+        }
+      },
+      "ImageScale": {
+        "crop": {
+          "type": "COMBO",
+          "options": [
+            "disabled"
+          ]
+        },
+        "height": {
+          "type": "INT",
+          "covers": [
+            64,
+            8192
+          ]
+        },
+        "image": {
+          "type": "IMAGE"
+        },
+        "upscale_method": {
+          "type": "COMBO",
+          "options": [
+            "area",
+            "bicubic",
+            "bilinear",
+            "lanczos",
+            "nearest-exact"
+          ]
+        },
+        "width": {
+          "type": "INT",
+          "covers": [
+            64,
+            8192
+          ]
+        }
+      },
+      "KSampler": {
+        "cfg": {
+          "type": "FLOAT",
+          "covers": [
+            1.0,
+            1.0
+          ]
+        },
+        "denoise": {
+          "type": "FLOAT",
+          "covers": [
+            1.0,
+            1.0
+          ]
+        },
+        "latent_image": {
+          "type": "LATENT"
+        },
+        "model": {
+          "type": "MODEL"
+        },
+        "negative": {
+          "type": "CONDITIONING"
+        },
+        "positive": {
+          "type": "CONDITIONING"
+        },
+        "sampler_name": {
+          "type": "COMBO",
+          "options": [
+            "euler"
+          ]
+        },
+        "scheduler": {
+          "type": "COMBO",
+          "options": [
+            "simple"
+          ]
+        },
+        "seed": {
+          "type": "INT",
+          "covers": [
+            0,
+            4294967295
+          ]
+        },
+        "steps": {
+          "type": "INT",
+          "covers": [
+            1,
+            1
+          ]
+        }
+      },
+      "LoadVideo": {
+        "file": {
+          "type": "COMBO"
+        }
+      },
+      "RelayVSRConditioning": {
+        "images": {
+          "type": "IMAGE"
+        },
+        "model": {
+          "type": "MODEL"
+        }
+      },
+      "SaveVideo": {
+        "codec": {
+          "type": "COMFY_DYNAMICCOMBO_V3",
+          "options": [
+            "auto"
+          ]
+        },
+        "filename_prefix": {
+          "type": "STRING"
+        },
+        "format": {
+          "type": "COMFY_DYNAMICCOMBO_V3",
+          "options": [
+            "auto"
+          ]
+        },
+        "video": {
+          "type": "VIDEO"
+        }
+      },
+      "TrimAudioDuration": {
+        "audio": {
+          "type": "AUDIO"
+        },
+        "duration": {
+          "type": "FLOAT"
+        },
+        "start_index": {
+          "type": "FLOAT"
+        }
+      },
+      "UNETLoader": {
+        "unet_name": {
+          "type": "COMBO"
+        },
+        "weight_dtype": {
+          "type": "COMBO",
+          "options": [
+            "default"
+          ]
+        }
+      },
+      "VAELoader": {
+        "vae_name": {
+          "type": "COMBO"
+        }
+      },
+      "VSRDecode": {
+        "detail": {
+          "type": "FLOAT",
+          "covers": [
+            0.0,
+            1.0
+          ]
+        },
+        "images": {
+          "type": "IMAGE"
+        },
+        "samples": {
+          "type": "LATENT"
+        },
+        "vae": {
+          "type": "VAE"
+        }
+      }
+    }
+  }
+}
