@@ -39,6 +39,7 @@ Release requirements met and proven on a real install. Each line states the requ
 - Hermes Develop (set colour, reset a group) and the stored Develop state land reliably under load too.
 - Hermes actions must arrive and show live even when the window idles, or the demo's Hermes path breaks.
 - Opening the split while the suite is the main page crashes the main page.
+- P-H3 Image workflows offer a Steps control the artist can set (manifest slot + descriptor control), like Krea 2.
 - Previz Undo restores exactly what the proposal changed: never erases newer figures or sets, and an undone lens stays undone.
 - Previz camera edits use the shot record's revision check; a stale edit is refused and shown, never overwrites a newer lens.
 - The render queue never creates a missing project folder (an unplugged drive or a moved folder stays absent); it writes only into an existing, opened project.
@@ -84,6 +85,10 @@ Release requirements met and proven on a real install. Each line states the requ
 - The chat shows tool calls as "Filmsuite Suite …"; every Continuo call needs a clean, current name. Visible in the demo.
 - Without payload schemas per action Hermes guesses image/suite actions and fails visibly in the demo.
 
+### Polished UI: one component per job, every page
+
+- Media column header is one calm row per DESIGN.md: search, one filter/view menu, type filter as one segmented control, the count tells what is shown (no "All media 39" beside an active filter), no framed button next to ghost icons.
+
 ### Other
 
 - H3 as an image model is marked low priority backlog.
@@ -121,6 +126,10 @@ Built; being proven on a real install or finished.
 
 - Dead or pointer-only buttons are visible breaks a new user clicks in the first minutes.
 
+### Polished UI: one component per job, every page
+
+- Side panels: both sides have the same visible resize handle with remembered width on every page; no dead gutter between the media grid and the canvas.
+
 ### Other
 
 - H3 as an image/edit model (P-H3-Image, image LoRA): promising for consistency with our video model; after the release, research runs now in VIDEO-H3 section 7.
@@ -134,7 +143,6 @@ Planned for the release.
 
 - A picture Hermes submits directly (continuo_image_workflow_submit / image_submit, not through the page) shows on the Image page while it runs and when done, like a hand job: in the running strip/canvas with 'Hermes' as origin, openable on finish.
 - Media shows the real model and settings of pictures made by catalog workflows (e.g. P-H3 Image LoRA edit): model name from target_id like videos, and the real controls (seed, megapixels, sampler, LoRA strength, references) instead of 'Krea 2 Turbo' with empty steps/CFG.
-- P-H3 Image workflows offer a Steps control the artist can set (manifest slot + descriptor control), like Krea 2.
 - With an unsure meter the note 'Beats only · meter unsure' is fully readable (not clipped by the Markers row), and no bar-only controls ('Bar 1' flag, 'Jump n bars') claim bars that do not exist.
 - fit_to_beats answers a reason for every skipped clip and anchors each fitted clip to the beat it really lands on (index and residual consistent with the placed song).
 
@@ -147,8 +155,6 @@ Planned for the release.
 
 - A design gate in run-gate measures the inventory parts on every page (size, radius, spacing, label placement, handle presence) against DESIGN.md and fails on a deviation.
 - Controls follow one size and label rule: square icon buttons, labels outside fields, one primary action per panel, disabled controls say why, empty states and job states use the shared components.
-- Media column header is one calm row per DESIGN.md: search, one filter/view menu, type filter as one segmented control, the count tells what is shown (no "All media 39" beside an active filter), no framed button next to ghost icons.
-- Side panels: both sides have the same visible resize handle with remembered width on every page; no dead gutter between the media grid and the canvas.
 - Words on screen follow the vocabulary and prose rules on every page (no developer words, one spelling, short labels, truthful counts and times).
 
 ---

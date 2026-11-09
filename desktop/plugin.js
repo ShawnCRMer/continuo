@@ -90134,40 +90134,10 @@ function useSideMediaPane(page, on, rowW, fixed) {
   };
   return { narrow: false, limits, inspCss: 0, inspMax: 0, dockCss, dockMax, sizePane, width: on && rowW ? dockCss : CUT_MEDIA_DEFAULT };
 }
-function useRowAndPanel(ref, on) {
-  const [w, setW] = useState([0, 0]);
-  useLayoutEffect(() => {
-    const node = on && ref.current ? ref.current.closest(".fsp-row") : null;
-    if (!node) {
-      setW([0, 0]);
-      return void 0;
-    }
-    const panel = () => [...node.querySelectorAll('[data-testid="fim-controls"], [data-testid="fsh-controls"], .aei')].find((e) => e.getClientRects().length) || null;
-    const read2 = () => {
-      const p2 = panel();
-      setW((cur) => {
-        const next = [node.clientWidth, p2 ? Math.round(p2.getBoundingClientRect().width) : 0];
-        return cur[0] === next[0] && cur[1] === next[1] ? cur : next;
-      });
-    };
-    read2();
-    if (typeof ResizeObserver === "undefined") return void 0;
-    const observer = new ResizeObserver(read2);
-    observer.observe(node);
-    const p = panel();
-    if (p) observer.observe(p);
-    const mo = typeof MutationObserver === "undefined" ? null : new MutationObserver(() => {
-      const q = panel();
-      if (q) observer.observe(q);
-      read2();
-    });
-    if (mo) mo.observe(node, { childList: true, subtree: true });
-    return () => {
-      observer.disconnect();
-      if (mo) mo.disconnect();
-    };
-  }, [on]);
-  return w;
+var SIDE_PANEL_W = { image: 256, shoot: 320, music: 256 };
+function useRowAndPanel(ref, on, page) {
+  const rowW = useRowWidth(ref, on);
+  return [rowW, on && rowW ? SIDE_PANEL_W[page] || 256 : 0];
 }
 var $cutColumn = atom21({ shown: false });
 var $cutColumnRequest = atom21(0);
@@ -96142,7 +96112,7 @@ function MediaColumn({ col, ownerScope, jobs, wake, onImported, script = null, a
     publish({ media: cutOn && rowW ? pane.width : 0 });
   }, [cutOn, rowW, pane.width]);
   const sideOn = !cutOn && !drawer && col.visible && ["image", "shoot", "music"].includes(col.page);
-  const [sideRowW, sidePanelW] = useRowAndPanel(rootRef, sideOn);
+  const [sideRowW, sidePanelW] = useRowAndPanel(rootRef, sideOn, col.page);
   const side = useSideMediaPane(col.page, sideOn, sideRowW, sidePanelW);
   const handle = cutOn && rowW ? { pane, rowW } : sideOn && sideRowW ? { pane: side, rowW: sideRowW } : null;
   const drop2 = useFileDrop({ ownerScope, wake, onImported: () => col.setFilter({ bin: "imported" }) });

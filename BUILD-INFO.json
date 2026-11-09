@@ -7,7 +7,7 @@
     "shot": 17,
     "style": 24
   },
-  "desktop_bytes": 6308860,
+  "desktop_bytes": 6307847,
   "excluded": [
     "__pycache__",
     "dashboard/generation/paid",
@@ -19,6 +19,6 @@
   "license": "MIT",
   "requires_hermes": ">=0.22.7",
   "schema": "film-suite.catalog-build/1",
-  "source_commit": "fa0a207499574b9bb95b2dd9e5f266ee5486b69f",
+  "source_commit": "a2e2f678f7b1dbe6171623f43c637f16dd4f14dd",
   "tools": 209
 }
