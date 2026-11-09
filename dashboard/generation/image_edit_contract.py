@@ -352,7 +352,7 @@ EDIT_TARGETS: dict[str, dict[str, Any]] = {
         "family": "p-h3-image",
         "variant": "lora-edit",
         "preset": "card",
-        "capability_manifest_sha256": "9077fa79fa7f03e7fbd565e3e38b136ed84da849fd53545f5289479d52e28c90",
+        "capability_manifest_sha256": "e764e5fa7897842d09dc994f71a9db38960a15387c61bbbda392c6678f52bec9",  # w32-fix5 IMG-216b: Steps; earlier 9077fa79 in workflow_pin_history
         "api_graph_sha256": "6753056a8d63ac6b249e1001a883ab462b2c8f8aa842d62d1ecc93fc730446d8",
         "grid": 32,
         "work_resolution": 2048,
@@ -395,6 +395,30 @@ EDIT_TARGETS[KREA_LOOK_TARGET_ID] = {
     "sampling": dict(_KREA_SAMPLING),
 }
 LATENT_MASK_TARGETS = LATENT_MASK_TARGETS + (KREA_REPLACE_TARGET_ID,)  # Replace: the Suite's latent-mask step (study round 2)
+
+
+# w32-fix5 IMG-216b: the edit contract's pin history. A pinned edit graph's manifest can change (P-H3-Image Edit gained
+# Steps); a job stored under an earlier pin of the same target keeps decoding, polling and re-running under ITS pin, a new
+# job carries the current one. Same file and mechanism as the create workflows (workflow_pin_history.v1.json, w29-fix2),
+# keyed by the edit target id. Reference: Lightroom / Resolve open a catalog made by an older version and keep every picture.
+_EDIT_PIN_HISTORY: dict[str, frozenset[tuple[str, str]]] = {}
+
+
+def earlier_edit_pins(target_id: str) -> frozenset[tuple[str, str]]:
+    """(capability_manifest_sha256, api_graph_sha256) of every earlier committed pin of this edit target."""
+    if not _EDIT_PIN_HISTORY:
+        doc = json.loads(Path(__file__).with_name("workflow_pin_history.v1.json").read_text(encoding="utf-8"))
+        for target, pins in doc["earlier"].items():
+            _EDIT_PIN_HISTORY[target] = frozenset((p["manifest_sha256"], p["api_sha256"]) for p in pins)
+        _EDIT_PIN_HISTORY.setdefault("", frozenset())
+    return _EDIT_PIN_HISTORY.get(target_id, frozenset()) if target_id in EDIT_TARGETS else frozenset()
+
+
+def edit_pins(target_id: str) -> tuple[tuple[str, str], ...]:
+    """The current pin first, then every earlier one this target accepts for a stored job."""
+    target = EDIT_TARGETS[target_id]
+    current = (target["capability_manifest_sha256"], target["api_graph_sha256"])
+    return (current, *sorted(earlier_edit_pins(target_id) - {current}))
 
 _HEX64 = re.compile(r"^[0-9a-f]{64}$")
 _UPLOAD_NAME = re.compile(r"^filmsuite-edit-[0-9a-f]{32}\.png \[temp\]$")
@@ -945,7 +969,7 @@ _EDIT_KEYS = {
 
 
 def build_edit_snapshot(edit: Mapping[str, Any], target_id: str, basis: dict[str, Any], attach_policy: dict[str, Any],
-                        seed: int) -> dict[str, Any]:
+                        seed: int, pin: tuple[str, str] | None = None) -> dict[str, Any]:
     """The ledger request snapshot of ONE edit variant (``operation: "edit"``).
 
     ``artist_input`` keeps the ledger's closed shape: the instruction (after
@@ -1035,6 +1059,9 @@ def build_edit_snapshot(edit: Mapping[str, Any], target_id: str, basis: dict[str
     if isinstance(seed, bool) or not isinstance(seed, int) or not 0 <= seed <= 18_446_744_073_709_551_615:
         raise EditRequestError("invalid_edit_snapshot", "edit-seed")
     files, sampling = target["files"], target["sampling"]
+    if pin is not None and tuple(pin) not in edit_pins(target_id):  # w32-fix5: only a pin this target had
+        raise EditRequestError("invalid_edit_snapshot", "edit-pin")
+    capability, graph = tuple(pin) if pin is not None else (target["capability_manifest_sha256"], target["api_graph_sha256"])
     return {
         "operation": "edit",
         "target_id": target_id,
@@ -1053,8 +1080,8 @@ def build_edit_snapshot(edit: Mapping[str, Any], target_id: str, basis: dict[str
         },
         "context_basis": copy.deepcopy(basis),
         "attach_policy": copy.deepcopy(attach_policy),
-        "capability_manifest_sha256": target["capability_manifest_sha256"],
-        "api_graph_sha256": target["api_graph_sha256"],
+        "capability_manifest_sha256": capability,
+        "api_graph_sha256": graph,
     }
 
 
@@ -1068,7 +1095,10 @@ def rebuild_edit_snapshot(snapshot: Mapping[str, Any]) -> dict[str, Any]:
     artist = snapshot.get("artist_input")
     if not isinstance(effective, Mapping) or not isinstance(artist, Mapping) or not isinstance(effective.get("edit"), Mapping):
         raise EditRequestError("invalid_edit_snapshot", "edit-snapshot-shape")
-    rebuilt = build_edit_snapshot(effective["edit"], snapshot["target_id"], snapshot["context_basis"], snapshot["attach_policy"], artist.get("seed"))
+    # w32-fix5: a job stored under an earlier pin of its target rebuilds under that pin (its own bytes), never today's.
+    pin = (snapshot.get("capability_manifest_sha256"), snapshot.get("api_graph_sha256"))
+    rebuilt = build_edit_snapshot(effective["edit"], snapshot["target_id"], snapshot["context_basis"], snapshot["attach_policy"], artist.get("seed"),
+                                  pin if snapshot.get("target_id") in EDIT_TARGETS and pin in edit_pins(snapshot["target_id"]) else None)
     sent = artist.get("prompt")
     if sent != rebuilt["artist_input"]["prompt"]:
         edit = effective["edit"]
@@ -1085,4 +1115,5 @@ __all__ = [
     "load_capabilities", "normalize_request", "operation_capability", "rebuild_edit_snapshot", "upload_name",
     "variant_key", "where_phrase", "work_size",
     "PH3_TARGET_ID",  # w24-h3img
+    "earlier_edit_pins", "edit_pins",  # w32-fix5
 ]

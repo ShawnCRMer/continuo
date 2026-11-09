@@ -1,6 +1,7 @@
 """ffmpeg process runner with progress, cancellation and a finite error."""
 from __future__ import annotations
 
+import queue
 import subprocess
 import threading
 import time
@@ -18,6 +19,23 @@ class Cancelled(ExportError):
         super().__init__("cancelled", "The export was cancelled.")
 
 
+def _stop(proc: subprocess.Popen) -> None:
+    """Kill and reap the child; never raises (the process may be gone already)."""
+    try:
+        if proc.poll() is None:
+            proc.kill()
+    except OSError:
+        pass
+    try:
+        proc.wait(timeout=10)
+    except (OSError, subprocess.TimeoutExpired):
+        pass
+
+
+# How often the supervisor looks at Stop and the deadline while ffmpeg prints nothing.
+_POLL_SECONDS = 0.1
+
+
 def run_ffmpeg(
     command: Sequence[str],
     *,
@@ -26,7 +44,12 @@ def run_ffmpeg(
     timeout: float = 3600.0,
     what: str = "ffmpeg",
 ) -> None:
-    """Run ffmpeg with ``-progress pipe:1``; report ``frame=`` lines; kill on cancel."""
+    """Run ffmpeg with ``-progress pipe:1``; report ``frame=`` lines; kill on cancel.
+
+    w32-rel (CUT-187, review R4; Media Encoder / Resolve keep Stop live whatever the encoder prints): the output is read
+    by reader threads, and this thread supervises the PROCESS: Stop and the deadline are checked every _POLL_SECONDS,
+    also while ffmpeg prints nothing or has closed its output but still runs. The child is killed and reaped in
+    ``finally`` whatever ends the run."""
     args = [str(command[0]), "-hide_banner", "-nostdin", "-loglevel", "error", "-progress", "pipe:1", *map(str, command[1:])]
     try:
         proc = subprocess.Popen(
@@ -36,6 +59,7 @@ def run_ffmpeg(
     except FileNotFoundError as exc:
         raise ExportError("ffmpeg_unavailable", "ffmpeg is not available at the configured path.") from exc
     stderr_chunks: list[str] = []
+    frames: queue.SimpleQueue[int] = queue.SimpleQueue()
 
     def drain() -> None:
         assert proc.stderr is not None
@@ -43,28 +67,49 @@ def run_ffmpeg(
             if sum(map(len, stderr_chunks)) < 16_000:
                 stderr_chunks.append(line)
 
-    reader = threading.Thread(target=drain, daemon=True)
-    reader.start()
+    def progress() -> None:
+        assert proc.stdout is not None
+        for line in proc.stdout:
+            if line.startswith("frame="):
+                value = line.split("=", 1)[1].strip()
+                if value.isdigit():
+                    frames.put(int(value))
+
+    readers = [threading.Thread(target=drain, daemon=True), threading.Thread(target=progress, daemon=True)]
+    for reader in readers:
+        reader.start()
     deadline = time.monotonic() + timeout
-    cancelled = False
-    assert proc.stdout is not None
-    for line in proc.stdout:
+
+    def report() -> None:
+        while True:
+            try:
+                frame = frames.get_nowait()
+            except queue.Empty:
+                return
+            if on_frame is not None:
+                on_frame(frame)
+
+    try:
+        while True:
+            report()
+            if should_cancel is not None and should_cancel():
+                raise Cancelled()
+            if proc.poll() is not None:
+                break
+            if time.monotonic() > deadline:
+                raise ExportError("ffmpeg_timeout", f"{what} timed out.")
+            try:
+                proc.wait(timeout=_POLL_SECONDS)
+            except subprocess.TimeoutExpired:
+                pass
+        for reader in readers:
+            reader.join(timeout=5)
+        report()
+        # A Stop that came while ffmpeg finished is still a Stop (nothing is kept).
         if should_cancel is not None and should_cancel():
-            cancelled = True
-            proc.kill()
-            break
-        if time.monotonic() > deadline:
-            proc.kill()
-            proc.wait()
-            raise ExportError("ffmpeg_timeout", f"{what} timed out.")
-        if on_frame is not None and line.startswith("frame="):
-            value = line.split("=", 1)[1].strip()
-            if value.isdigit():
-                on_frame(int(value))
-    proc.wait()
-    reader.join(timeout=5)
-    if cancelled:
-        raise Cancelled()
+            raise Cancelled()
+    finally:
+        _stop(proc)
     if proc.returncode != 0:
         tail = "".join(stderr_chunks).strip().splitlines()[-3:]
         raise ExportError("ffmpeg_failed", f"{what} failed.", {"stderr": tail})

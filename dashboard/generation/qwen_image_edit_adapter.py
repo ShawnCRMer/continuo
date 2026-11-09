@@ -408,6 +408,12 @@ def _valid_prompt_id(value: Any) -> bool:
         ord(c) < 0x20 or c == "\x7f" for c in value)
 
 
+def _accepted_pins(target_id: str, capability_sha256: str, graph_sha256: str) -> set[tuple[str, str]]:
+    """The adapter's current pin plus every earlier pin of its target (w32-fix5: a job stored under one keeps polling)."""
+    from .image_edit_contract import earlier_edit_pins
+    return {(capability_sha256, graph_sha256), *earlier_edit_pins(target_id)}
+
+
 def _identity(value: Mapping[str, Any], target_id: str = TARGET_ID, capability_sha256: str = CAPABILITY_SHA256,
               graph_sha256: str = GRAPH_SHA256) -> dict[str, Any]:
     keys = {"provider_id", "image_producer_job_id", "client_request_id", "target_id", "request_snapshot_sha256",
@@ -415,7 +421,7 @@ def _identity(value: Mapping[str, Any], target_id: str = TARGET_ID, capability_s
     if not isinstance(value, Mapping) or set(value) != keys:
         raise QwenEditAdapterError("provider correlation identity shape is invalid")
     if value["provider_id"] != PROVIDER_ID or value["target_id"] != target_id \
-            or value["capability_manifest_sha256"] != capability_sha256 or value["api_graph_sha256"] != graph_sha256:
+            or (value["capability_manifest_sha256"], value["api_graph_sha256"]) not in _accepted_pins(target_id, capability_sha256, graph_sha256):
         raise QwenEditAdapterError("provider correlation identity is not authoritative")
     return dict(value)
 
@@ -524,10 +530,13 @@ class QwenImageEditAdapter:
 
     compile = compile_graph
 
-    def _identity_for(self, job_id: str, client_request_id: str, snapshot_hash: str) -> dict[str, Any]:
+    def _identity_for(self, job_id: str, client_request_id: str, snapshot_hash: str,
+                      pin: tuple[str, str] | None = None) -> dict[str, Any]:
+        """The correlation identity; ``pin`` = the job's own (capability, graph) pin when it was stored under an earlier one."""
+        capability, graph = pin if pin is not None else (self.capability_sha256, self.graph_sha256)
         return {"provider_id": PROVIDER_ID, "image_producer_job_id": job_id, "client_request_id": client_request_id,
                 "target_id": self.target_id, "request_snapshot_sha256": snapshot_hash,
-                "capability_manifest_sha256": self.capability_sha256, "api_graph_sha256": self.graph_sha256}
+                "capability_manifest_sha256": capability, "api_graph_sha256": graph}
 
     async def _preview_probe(self) -> tuple[bool, str | None]:
         now = time.monotonic()
@@ -582,7 +591,10 @@ class QwenImageEditAdapter:
                     node = LIVE_PREVIEW_NODE_ID
                 except QwenEditAdapterError:
                     node = None
-        extra: dict[str, Any] = {"studio": self._identity_for(image_producer_job_id, client_request_id, snapshot_hash)}
+        # w32-fix5: a re-run of a job stored under an earlier pin carries that pin, so its result evidence matches its row.
+        pin = (snapshot["capability_manifest_sha256"], snapshot["api_graph_sha256"])
+        own = pin if pin in _accepted_pins(self.target_id, self.capability_sha256, self.graph_sha256) else None
+        extra: dict[str, Any] = {"studio": self._identity_for(image_producer_job_id, client_request_id, snapshot_hash, own)}
         if self.preview_method is not None:
             extra["preview_method"] = self.preview_method
         try:
@@ -619,9 +631,12 @@ class QwenImageEditAdapter:
         for pid, entry in (history.items() if isinstance(history, Mapping) else []):
             prompt = entry.get("prompt") if isinstance(entry, Mapping) else None
             candidates.append((pid, _metadata(prompt)))
+        accepted = [expected] + [self._identity_for(image_producer_job_id, client_request_id, request_snapshot_sha256, pin)
+                                 for pin in sorted(_accepted_pins(self.target_id, self.capability_sha256, self.graph_sha256))
+                                 if pin != (self.capability_sha256, self.graph_sha256)]  # w32-fix5: an earlier pin's submit
         for pid, meta in candidates:
             if meta is not None and (meta.get("client_request_id") == client_request_id or meta.get("image_producer_job_id") == image_producer_job_id):
-                if not _matches(meta, expected):
+                if not any(_matches(meta, one) for one in accepted):
                     return SubmitOutcome("malformed", reason="submission_unknown")
                 if _valid_prompt_id(pid):
                     found.add(pid)

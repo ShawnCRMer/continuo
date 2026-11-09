@@ -42,6 +42,7 @@ Release requirements met and proven on a real install. Each line states the requ
 - Previz Undo restores exactly what the proposal changed: never erases newer figures or sets, and an undone lens stays undone.
 - Previz camera edits use the shot record's revision check; a stale edit is refused and shown, never overwrites a newer lens.
 - The render queue never creates a missing project folder (an unplugged drive or a moved folder stays absent); it writes only into an existing, opened project.
+- Unsaved work must be visible and closing must ask, otherwise data loss.
 
 ### Song to cut (Audio, Music, Cut)
 
@@ -102,7 +103,6 @@ Built; being proven on a real install or finished.
 ### Nothing gets lost, nothing crashes
 
 - Data loss while the UI claims it is kept.
-- Unsaved work must be visible and closing must ask, otherwise data loss.
 
 ### Song to cut (Audio, Music, Cut)
 

@@ -62,10 +62,33 @@ def _sample_tools_error(missing: list[str]) -> dict[str, Any]:
                       "fix": dict(_FFMPEG_FIX), "retryable": True, "next": None}}
 
 
-def _sample_rollback(target: Path, project_id: str | None) -> None:
-    """Undo a sample build that failed after its folder was made: forget its Recent entry and remove the folder.
-    Only the folder THIS request created (it did not exist before: _sample_target never returns an existing one) and
-    only while it holds nothing but the sample's own files; anything else in it stays."""
+# w32-rel (BCK-224, review R2; an installer's rollback removes the files it wrote and leaves the rest): the folder is
+# visible while the build runs, so the artist can put a file into it. Rollback removes only what the build made: a
+# sample copy still byte-equal to the shipped file, and the project's own documents (project.json, script/, state/ by
+# their store names) written since the build started. Anything else stays, and so does the folder that holds it.
+_SAMPLE_OWN_NAMES = re.compile(r"^(project\.json|script/script\.(fountain|json)|state/[a-z0-9][a-z0-9-]*\.json)(\.r\d+)?$"
+                               r"|(^|/)\.studio-[0-9a-f]{32}\.tmp$")
+
+
+def _sample_owned(target: Path, path: Path, since_ns: int) -> bool:
+    rel = path.relative_to(target).as_posix()
+    try:
+        info = path.lstat()
+        if not path.is_file() or path.is_symlink() or info.st_mtime_ns < since_ns:
+            return False
+        if _SAMPLE_OWN_NAMES.match(rel):
+            return True
+        source = _SAMPLE_DIR / rel
+        return (rel != "sample.json" and source.is_file() and source.stat().st_size == info.st_size
+                and source.read_bytes() == path.read_bytes())
+    except (OSError, ValueError):
+        return False
+
+
+def _sample_rollback(target: Path, project_id: str | None, since_ns: int = 0) -> bool:
+    """Undo a sample build that failed after its folder was made: forget its Recent entry and remove what the build
+    made. Only the folder THIS request created (it did not exist before: _sample_target never returns an existing one).
+    Answers True when the folder was kept because it holds files the sample did not make (or that could not go)."""
     if project_id:
         try:
             store = _recent_project_store_factory()
@@ -76,9 +99,32 @@ def _sample_rollback(target: Path, project_id: str | None) -> None:
         except (studio_core.ProjectError, OSError, ValueError, TypeError, UnicodeError):
             pass
     try:
-        shutil.rmtree(target)
+        entries = sorted(target.rglob("*"), key=lambda p: len(p.parts), reverse=True)
+    except OSError:
+        return target.exists()
+    for path in entries:
+        try:
+            if path.is_dir() and not path.is_symlink():
+                path.rmdir()  # only an empty folder; a folder with a kept file stays
+            elif _sample_owned(target, path, since_ns):
+                path.unlink()
+        except OSError:
+            pass
+    try:
+        target.rmdir()
     except OSError:
         pass
+    return target.exists()
+
+
+def _sample_kept_answer(answer: dict[str, Any], target: Path) -> dict[str, Any]:
+    """A failed build's answer, saying that the folder was kept and why (its name only, never the path)."""
+    error = dict(answer.get("error") or {}) if isinstance(answer, dict) and isinstance(answer.get("error"), dict) else {
+        "code": "sample_unavailable", "message": "The sample film could not be built.", "retryable": False, "next": None}
+    error["message"] = (f"{error.get('message') or 'The sample film could not be built.'} The folder {target.name} was kept:"
+                        " it holds files the sample did not make.")
+    error["kept_folder"] = target.name
+    return {**(answer if isinstance(answer, dict) else {}), "error": error}
 
 
 def _sample_copy(target: Path, manifest: dict[str, Any], keys: tuple[str, ...] = ("clip",), music: bool = True) -> list[str]:
@@ -104,6 +150,7 @@ async def projects_sample_open(request: ProjectSampleOpenRequest) -> dict[str, A
     missing = await asyncio.to_thread(_missing_media_tools)
     if missing:
         return _sample_tools_error(missing)
+    since_ns = time.time_ns() - 2_000_000_000  # file times can lag the clock by up to the FAT/SMB granularity
     try:
         target = await asyncio.to_thread(_sample_target, request.parent)
         await asyncio.to_thread(target.mkdir, parents=True)
@@ -120,13 +167,15 @@ async def projects_sample_open(request: ProjectSampleOpenRequest) -> dict[str, A
     try:
         built = await _sample_build(target, manifest, holder)
     except Exception:
-        await asyncio.to_thread(_sample_rollback, target, holder.get("project_id"))
+        await asyncio.to_thread(_sample_rollback, target, holder.get("project_id"), since_ns)
         raise
     finally:
         _FILM_CALLER.reset(caller)
     if not isinstance(built, dict) or built.get("error") or not built.get("project"):
         # w22-dlv (BCK-213): a failed build leaves no half sample in Recent or on disk (the Start tile stays).
-        await asyncio.to_thread(_sample_rollback, target, holder.get("project_id"))
+        # w32-rel (BCK-224): only what the build made goes; a folder with the artist's files stays and the answer says so.
+        if await asyncio.to_thread(_sample_rollback, target, holder.get("project_id"), since_ns):
+            return _sample_kept_answer(built, target)
     return built
 
 

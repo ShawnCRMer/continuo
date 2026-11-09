@@ -24,6 +24,18 @@
     "manifest_sha256": "8964cfcc96f2805b5f843a3050cf708d63aad9580ab83a1e44e897d476ad558a"
    }
   ],
+  "p-h3-image-lora-crop-edit-v1": [
+   {
+    "api_sha256": "6753056a8d63ac6b249e1001a883ab462b2c8f8aa842d62d1ecc93fc730446d8",
+    "manifest_sha256": "9077fa79fa7f03e7fbd565e3e38b136ed84da849fd53545f5289479d52e28c90"
+   }
+  ],
+  "p-h3-image-lora-edit-v1": [
+   {
+    "api_sha256": "6753056a8d63ac6b249e1001a883ab462b2c8f8aa842d62d1ecc93fc730446d8",
+    "manifest_sha256": "9077fa79fa7f03e7fbd565e3e38b136ed84da849fd53545f5289479d52e28c90"
+   }
+  ],
   "p-h3-image-lora-t2i-v1": [
    {
     "api_sha256": "8c817d5e1fc371777ac7028c471eb4fb3ad9d341e8e6deb98b910c3557a49c51",
@@ -47,6 +59,6 @@
    }
   ]
  },
- "note": "Lane w29-fix2 W29F-P0: every (manifest_sha256, api_sha256) pin a workflow target had in an earlier committed catalog. A job persisted under one of them keeps decoding (image_workflow_contract.validate_snapshot). Append only: when a pin changes, add the old pair here (tests/backend/test_w29_fix2_workflow_pins.py checks the git history).",
+ "note": "Lane w29-fix2 W29F-P0: every (manifest_sha256, api_sha256) pin a workflow target had in an earlier committed catalog. A job persisted under one of them keeps decoding (image_workflow_contract.validate_snapshot). Append only: when a pin changes, add the old pair here (tests/backend/test_w29_fix2_workflow_pins.py checks the git history). Lane w32-fix5 IMG-216b: the Image Edit contract (image_edit_contract.EDIT_TARGETS, /image/edit) reads the same file under its own target ids (capability_manifest_sha256 -> manifest_sha256, api_graph_sha256 -> api_sha256); tests/backend/test_w32_fix5_h3_edit_steps.py checks its git history.",
  "schema": "studio.workflow-pin-history/1"
 }

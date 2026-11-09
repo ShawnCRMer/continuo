@@ -50918,7 +50918,8 @@ function MusicMarkerSection({ kit, onSeek, playhead = 0, sections, bars, beats, 
       onClick: () => onSeek(r.time),
       children: [jsx12("span", { className: "mmk-n", "data-testid": r.kind === "marker" ? "mpro-marker-name" : void 0, children: r.name }, "n"), showBar ? jsx12("span", { className: "mmk-b", "data-testid": "mmk-bar", title: "Bar", children: mmkBar(r.time, barStarts) }, "b") : null, jsx12("span", { className: "mmk-t", children: formatMusicTime(r.time, true) }, "t")]
     }) }, r.id)) }, "ul") : null,
-    prow2("Jump", jsx12("select", { className: "fw-select", "data-testid": "mpro-jump-size", "aria-label": "Bars per Alt+arrow jump", title: jumpReason || "Ctrl+←/→ one bar · Alt+←/→ this many bars", value: String(jumpBars), onChange: (event) => setJumpBars(Number(event.target.value)), children: MUSIC_JUMP_SIZES.map((n) => jsx12("option", { value: String(n), children: `${n} ${n === 1 ? "bar" : "bars"}` }, n)) }), "jump")
+    // w32-fix5 AUD-151: with the meter unsure there are no bars; the jump goes by beats and says so.
+    prow2("Jump", jsx12("select", { className: "fw-select", "data-testid": "mpro-jump-size", "data-unit": jumpReason ? "beat" : "bar", "aria-label": jumpReason ? "Beats per Alt+arrow jump" : "Bars per Alt+arrow jump", title: jumpReason || "Ctrl+←/→ one bar · Alt+←/→ this many bars", value: String(jumpBars), onChange: (event) => setJumpBars(Number(event.target.value)), children: MUSIC_JUMP_SIZES.map((n) => jsx12("option", { value: String(n), children: jumpReason ? `${n} ${n === 1 ? "beat" : "beats"}` : `${n} ${n === 1 ? "bar" : "bars"}` }, n)) }), "jump")
   ] });
 }
 function MusicMarkerAdd({ kit }) {
@@ -54715,7 +54716,7 @@ function MusicProPanel({
   const inspectorBody = audioRow ? asideParts : aside || analyseBox;
   const tbtn = (testid, icon, label2, title, onClick, extra = {}) => jsx20("button", { type: "button", className: "fw-btn fw-btn-ghost fw-btn-icon", "data-testid": testid, disabled: !audioReady, "aria-label": label2, title, onClick, ...extra, children: jsx20(FwIcon, { name: icon }) }, testid);
   const songOn = playMode === "song" && playing, rangeOn = playing && playMode !== "song";
-  const pickupEnd = barsFrom.bars.length && barOneAt !== null && barOneAt > 0.05 ? barOneAt : 0;
+  const pickupEnd = !noBars && barsFrom.bars.length && barOneAt !== null && barOneAt > 0.05 ? barOneAt : 0;
   if (audioRow && timing) timing.barStarts = barsFrom.bars;
   if (audioRow && timing && partsNamed) timing.readoutSections = { pickup: pickupEnd, sections: partsNamed.slice(0, 64).map((p) => ({ name: String(p.name).slice(0, 40), time: Math.round(p.time * 1e3) / 1e3, bar: audioBarAt(p.time, barsFrom.bars) })) };
   const barBeatNow = audioBarBeat(playhead, barsFrom.bars, Number.isInteger(timing?.beatsPerBar) ? timing.beatsPerBar : 4);
@@ -54810,13 +54811,18 @@ function MusicProPanel({
             ruler.ticks.map((tick2) => jsx20("i", { className: tick2.major === false ? "mpro-tick is-minor" : "mpro-tick", style: { left: `${xAt(tick2.time)}px` } }, `t${tick2.time}`)),
             ruler.labels.map((item) => jsx20("span", { className: "mpro-rl", "data-testid": "mpro-rl", "data-side": item.side, "data-x": item.x.toFixed(2), style: { left: `${item.left}px`, width: `${item.width}px` }, children: item.label }, `l${item.time}`)),
             ruler.bars.map((item) => jsx20("span", { className: "mpro-bl", "data-testid": "mpro-bl", title: `Downbeat ${item.label}`, style: { left: `${item.left}px`, width: `${item.width}px` }, children: item.label }, `b${item.time}`)),
-            noBars ? jsx20("span", { className: "mpro-bl mpro-nobars", "data-testid": "mpro-nobars", title: "Set beats per bar in Tempo & meter", children: "Beats only · meter unsure" }, "nb") : null,
+            // w32-fix5 AUD-151: on Audio Edit the note has its own place, the empty Bars lane (the 28 px ruler cut it to a quarter).
+            noBars && !audioRow ? jsx20("span", { className: "mpro-bl mpro-nobars", "data-testid": "mpro-nobars", title: "Set beats per bar in Tempo & meter", children: "Beats only · meter unsure" }, "nb") : null,
             // The playhead head lives in its own strip at the top of the ruler (above the labels), never over a label.
             playheadVisible ? jsx20("i", { className: "mpro-ph-head", "data-testid": "mpro-playhead-head", style: { left: `${xAt(playhead)}px` } }, "phh") : null
           ]
         }, "r")] }, "trk-ruler"),
         // fs-music5: markers get their own row under the ruler (never over a time or bar label) once a project can hold them.
         // w16-tv item 2 (Tafel 2a; DESIGN.md "a bar scale is a lane of its own, numbers only"): the Bars lane, 22 px.
+        // w32-fix5 AUD-151 (Logic: no time signature, no bar ruler numbers): with the meter unsure the lane holds only the note.
+        audioRow && barsShown && noBars ? jsxs16("div", { className: "mpro-trk", "data-testid": "trk-barsl", children: [jsx20(TrackHead, { id: "bars", name: "Bars" }, "hd"), jsx20("div", { className: "mpro-lane mpro-barsl", "data-testid": "aud-bars-lane", "aria-label": "Bars", children: [
+          jsx20("span", { className: "mpro-nobars", "data-testid": "mpro-nobars", title: "Set beats per bar in Tempo & meter", children: "Beats only · meter unsure" }, "nb")
+        ] }, "l")] }, "barsl") : null,
         audioRow && barsShown && barList && barList.length ? jsxs16("div", { className: "mpro-trk", "data-testid": "trk-barsl", children: [jsx20(TrackHead, { id: "bars", name: "Bars" }, "hd"), jsx20("div", { className: "mpro-lane mpro-barsl", "data-testid": "aud-bars-lane", "aria-label": "Bars", children: [
           // w18-aedit item 1 (owner audit 1; kit laneInner 'bars': a tick only where a number stands, the number 3 px right of it).
           jsx20(TrackBarLines, { bars: barNumbers.map((b) => b.t), viewStart, viewEnd, width }, "g"),
@@ -54869,7 +54875,8 @@ function MusicProPanel({
               // w18-aedit item 2 (owner audit 2; board 2a draws one grid): on Audio Edit the artist's saved timing IS the grid the marks
               // below draw (timing.bars = its bar lines); the dashed layer and its legend are only the unsaved preview.
               !audioRow || gridLayer?.kind !== "saved" ? jsx20(MusicTimingGrid, { layer: gridLayer, viewStart, viewEnd, width }, "tg") : null,
-              timing?.onBarOne && !(audioRow && barsShown && barList && barList.length) ? jsx20(MusicBarOneHandle, { time: timing.barOne, viewStart, viewEnd, width, timeAt, snap: barOneSnap, onCommit: timing.onBarOne, disabled: Boolean(timing.barOneDisabled) }, "b1") : null,
+              // w32-fix5 AUD-151: no "Bar 1" flag on Audio Edit while the song has no bars (meter unsure); B and Tempo & meter set it.
+              timing?.onBarOne && !(audioRow && barsShown && barList && barList.length) && !(audioRow && noBars) ? jsx20(MusicBarOneHandle, { time: timing.barOne, viewStart, viewEnd, width, timeAt, snap: barOneSnap, onCommit: timing.onBarOne, disabled: Boolean(timing.barOneDisabled) }, "b1") : null,
               jsx20("div", { className: "mpro-marks", "data-testid": "mpro-marks", "data-beat-mode": markers.beatMode, "data-beats": markers.beatCount, "data-downbeats": markers.downbeatCount, "data-beats-drawn": markers.beats.length, "data-downbeats-drawn": markers.downbeats.length, children: [
                 markers.beats.map((time) => jsx20("i", { className: "mpro-mk is-beat", "data-kind": "beat", "data-t": time, style: { left: `${xAt(time)}px` } }, `b${time}`)),
                 markers.dots.length ? jsx20("span", { className: "mpro-beatrow", "data-testid": "mpro-beatrow", "data-beats": markers.dots.length, children: markers.dots.map((time) => jsx20("i", { className: "mpro-bdot", "data-t": time, style: { left: `${Math.round(xAt(time))}px` } }, `d${time}`)) }, "row") : null,
@@ -81532,8 +81539,11 @@ var IMAGE_G1_CSS = `
 /* P3S-7 (IMG-066): the selected tile's actions are always visible, not only on hover; other tiles stay quiet until hover/focus. */
 .fw .fw-gtile.is-sel .fw-gtile-acts{opacity:1;visibility:visible;transition:none}
 /* G1: no left dock (the Media column sits there); one inspector on the right with its tab row. */
-.fw.fim-g1{grid-template-columns:var(--fw-rail-w) minmax(0,1fr) var(--fw-insp-w);grid-template-areas:"rail bar insp" "rail canvas insp" "rail cap insp"}
-.fw.fim-g1.no-controls{grid-template-columns:var(--fw-rail-w) minmax(0,1fr) var(--fw-insp-w)}
+/* w32-fix5 GEM-203: by specificity, never by style order. The shared FW_CSS (.fw.is-right: dock column first) is injected
+   again by every module that uses it (Video); mounted after Image it won the equal-weight tie and put the 36 px collapsed
+   dock column between the Media column and the stage (the 37 px gutter). The viewer keeps its own one-cell grid. */
+.fw.fim-g1,.fw.fim-g1.is-right:not(.is-viewer){grid-template-columns:var(--fw-rail-w) minmax(0,1fr) var(--fw-insp-w);grid-template-areas:"rail bar insp" "rail canvas insp" "rail cap insp"}
+.fw.fim-g1.no-controls,.fw.fim-g1.is-right.no-controls:not(.is-viewer){grid-template-columns:var(--fw-rail-w) minmax(0,1fr) var(--fw-insp-w)}
 /* W-15: the inspector tab row is the bar height (DESIGN.md Inspector 1, 36 px), at every width. */
 .fw.fim-g1 .fim-itabs{height:var(--fw-bar-h)}
 .fw.fim-g1 .fim-tabpane{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden}
@@ -81598,7 +81608,7 @@ var IMAGE_G1_CSS = `
   /* w10-image item 7: at 496 the inspector tabs and the model row stay reachable under the picture. */
   .fw.fim-g1:not([data-sheet]) .fim-itabs{display:flex}
   [data-image-workbench].fw.fim-g1:not([data-sheet=controls]) .fw-insp-b > .fim-model{display:flex;padding:6px 8px}
-  .fw.fim-g1,.fw.fim-g1.no-controls{grid-template-columns:var(--fw-rail-w) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto auto;grid-template-areas:"rail bar" "rail canvas" "rail cap" "rail insp"}
+  .fw.fim-g1,.fw.fim-g1.no-controls,.fw.fim-g1.is-right:not(.is-viewer),.fw.fim-g1.is-right.no-controls:not(.is-viewer){grid-template-columns:var(--fw-rail-w) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto auto;grid-template-areas:"rail bar" "rail canvas" "rail cap" "rail insp"}
   .fw.fim-g1 .fw-doc-title{max-width:30cqi}
   .fw.fim-g1[data-sheet] .fim-itabs{display:none}
   /* w15-img item 3 (IMG-117): every Create section header under the stage, collapsed (the body opens in the sheet). */
@@ -90107,6 +90117,58 @@ function useRowWidth(ref, on) {
   }, [on]);
   return w;
 }
+var mediaKeyOf = (page) => page === "timeline" ? CUT_MEDIA_KEY : `filmSuite.${page}.mediaWidth`;
+function useSideMediaPane(page, on, rowW, fixed) {
+  const key = mediaKeyOf(page);
+  const limits = FW_PANE_LIMITS;
+  const [sizes, setSizes] = useState({});
+  const stored = Object.prototype.hasOwnProperty.call(sizes, key) ? sizes[key] : fwStoredWidth(key, limits.dock);
+  const shown = stored || CUT_MEDIA_DEFAULT;
+  const dockMax = Math.max(limits.dock.min, Math.min(limits.dock.max, Math.floor(rowW * (1 - FW_CANVAS_MIN_SHARE)) - fixed));
+  const dockCss = Math.min(shown, dockMax);
+  const sizePane = (pane, value) => {
+    if (pane !== "dock") return;
+    const next = value === null ? null : Math.round(Math.max(limits.dock.min, Math.min(dockMax, value)));
+    setSizes((cur) => ({ ...cur, [key]: next }));
+    storageSet(key, next);
+  };
+  return { narrow: false, limits, inspCss: 0, inspMax: 0, dockCss, dockMax, sizePane, width: on && rowW ? dockCss : CUT_MEDIA_DEFAULT };
+}
+function useRowAndPanel(ref, on) {
+  const [w, setW] = useState([0, 0]);
+  useLayoutEffect(() => {
+    const node = on && ref.current ? ref.current.closest(".fsp-row") : null;
+    if (!node) {
+      setW([0, 0]);
+      return void 0;
+    }
+    const panel = () => [...node.querySelectorAll('[data-testid="fim-controls"], [data-testid="fsh-controls"], .aei')].find((e) => e.getClientRects().length) || null;
+    const read2 = () => {
+      const p2 = panel();
+      setW((cur) => {
+        const next = [node.clientWidth, p2 ? Math.round(p2.getBoundingClientRect().width) : 0];
+        return cur[0] === next[0] && cur[1] === next[1] ? cur : next;
+      });
+    };
+    read2();
+    if (typeof ResizeObserver === "undefined") return void 0;
+    const observer = new ResizeObserver(read2);
+    observer.observe(node);
+    const p = panel();
+    if (p) observer.observe(p);
+    const mo = typeof MutationObserver === "undefined" ? null : new MutationObserver(() => {
+      const q = panel();
+      if (q) observer.observe(q);
+      read2();
+    });
+    if (mo) mo.observe(node, { childList: true, subtree: true });
+    return () => {
+      observer.disconnect();
+      if (mo) mo.disconnect();
+    };
+  }, [on]);
+  return w;
+}
 var $cutColumn = atom21({ shown: false });
 var $cutColumnRequest = atom21(0);
 
@@ -95745,6 +95807,8 @@ var ICONS = {
   show: '<rect x="4" y="5" width="16" height="14" rx="1"/><path d="M9.5 5v14M13.5 10l2 2-2 2"/>',
   close: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
   filter: '<path d="M4.5 5.5h15l-6 7.5v5l-3 1.5v-6.5z"/>',
+  import: '<path d="M12 4.5v10M8 10.5l4 4 4-4M5 15.5v3h14v-3"/>',
+  check: '<path d="M5.5 12.5l4 4 9-9"/>',
   image: '<rect x="4" y="5" width="16" height="14" rx="1"/><path d="M4 16l4.5-4.5 4 4 2.5-2.5 5 5"/><circle cx="15.5" cy="9.5" r="1.5"/>',
   video: '<rect x="3.5" y="6.5" width="12" height="11" rx="1"/><path d="M15.5 10.5l5-3v9l-5-3"/>',
   audio: '<path d="M4 12h1.5M7.5 8v8M10.5 5v14M13.5 9v6M16.5 7v10M19.5 11v2"/>',
@@ -95813,20 +95877,49 @@ function ViewMenu({ col }) {
     jsx109("button", { type: "button", className: "fmc-btn fw-b", "data-testid": "media-col-view-reset", title: "Back to the default view", onClick: () => col.resetView(), children: "Reset view" }, "reset")
   ] });
 }
+var typesAll = (types2) => MEDIA_TYPES.every((t2) => types2.includes(t2));
+function filterActive(col) {
+  const def = PAGE_TYPES[col.page] || MEDIA_TYPES;
+  return col.view.bin !== "all" || col.view.minRating > 0 || col.types.length !== def.length || col.types.some((t2) => !def.includes(t2));
+}
+function filterLine(col) {
+  const parts = [];
+  if (col.view.bin !== "all") parts.push(BIN_LABEL[col.view.bin]);
+  if (!typesAll(col.types)) parts.push(col.types.map((t2) => TYPE_LABEL[t2]).join(", "));
+  if (col.view.minRating > 0) parts.push(`${"★".repeat(col.view.minRating)}+`);
+  parts.push(String(col.count));
+  return parts.join(" · ");
+}
 function FilterMenu({ col }) {
-  return jsxs90("div", { className: "fmc-pop is-filter", role: "dialog", "aria-label": "Filter", "data-testid": "media-col-filter-menu", children: [
-    jsxs90("label", { className: "fmc-row", children: [
+  const v = col.view;
+  const ticked = typesAll(col.types) ? [] : col.types;
+  const tick2 = (kind) => {
+    const next = ticked.includes(kind) ? ticked.filter((t2) => t2 !== kind) : [...ticked, kind];
+    col.setFilter({ types: next.length ? next : MEDIA_TYPES });
+  };
+  const item = (role, on, testid, label2, run, title) => jsxs90("button", { type: "button", role, className: "fw-menu-i fmc-mi", "aria-checked": on, "data-testid": testid, title, onClick: run, children: [
+    jsx109("span", { className: "fmc-mi-c", "aria-hidden": "true", children: on ? jsx109(Icon, { name: "check" }) : null }, "c"),
+    jsx109("span", { children: label2 }, "t")
+  ] }, testid);
+  return jsxs90("div", { className: "fw-menu fmc-menu", role: "menu", "aria-label": "Filter", "data-testid": "media-col-filter-menu", children: [
+    jsx109("div", { className: "fw-menu-h", children: "Show" }, "hs"),
+    jsx109("div", { role: "group", "aria-label": "Show", "data-testid": "media-col-bin", "data-value": v.bin, className: "fmc-mg", children: MEDIA_BINS.filter((b) => col.hasCut || b !== "cut" && b !== "uncut").map((b) => item("menuitemradio", v.bin === b, "media-col-bin-" + b, `${BIN_LABEL[b]} ${col.binCounts[b]}`, () => col.setFilter({ bin: b }))) }, "bins"),
+    jsx109("div", { className: "fw-menu-sep" }, "s1"),
+    jsx109("div", { className: "fw-menu-h", children: "Type" }, "ht"),
+    jsx109("div", { role: "group", "aria-label": "Type", className: "fmc-mg", children: MEDIA_TYPES.map((kind) => item("menuitemcheckbox", ticked.includes(kind), "media-col-type-" + kind, TYPE_LABEL[kind], () => tick2(kind), `${TYPE_LABEL[kind]} · none ticked shows every type`)) }, "types"),
+    jsx109("div", { className: "fw-menu-sep" }, "s2"),
+    jsxs90("label", { className: "fmc-row fmc-mrow", children: [
       jsx109("span", { children: "Rating" }, "l"),
       jsx109("select", {
-        className: "fmc-select",
+        className: "fmc-select fw-select",
         "aria-label": "Rating at least",
         "data-testid": "media-col-min-rating",
-        value: col.view.minRating,
+        value: v.minRating,
         onChange: (event) => col.setFilter({ minRating: Number(event.target.value) }),
         children: [0, 1, 2, 3, 4, 5].map((n) => jsx109("option", { value: n, children: n ? `${"★".repeat(n)} or more` : "Any" }, n))
       }, "s")
     ] }, "r"),
-    jsx109("button", { type: "button", className: "fmc-btn fw-b", "data-testid": "media-col-filter-clear", onClick: () => col.setFilter({ minRating: 0, query: "" }), children: "Clear filter" }, "c")
+    jsx109("button", { type: "button", role: "menuitem", className: "fw-menu-i fmc-mi", "data-testid": "media-col-filter-clear", onClick: () => col.setFilter({ bin: "all", types: PAGE_TYPES[col.page] || MEDIA_TYPES, minRating: 0, query: "" }), children: [jsx109("span", { className: "fmc-mi-c", "aria-hidden": "true" }, "c"), jsx109("span", { children: "Clear filter" }, "t")] }, "c")
   ] });
 }
 function Stars({ n }) {
@@ -95927,7 +96020,7 @@ function Tile2({ col, entry: entry2, ownerScope, current: current2, takeLabels, 
   }, item.id);
 }
 function footCount(col, folderFiles) {
-  const done = col.unit === "items" && col.count === col.total ? `${col.count} ${col.count === 1 ? "item" : "items"}` : `${col.count} of ${col.total} ${col.unit}${folderFiles && col.unit === "results" ? ` · ${folderFiles} files` : ""}`;
+  const done = col.unit === "items" && col.count === col.total ? `${col.count} ${col.count === 1 ? "item" : "items"}` : `${col.count} of ${col.total} ${col.unit}`;
   const live2 = col.runningCount;
   if (!live2) return done;
   return col.total ? `${done} · ${live2} running` : `${live2} running`;
@@ -96048,18 +96141,38 @@ function MediaColumn({ col, ownerScope, jobs, wake, onImported, script = null, a
   useEffect(() => {
     publish({ media: cutOn && rowW ? pane.width : 0 });
   }, [cutOn, rowW, pane.width]);
+  const sideOn = !cutOn && !drawer && col.visible && ["image", "shoot", "music"].includes(col.page);
+  const [sideRowW, sidePanelW] = useRowAndPanel(rootRef, sideOn);
+  const side = useSideMediaPane(col.page, sideOn, sideRowW, sidePanelW);
+  const handle = cutOn && rowW ? { pane, rowW } : sideOn && sideRowW ? { pane: side, rowW: sideRowW } : null;
   const drop2 = useFileDrop({ ownerScope, wake, onImported: () => col.setFilter({ bin: "imported" }) });
+  const importRef = useRef(null);
+  importRef.current = doImport;
+  useEffect(() => {
+    if (!col.visible) return void 0;
+    const onKey2 = (event) => {
+      if (!(event.ctrlKey || event.metaKey) || event.altKey || event.shiftKey || event.key !== "i" && event.key !== "I" || event.defaultPrevented) return;
+      const t2 = event.target, row2 = rootRef.current && rootRef.current.closest(".fsp-row");
+      if (t2 && (t2.tagName === "INPUT" || t2.tagName === "TEXTAREA" || t2.tagName === "SELECT" || t2.isContentEditable)) return;
+      if (!row2 || t2 && t2 !== document.body && !row2.contains(t2)) return;
+      event.preventDefault();
+      void importRef.current();
+    };
+    document.addEventListener("keydown", onKey2);
+    return () => document.removeEventListener("keydown", onKey2);
+  }, [col.visible]);
   return jsxs90("aside", {
     ref: rootRef,
     ...drop2.props,
     className: cn41("fmc", drawer ? "is-drawer" : "is-docked"),
-    style: cutOn && rowW ? { "--fsp-media-w": pane.width + "px", "--fw-dock-w": pane.width + "px" } : void 0,
+    style: handle ? { "--fsp-media-w": handle.pane.width + "px", "--fw-dock-w": handle.pane.width + "px" } : void 0,
     "aria-label": "Media",
     "data-testid": "media-column",
     "data-page": col.page,
     "data-tile": v.tile,
     "data-bin": v.bin,
     "data-types": col.types.join(","),
+    "data-bin-counts": MEDIA_BINS.filter((b) => col.hasCut || b !== "cut" && b !== "uncut").map((b) => `${b}:${col.binCounts[b]}`).join(","),
     onKeyDown: (event) => {
       if (event.key === "Escape" && drawer && !event.defaultPrevented) {
         event.preventDefault();
@@ -96068,15 +96181,18 @@ function MediaColumn({ col, ownerScope, jobs, wake, onImported, script = null, a
     },
     children: [
       jsx109("style", { children: MEDIA_COLUMN_CSS + SHOT_PICKER_CSS + REFERENCE_CSS + MEDIA_CUTS_CSS }, "css"),
-      ...cutOn && rowW ? PaneSplitters({ panes: pane, fwW: rowW, inspOpen: false, flip: true, dockLabel: "Media width", testids: ["media-col-split-none", "media-col-split"] }) : [],
+      ...handle ? PaneSplitters({ panes: handle.pane, fwW: handle.rowW, inspOpen: false, flip: true, dockLabel: "Media width", testids: ["media-col-split-none", "media-col-split"] }) : [],
       jsxs90("div", { className: "fmc-top", ref: pop.ref, children: [
         jsxs90("header", { className: "fmc-head", children: [
           jsx109("h2", { className: "fmc-title", children: "Media" }, "t"),
           jsx109("span", { className: "fmc-grow" }, "g"),
+          // w32-fix5 GEM-202: Import is a ghost icon in the title row (the document action, Ctrl+I), no framed footer button.
+          jsx109(IconButton, { icon: "import", label: "Import…", title: col.page === "music" ? "Import… (Ctrl+I) · a sound: WAV, MP3, FLAC, OGG, Opus, M4A, AAC" : "Import… (Ctrl+I) · a picture: PNG, JPEG, WebP, TIFF", testid: "media-col-import", onClick: () => void doImport() }, "i"),
           jsx109(IconButton, { icon: "search", label: "Search", title: "Search prompts, names and tags", pressed: searchOpen, testid: "media-col-search-toggle", onClick: () => {
             if (searchOpen && v.query) col.setFilter({ query: "" });
             setSearchOpen(!searchOpen);
           } }, "s"),
+          jsx109(IconButton, { icon: "filter", label: "Filter", title: "Filter: show, type, rating", pressed: pop.open === "filter" || filterActive(col), testid: "media-col-filter", onClick: () => pop.toggle("filter") }, "f"),
           jsx109(IconButton, { icon: "view", label: "View", title: "View: sort, tile size, takes, names, rejected", pressed: pop.open === "view", testid: "media-col-view", onClick: () => pop.toggle("view") }, "v"),
           jsx109(IconButton, { icon: "enlarge", label: "Enlarge", title: "Enlarge to the Media library (G)", testid: "media-col-enlarge", onClick: () => col.enlarge() }, "e"),
           drawer ? jsx109(IconButton, { icon: "close", label: "Close Media", title: "Close (Esc)", testid: "media-col-close", onClick: () => col.setVisible(false) }, "x") : jsx109(IconButton, { icon: "hide", label: "Hide Media", title: "Hide the Media column", testid: "media-col-hide", onClick: () => col.setVisible(false) }, "h")
@@ -96100,19 +96216,8 @@ function MediaColumn({ col, ownerScope, jobs, wake, onImported, script = null, a
             }
           }
         }) }, "search") : null,
-        jsxs90("div", { className: "fmc-bar", children: [
-          jsx109("select", {
-            className: "fmc-select fmc-bin",
-            "aria-label": "Bin",
-            "data-testid": "media-col-bin",
-            value: v.bin,
-            title: "Bin",
-            onChange: (event) => col.setFilter({ bin: event.target.value }),
-            children: MEDIA_BINS.filter((b) => col.hasCut || b !== "cut" && b !== "uncut").map((b) => jsx109("option", { value: b, children: `${BIN_LABEL[b]} ${col.binCounts[b]}` }, b))
-          }, "bin"),
-          jsx109("span", { className: "fmc-types", role: "group", "aria-label": "Types", children: MEDIA_TYPES.map((kind) => jsx109(IconButton, { icon: kind, label: TYPE_LABEL[kind], title: `${TYPE_LABEL[kind]}: ${col.types.includes(kind) ? "shown" : "hidden"}`, pressed: col.types.includes(kind), testid: "media-col-type-" + kind, onClick: () => col.toggleType(kind) }, kind)) }, "types"),
-          jsx109(IconButton, { icon: "filter", label: "Filter", title: v.minRating ? `Rating ${v.minRating} or more` : "Filter by rating", pressed: pop.open === "filter" || v.minRating > 0, testid: "media-col-filter", onClick: () => pop.toggle("filter") }, "f")
-        ] }, "bar"),
+        // w32-fix5 GEM-202: while a filter is set, one quiet line names what is shown and how many ("Kept · Pictures · 11").
+        filterActive(col) ? jsx109("p", { className: "fmc-fline", "data-testid": "media-col-filter-line", children: filterLine(col) }, "fline") : null,
         pop.open === "view" ? jsx109(ViewMenu, { col }, "vm") : null,
         pop.open === "filter" ? jsx109(FilterMenu, { col }, "fm") : null
       ] }, "top"),
@@ -96144,8 +96249,6 @@ function MediaColumn({ col, ownerScope, jobs, wake, onImported, script = null, a
       } }, "pick") : null,
       assigned ? jsx109("p", { className: "fmc-empty fmc-dropnote", role: "status", "data-testid": "media-shot-note", children: assigned }, "an") : null,
       jsxs90("footer", { className: "fmc-foot", children: [
-        jsx109("button", { type: "button", className: "fmc-btn fw-b", "data-testid": "media-col-import", title: col.page === "music" ? "Import a sound from disk (WAV, MP3, FLAC, OGG, Opus, M4A, AAC)" : "Import a picture from disk (PNG, JPEG, WebP, TIFF)", onClick: () => void doImport(), children: "Import…" }, "i"),
-        jsx109("span", { className: "fmc-grow" }, "g"),
         // p5d-med: with the folder files listed the footer counts what it shows ("24 items"; "6 of 24 items" filtered).
         jsx109("span", { className: "fmc-count", "data-testid": "media-col-count", title: `${col.count} shown of ${col.total} ${col.unit} in ${BIN_LABEL[v.bin]}${folderFiles && col.unit === "results" ? ` · ${folderFiles} files in your folders` : ""}${col.runningCount ? ` · ${col.runningCount} running` : ""}`, children: footCount(col, folderFiles) }, "c")
       ] }, "foot")
@@ -96165,14 +96268,22 @@ var MEDIA_COLUMN_CSS = `${JOB_NAME_CSS}
 /* w12-o-frame M-158: on = Hermes SegmentedControl active (bg-background + shadow), no accent tint. */
 .fmc-ib.is-on{background:var(--fw-sel-bg,var(--background,var(--ui-bg-chrome)));box-shadow:var(--fw-sel-shadow,0 0.0625rem 0.125rem color-mix(in srgb,#000 5%,transparent));border-color:transparent;color:var(--ui-text-primary)}
 .fmc-ib:focus-visible,.fmc-tile:focus-visible,.fmc-btn:focus-visible,.fmc-select:focus-visible,.fmc-input:focus-visible,.fmc-seg button:focus-visible{outline:2px solid var(--dt-ring,var(--ui-accent));outline-offset:1px}
-.fmc-head{position:relative;display:flex;align-items:center;gap:2px;padding:6px 6px 4px 10px}
+.fmc-head{position:relative;display:flex;align-items:center;gap:2px;box-sizing:border-box;height:var(--fw-bar-h,2.25rem);padding:0 6px 0 10px;border-bottom:1px solid var(--fw-line)} /* w32-fix5 GEM-202: the 36 px panel title row (DESIGN.md Shared components 3) */
 .fmc-title{margin:0;font-size:var(--fw-fs);font-weight:600;color:var(--ui-text-primary)}
 .fmc-grow{flex:1 1 auto;min-width:0}
 .fmc-search{padding:0 8px 4px}
 .fmc-input,.fmc-select{box-sizing:border-box;min-height:var(--fmc-ctl);height:var(--fmc-ctl);border:1px solid var(--fw-line-strong);border-radius:var(--fw-r1);background:var(--fw-track);color:var(--ui-text-primary);font:inherit;font-size:var(--fw-fs);padding:0 6px}
 .fmc-input{width:100%}
 .fmc-input::placeholder{color:var(--ui-text-secondary)}
-.fmc-bar{display:flex;align-items:center;gap:2px;padding:0 6px 6px 8px;border-bottom:1px solid var(--fw-line)}
+.fmc-fline{margin:0;padding:4px 10px;border-bottom:1px solid var(--fw-line);color:var(--fw-t3,var(--ui-text-secondary));font-size:var(--fw-fs);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fmc-menu{position:absolute;z-index:81;display:flex;flex-direction:column;padding:4px;border-radius:var(--fw-r2);background:var(--fw-s3);box-shadow:var(--fw-shadow),0 0 0 1px var(--fw-line-2);right:6px;top:calc(var(--fw-bar-h,2.25rem) - 2px);width:220px;max-height:70vh;overflow-y:auto}
+.fmc-menu .fw-menu-h{padding:8px 10px 2px;color:var(--fw-t3);font-size:var(--fw-fs,.75rem);font-weight:600}
+.fmc-menu .fw-menu-sep{margin:4px 6px;border-top:1px solid var(--fw-line-2)}
+.fmc-menu .fw-menu-i{display:flex;align-items:center;gap:8px;height:var(--fw-ctl-h,1.75rem);padding:0 10px;border:0;border-radius:var(--fw-r1);background:transparent;color:var(--fw-t1);font:inherit;font-size:var(--fw-fs,.75rem);text-align:left;cursor:default;width:100%}
+.fmc-menu .fw-menu-i:hover,.fmc-menu .fw-menu-i:focus-visible{background:var(--fw-sel-bg);outline:none}
+.fmc-mg{display:flex;flex-direction:column}
+.fmc-mi-c{flex:none;display:inline-flex;width:var(--fmc-ic);height:var(--fmc-ic)}
+.fmc-mrow{padding:2px 10px}
 .fmc-bin{flex:1 1 auto;min-width:0;max-width:100%}
 .fmc-types{display:inline-flex;gap:1px}
 /* w12-look2 (decision 3): the type filter on the neutral track (look A visible). */
@@ -105920,6 +106031,7 @@ function clampOp(state, op) {
 
 // desktop/film-suite/src/timeline/view/timeline-edit-session.js
 var CONFLICT_TEXT = "The cut changed meanwhile (Hermes edited it). Your edit was not applied.";
+var STALE_TEXT = "The cut could not be read after the last edit. Your edit was not applied.";
 var KEEP_DEPTH = 100;
 var EDIT_VERBS = Object.freeze(Object.keys(OPS));
 var unsentCarry = { count: 0 };
@@ -106028,6 +106140,17 @@ function useTimelineEditSession(project, doc2, refetch) {
       }
       if (!quiet) setNote(null);
       try {
+        if (cur.current.stale) {
+          const fresh = await readTimeline(project).catch(() => null);
+          if (!live2()) return { cancelled: true };
+          if (!fresh) {
+            const e = new Error(STALE_TEXT);
+            e.code = "timeline_stale";
+            throw e;
+          }
+          if (!hist.current.labels.has(fresh.revision)) hist.current.labels.set(fresh.revision, { label: fresh.label, by: fresh.by });
+          cur.current = { revision: fresh.revision, state: fresh.exists ? fresh.state : defaultState() };
+        }
         const current2 = cur.current;
         const plan = await work2(current2);
         if (!live2()) return { cancelled: true };
@@ -109930,6 +110053,8 @@ var MPRO_CSS = `
 .mpro-bdot{position:absolute;bottom:0;top:0;width:1px;background:var(--ui-text-primary)}
 .mpro-beatchip{position:absolute;right:6px;bottom:6px;z-index:5;padding:2px 6px;border:1px solid var(--fw-line-strong);border-radius:var(--fw-r1,3px);background:var(--fw-row-sel);color:var(--ui-text-primary);font-size:var(--fw-fs,.75rem);pointer-events:none;white-space:nowrap}
 .mpro-nobars{right:6px;left:auto!important;color:var(--ui-text-secondary)}
+/* w32-fix5 AUD-151: in the empty Bars lane the note sits like a bar number (3 px down, 16 px line), from the lane's left. */
+.mpro-barsl .mpro-nobars{position:absolute;top:3px;left:8px!important;right:auto;white-space:nowrap;font-size:var(--fw-fs,.75rem);line-height:var(--fw-lh,1rem);pointer-events:auto;z-index:4}
 .mpro-mk.is-down{top:0;bottom:0;background:var(--mp-grid);opacity:.6}
 .mpro-mk.is-down::after{content:'';position:absolute;left:-1px;bottom:0;width:3px;height:18px;background:var(--mp-grid);opacity:1}
 .mpro-mk.is-down.is-unsure{background:none;border-left:1px dashed var(--mp-grid);opacity:.75}
@@ -110861,8 +110986,40 @@ var fileFormat = (name2) => {
   return m ? m[1].toUpperCase() : "";
 };
 var fileName = (path) => String(path || "").split(/[\\/]/).pop();
+var AUDIO_INSP_W_KEY = "filmSuite.music.inspectorWidth";
+var AUDIO_INSP_DEFAULT = 340;
+function useAudioInspWidth(ref) {
+  const limits = FW_PANE_LIMITS.insp;
+  const [w, setW] = useState(() => fwStoredWidth(AUDIO_INSP_W_KEY, limits));
+  const [row2, setRow] = useState([0, 0]);
+  useLayoutEffect(() => {
+    const node = ref.current && ref.current.closest(".fsp-row");
+    if (!node) return void 0;
+    const read2 = () => {
+      const col = node.querySelector('[data-testid="media-column"].is-docked');
+      const next = [node.clientWidth, col ? Math.round(col.getBoundingClientRect().width) : 0];
+      setRow((cur) => cur[0] === next[0] && cur[1] === next[1] ? cur : next);
+    };
+    read2();
+    if (typeof ResizeObserver === "undefined") return void 0;
+    const observer = new ResizeObserver(read2);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+  const [rowW, mediaW] = row2;
+  const max = Math.max(limits.min, Math.min(limits.max, Math.floor(rowW * (1 - FW_CANVAS_MIN_SHARE)) - mediaW));
+  const shown = Math.min(w || AUDIO_INSP_DEFAULT, max);
+  const size = (value) => {
+    const next = value === null ? null : Math.round(Math.max(limits.min, Math.min(max, value)));
+    setW(next);
+    storageSet(AUDIO_INSP_W_KEY, next);
+  };
+  return { on: rowW >= 900, shown, min: limits.min, max, size };
+}
 function AudioEditInspector({ tab: tab2, onTab, parts, values = {}, track = "", projectRef = null, foot = null, onHide }) {
   const footRef = useFootClearance(Boolean(foot));
+  const asideRef = useRef(null);
+  const insp = useAudioInspWidth(asideRef);
   $audioEditRef.current = projectRef;
   const opened = useValue32($audioInspSecs) || {};
   const stems = useValue32($audioStemsView);
@@ -110903,7 +111060,8 @@ function AudioEditInspector({ tab: tab2, onTab, parts, values = {}, track = "", 
     sec("stems", "wave", "Stems", stems ? stems.status === "running" ? `${stems.pct} %` : stemCount ? `${stemCount} stems` : "none" : "none", stems ? jsx138(StemsTab, {}) : null, false),
     sec("map", "layers", "Song map", parts && parts.songMap || values.songMap || "none", null, false)
   ] });
-  return jsxs119("aside", { className: "mpro-aside fmu-aside fw-ins aei", "aria-label": "Inspector", "data-testid": "fmu-aside", "data-tab": tab2, children: [
+  return jsxs119("aside", { ref: asideRef, className: "mpro-aside fmu-aside fw-ins aei", "aria-label": "Inspector", "data-testid": "fmu-aside", "data-tab": tab2, style: insp.on ? { "--aei-w": insp.shown + "px" } : void 0, children: [
+    insp.on ? jsx138(FwSplitter, { label: "Inspector width", testid: "aud-split-insp", side: "right", value: insp.shown, min: insp.min, max: insp.max, onSize: insp.size, onReset: () => insp.size(null) }, "split") : null,
     jsxs119("div", { className: "fw-dtabs fw-ins-row", "data-testid": "aud-insp-tabs", children: [
       jsx138(FwTabs, { label: "Inspector", value: tab2, onChange: onTab, tabTestid: "aud-insp-tab-", tabs: AUDIO_INSP_TABS }, "t"),
       jsx138("span", { className: "fw-grow" }, "g"),
@@ -110937,7 +111095,12 @@ var AUDIO_INSP_BLOCKS_CSS = FW_CSS.split("\n").filter((line) => /^\.fw-(ins|insp
   const at = line.indexOf("{");
   return line.slice(0, at).split(",").map((x) => ".aei " + x.trim()).join(",") + line.slice(at);
 }).join("\n");
-var AUDIO_EDIT_INSPECTOR_CSS = AUDIO_INSP_BLOCKS_CSS + LYRICS_CSS + `
+var AUDIO_SPLIT_CSS = FW_CSS.split("\n").filter((line) => line.startsWith(".fw-split")).join("\n");
+var AUDIO_EDIT_INSPECTOR_CSS = AUDIO_INSP_BLOCKS_CSS + LYRICS_CSS + AUDIO_SPLIT_CSS + `
+/* w32-fix5 GEM-203: the inspector's width and its drag grip (left edge, over the 1 px line). */
+.mpro .mpro-aside.aei,.mpro .aei.mpro-aside{position:relative;overflow:visible}
+.mpro-aside.aei[style]{flex:0 0 var(--aei-w);width:var(--aei-w)}
+.aei>.fw-split[data-side=right]{left:-4px;margin-left:0}
 .mpro-tlrow{display:flex;align-items:stretch;gap:6px;min-width:0}
 /* The row (tools + timeline) is the sticky work surface now; the timeline inside it cannot stick on its own. */
 .fmu-main .mpro-tlrow{position:sticky;top:0;z-index:6}
@@ -111904,7 +112067,7 @@ function MusicTimeline({
     const next = musicShortcutStep(from, direction, beat, analysis?.beats, duration);
     return next === null ? null : seek(next);
   };
-  const barAnalysis = Array.isArray(timing?.bars) && timing.bars.length ? { ...analysis, downbeats: timing.bars } : analysis;
+  const barAnalysis = Array.isArray(timing?.bars) && timing.bars.length ? { ...analysis, downbeats: timing.bars } : timing?.markers?.jumpReason ? { ...analysis, downbeats: [] } : analysis;
   const runMarkerKey = (shortcut, by = "artist") => musicMarkerKey(shortcut, { markers: timing?.markers, playhead: Number.isFinite(playhead) ? playhead : currentSelection?.start, analysis: barAnalysis, duration, seek, by });
   const handleTimelineKeyDown = (event) => {
     if (variant2 !== "pro") {
@@ -114803,7 +114966,7 @@ function FilmSuiteMusicView({ wb, suite }) {
   };
   const markerStore = useMusicMarkers({ projectId: activeProject?.project_id || null, sha: musicAnalysis?.source_sha256 || musicAnalysis?.track_sha256 || null });
   const [jumpBars, setJumpBars] = useState(4);
-  const meterFixed = musicAnalysis?.meter?.status === "fixed" && (musicAnalysis?.downbeats || []).length > 0;
+  const meterFixed = musicAnalysis?.meter?.status === "fixed" && (musicAnalysis?.downbeats || []).length > 0 || draftBody?.meter?.mode === "fixed" && Number.isInteger(draftBody.meter.numerator);
   const stemsView = useValue36($audioStemsView);
   const [editTool, setEditTool] = useState("select");
   const [inspTab, setInspTab] = useState("song");

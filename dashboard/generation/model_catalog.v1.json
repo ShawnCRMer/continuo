@@ -4047,7 +4047,7 @@
           ],
           "suite_targets": [],
           "workflow": {
-            "manifest_sha256": "9077fa79fa7f03e7fbd565e3e38b136ed84da849fd53545f5289479d52e28c90",
+            "manifest_sha256": "e764e5fa7897842d09dc994f71a9db38960a15387c61bbbda392c6678f52bec9",
             "api_sha256": "6753056a8d63ac6b249e1001a883ab462b2c8f8aa842d62d1ecc93fc730446d8",
             "descriptor": {
               "availability": "backend_only",
@@ -4085,6 +4085,15 @@
                   "max": 2.0,
                   "min": 0.0,
                   "step": 0.05
+                },
+                {
+                  "default": 8,
+                  "id": "steps",
+                  "kind": "integer",
+                  "label": "Steps",
+                  "max": 16,
+                  "min": 4,
+                  "step": 1
                 },
                 {
                   "default": "euler",
@@ -4193,7 +4202,7 @@
                 "kind": "image",
                 "size_policy": "first_reference"
               },
-              "reason": "P-H3-Image edit: Picture 1 is edited at 4 MP (card), Pictures 2-8 are references named in the prompt as <Picture N>; 8 fixed sigmas without CFG, no prompt upsampler.",
+              "reason": "P-H3-Image edit: Picture 1 is edited at 4 MP (card), Pictures 2-8 are references named in the prompt as <Picture N>; 8 sigmas by default (Steps resamples the card's grid) without CFG, no prompt upsampler.",
               "request_schema": "studio.image-workflow-request/1",
               "target_id": "p-h3-image-lora-edit-v1"
             }

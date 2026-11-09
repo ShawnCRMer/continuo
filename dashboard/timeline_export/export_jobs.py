@@ -105,6 +105,21 @@ _POLL_S = 0.2  # how often a waiting job / a long-poll on another process's job 
 _PROGRESS_WRITE_S = 0.25  # at most one progress write per this many seconds (a stage change writes at once)
 
 
+# Lane w32-rel (independent review R6; Resolve / Media Encoder refuse to add a render job they cannot save and keep a
+# damaged queue or project file aside as a backup): a store write that fails is an error, never "the queue still works in
+# memory". A job is admitted only once its waiting row is on disk (the route answers the reason); a queue file that cannot
+# be parsed is renamed export-queue.json.corrupt-<stamp> (bytes intact) before a new one is written; a queue file that
+# cannot be read at all is never replaced. Background writes (progress, the end of a render) keep the render going and
+# the next write tries again; a job counts as stored only after a write that reached the disk.
+STORE_WRITE_FAILED = "The render queue could not be saved."
+STORE_UNREADABLE = "The render queue file could not be read."
+NOT_ADDED = " The job was not added."
+
+
+class QueueStoreError(ExportError):
+    """The project's queue file could not be written (queue_write_failed) or read (queue_unreadable)."""
+
+
 def _owner_slots() -> dict[str, str]:
     """slot -> owner token of the queue each plugin instance of THIS process uses (shared by every copy of this module)."""
     import sys
@@ -220,13 +235,34 @@ class ExportJobs:
     # --- the store ---------------------------------------------------------------------------------------------
     def _read_store(self, store: Path) -> tuple[list[dict[str, Any]], int]:
         try:
-            saved = json.loads(store.read_text(encoding="utf-8"))
-            rows = saved["jobs"] if saved.get("schema") == QUEUE_SCHEMA and isinstance(saved.get("jobs"), list) else []
+            text: str | None = store.read_text(encoding="utf-8")
+        except FileNotFoundError:
+            return [], 0
+        except UnicodeError:
+            text = None  # not text: damaged, kept aside below
+        except OSError as exc:  # denied, locked: never replaced by an empty queue
+            raise QueueStoreError("queue_unreadable", STORE_UNREADABLE) from exc
+        try:
+            saved = json.loads(text) if text is not None else None
+            if not (isinstance(saved, dict) and saved.get("schema") == QUEUE_SCHEMA and isinstance(saved.get("jobs"), list)):
+                raise ValueError("not a queue store")
+            rows = saved["jobs"]
             last = int(saved.get("last_number") or 0)
-        except (OSError, ValueError, TypeError, AttributeError):
+        except (ValueError, TypeError, AttributeError):
+            self._keep_aside(store)
             rows, last = [], 0
         rows = [row for row in rows if isinstance(row, dict) and isinstance(row.get("job_id"), str)]
         return rows, max([last, *(int(row.get("number") or 0) for row in rows)])
+
+    def _keep_aside(self, store: Path) -> None:
+        """Rename a damaged queue file to <name>.corrupt-<stamp> (kept for recovery); refuse when it cannot be moved."""
+        aside = store.with_name(f"{store.name}.corrupt-{time.strftime('%Y%m%d-%H%M%S')}-{uuid.uuid4().hex[:6]}")
+        try:
+            os.rename(store, aside)
+        except FileNotFoundError:
+            return
+        except OSError as exc:
+            raise QueueStoreError("queue_unreadable", STORE_UNREADABLE) from exc
 
     def _closed(self, row: dict[str, Any]) -> bool:
         """An active row whose owner is gone (not one of this process's live jobs)."""
@@ -257,13 +293,19 @@ class ExportJobs:
             if old is None:
                 break
             rows.remove(old)
+        temp = store.with_name(store.name + ".tmp")
         try:
-            temp = store.with_name(store.name + ".tmp")
-            temp.write_text(json.dumps({"schema": QUEUE_SCHEMA, "last_number": last, "jobs": rows}, ensure_ascii=False, default=str),
-                            encoding="utf-8")
+            with open(temp, "w", encoding="utf-8") as fh:
+                fh.write(json.dumps({"schema": QUEUE_SCHEMA, "last_number": last, "jobs": rows}, ensure_ascii=False, default=str))
+                fh.flush()
+                os.fsync(fh.fileno())
             os.replace(temp, store)
-        except OSError:
-            pass  # the queue still works in memory; the next change writes again
+        except OSError as exc:
+            try:
+                temp.unlink()
+            except OSError:
+                pass
+            raise QueueStoreError("queue_write_failed", STORE_WRITE_FAILED) from exc
 
     def _txn(self, project_id: str | None, fn: Callable[[list[dict[str, Any]], dict[str, int]], Any]) -> Any:
         """Read-modify-write one project's store under its lock; this process's jobs are written as they are now.
@@ -282,7 +324,11 @@ class ExportJobs:
             self._numbers = max(self._numbers, meta["last"])
             self._sync_own(project_id, rows)
             if (json.dumps(rows, sort_keys=True, default=str), meta["last"]) != before or not store.is_file():
-                self._write(store, rows, meta["last"])
+                self._write(store, rows, meta["last"])  # raises QueueStoreError: nothing below counts as stored
+            on_disk = {row["job_id"] for row in rows}
+            for job in self._jobs.values():
+                if job.project_id == project_id and job.id in on_disk:
+                    job.stored = True
         return out
 
     def _sync_own(self, project_id: str | None, rows: list[dict[str, Any]]) -> None:
@@ -297,7 +343,6 @@ class ExportJobs:
                 if old.get("cancel_requested") and job.state in ACTIVE:
                     job.cancel.set()
                 rows[by_id[job.id]] = self._row(job, old)
-                job.stored = True
             elif job.stored and job.state != "running":
                 if job.state == "waiting":
                     job.removed = True
@@ -308,7 +353,6 @@ class ExportJobs:
             else:
                 rows.append(self._row(job, None))
                 by_id[job.id] = len(rows) - 1
-                job.stored = True
 
     def _store_rows(self, project_id: str) -> list[dict[str, Any]]:
         def view(rows: list[dict[str, Any]], _meta: dict[str, int]) -> list[dict[str, Any]]:
@@ -316,9 +360,14 @@ class ExportJobs:
         return self._txn(project_id, view)
 
     def _find_row(self, job_id: str) -> tuple[str, dict[str, Any]] | None:
-        """(project_id, row) of a job another process renders, from the stores this process knows."""
+        """(project_id, row) of a job another process renders, from the stores this process knows (a store that cannot
+        be read is skipped here: its own project's list and admission say so)."""
         for project_id in list(self._stores):
-            for row in self._store_rows(project_id):
+            try:
+                rows = self._store_rows(project_id)
+            except QueueStoreError:
+                continue
+            for row in rows:
                 if row["job_id"] == job_id:
                     return project_id, row
         return None
@@ -343,12 +392,20 @@ class ExportJobs:
             if project_id in self._stores:
                 return
             self._stores[project_id] = store
-            self._txn(project_id, lambda rows, meta: None)
+            try:
+                self._txn(project_id, lambda rows, meta: None)
+            except QueueStoreError:
+                pass  # stays bound: every admission answers the reason until the file is readable again
 
-    def _save_locked(self, project_id: str | None) -> None:
-        """Write this process's jobs of one project (call with the lock held)."""
+    def _save_locked(self, project_id: str | None) -> bool:
+        """Write this process's jobs of one project (call with the lock held). A background write that fails keeps the
+        render going (the job is not marked stored; the next write tries again): answers False then."""
         if (project_id or "") in self._stores:
-            self._txn(project_id, lambda rows, meta: None)
+            try:
+                self._txn(project_id, lambda rows, meta: None)
+            except QueueStoreError:
+                return False
+        return True
 
     def _save(self, project_id: str | None) -> None:
         with self._lock:
@@ -446,7 +503,12 @@ class ExportJobs:
                 self._jobs[job.id] = job
                 return None
 
-            same = self._txn(project_id, add)
+            try:
+                same = self._txn(project_id, add)
+            except QueueStoreError as exc:
+                # Admission fails closed: a job whose waiting row is not on disk is never queued.
+                self._jobs.pop(job.id, None)
+                raise QueueStoreError(exc.code, exc.message + NOT_ADDED) from exc
             if same is not None:
                 return same
             if (project_id or "") not in self._stores:
@@ -551,7 +613,10 @@ class ExportJobs:
                                 one["cancel_requested"] = True
                             return dict(one)
                     return None
-                row = self._txn(project_id, ask) or row
+                try:
+                    row = self._txn(project_id, ask) or row
+                except QueueStoreError as exc:  # the Stop did not reach the other process: say so, never pretend
+                    return {**self._row_snapshot(row), "error": {"code": exc.code, "message": exc.message + " The job was not stopped."}}
         self._announce([job_id], "cancelled", project_id)
         return self._row_snapshot(row)
 
@@ -564,8 +629,11 @@ class ExportJobs:
         """Every job in start order (the project's whole queue, every process); a waiting job has ``position``
         (1 = runs next), others None."""
         with self._lock:
-            if project_id is not None and project_id in self._stores:
-                stored = self._store_rows(project_id)
+            try:
+                stored = self._store_rows(project_id) if project_id is not None and project_id in self._stores else None
+            except QueueStoreError:
+                stored = None  # w32-rel: an unreadable store lists this process's own jobs (admission says why)
+            if stored is not None:
                 live = {job.id: job for job in self._jobs.values()}
                 rows = []
                 for row in stored:
@@ -649,7 +717,10 @@ class ExportJobs:
                     out = [row["job_id"] for row in rows if row.get("state") not in ACTIVE]
                     rows[:] = [row for row in rows if row.get("state") in ACTIVE]
                     return out
-                gone += [job_id for job_id in self._txn(pid, drop) if job_id not in gone]
+                try:
+                    gone += [job_id for job_id in self._txn(pid, drop) if job_id not in gone]
+                except QueueStoreError:
+                    continue  # the stored finished rows stay; the next Clear tries again
         if gone:
             self._announce(gone, "state", project_id)
         return gone
