@@ -123,6 +123,20 @@ No model ships with Continuo, and the Sample film needs none.
   with the built-in librosa engine, and **Use in Cut**.
 - **With ComfyUI and models**: Image **Create** and **Edit**, Video takes and upscaling, stems, music and voice generation.
 
+### Better beat analysis (optional, no ComfyUI)
+
+The built-in librosa beat analysis is basic. The Beat This! engine finds beats and downbeats much more reliably and
+needs no ComfyUI. Install it from the plugin folder:
+
+```
+python scripts/install-beat-engine.py --device cpu     # CPU only, about 0.9 GB
+python scripts/install-beat-engine.py --device cuda    # with an NVIDIA GPU, about 4.3 GB
+```
+
+It creates its own Python environment in the engine folder (`%LOCALAPPDATA%\hermes\film-suite\engines\beat-this`, on Linux and macOS `~/AppData/Local/hermes/film-suite/engines/beat-this`),
+downloads the checkpoint and checks its SHA-256. Continuo uses it for the next analysis; no restart is needed. On the
+CPU it takes about 10 seconds per minute of audio.
+
 Each generation feature runs a ComfyUI workflow. Install only the models of the workflows you want to use:
 
 | Page | Workflows | Size per workflow |
