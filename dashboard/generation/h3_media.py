@@ -267,7 +267,14 @@ def resolve_media(
     for item in items:
         local = os.path.abspath(local_path(item["source"]))
         from_stage = is_staged(local)
-        identity = boundary.validate_staged_input(local, staged_root) if from_stage else boundary.validate_input(local, roots)
+        try:
+            identity = boundary.validate_staged_input(local, staged_root) if from_stage else boundary.validate_input(local, roots)
+        except ValueError as exc:
+            # w35-ui-3 (critic run 3 #19): the boundary's literal ("path is outside approved roots") is the same for an
+            # input and the output folder; the refusal carries which input it was (role, number, path) so the route names
+            # it and never blames the output folder.
+            exc.refused_side, exc.refused_path, exc.refused_key = "input", local, str(item.get("key") or "")
+            raise
         try:
             content = sha256_file(local)
         except OSError:

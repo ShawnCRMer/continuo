@@ -19,6 +19,9 @@ class ImageWorkflowSubmitRequest(_ProjectRequest):
     loras: list[dict[str, Any]] | None = Field(default=None, max_length=32)
     # Lane w6-link: the Script shot this run makes a frame for ("+ Frame"); recorded in the job's recipe.
     shot_id: str | None = Field(default=None, pattern=r"^sh-[0-9a-f]{8}$", min_length=11, max_length=11)
+    # Lane w35-ui-3 (critic run 3 #11): the artist's own words when ``prompt`` is a caption built from them (Ideogram 4's
+    # JSON caption); the job's human title in Jobs, Media and the Image stage. Never part of the snapshot.
+    title: str | None = Field(default=None, min_length=1, max_length=2_000)
 
 
 class ImageWorkflowHealthRequest(_ProjectRequest):
@@ -208,6 +211,7 @@ async def image_workflow_submit(request: ImageWorkflowSubmitRequest) -> Any:
         # reserved in <project>/naming.json now, so Jobs shows it while it runs and Keep writes <output>/<that name>.
         result_names = _image_result_names_reserve(request.owner_scope, [m[2]["image_producer_job_id"] for m in members])
         _image_job_recipe_write([m[2]["image_producer_job_id"] for m in members], target_id=request.target_id, prompt=request.prompt, shot_id=request.shot_id)
+        _image_job_title_write([m[2]["image_producer_job_id"] for m in members], request.title)  # w35-ui-3 #11
         shot_id = _image_job_shot(job["image_producer_job_id"])
         _announce_image_jobs([(m[2]["image_producer_job_id"], None, m[2].get("state")) for m in members], request.owner_scope)
         return {"schema": "studio.image-producer-operation/1", "kind": "image_producer_submit_result",
@@ -219,6 +223,7 @@ async def image_workflow_submit(request: ImageWorkflowSubmitRequest) -> Any:
                 "result_name": result_names.get(job["image_producer_job_id"]),
                 "target_id": job["provider"]["target_id"], "provider_id": job["provider"]["provider_id"],
                 "request_contract": request.schema_, "sent_prompt": job.get("sent_prompt"), "render_spec": _job_render_spec(job),
+                "title": _image_human_title(job),
                 **({"shot_id": shot_id} if shot_id else {}),
                 **({"quarantine_reason": job["quarantine_reason"]} if job.get("quarantine_reason") else {})}
     except (ValueError, KeyError, TypeError) as exc:

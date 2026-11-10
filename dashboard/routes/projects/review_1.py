@@ -119,7 +119,7 @@ async def projects_review_start(request: ReviewStartRequest) -> Any:
         for take in request.takes:
             path = _review_take_file(take, project_id, roots)
             takes.append({"id": take.id, "label": take.label, "sha256": module.sha256_file(path)})
-        record = _review_store().start(project_id, shot=request.shot, take_a=takes[0], take_b=takes[1], blind=request.blind, by=request.by)
+        record = _review_store().start(project_id, shot=request.shot, take_a=takes[0], take_b=takes[1], blind=request.blind, by=_caller_by(request.by))
         return {"comparison": {**record, "notes": [], "decision": None}}
     return await asyncio.to_thread(_review_call, work)
 
@@ -138,7 +138,7 @@ async def projects_review_note(request: ReviewNoteRequest) -> Any:
     """A note on one frame of a comparison; it is a mark on the shot's track and goes into the decision."""
     def work() -> Any:
         project_id, _roots = _review_project(request.project_ref)
-        return {"note": _review_store().note(project_id, request.comparison_id, frame=request.frame, text=request.text, by=request.by)}
+        return {"note": _review_store().note(project_id, request.comparison_id, frame=request.frame, text=request.text, by=_caller_by(request.by))}
     return await asyncio.to_thread(_review_call, work)
 
 
@@ -147,5 +147,5 @@ async def projects_review_decide(request: ReviewDecideRequest) -> Any:
     """Prefer A or B: stores the decision record (take ids, sha256 of both, blind, chosen, notes, time, by)."""
     def work() -> Any:
         project_id, _roots = _review_project(request.project_ref)
-        return {"decision": _review_store().decide(project_id, request.comparison_id, chosen=request.chosen, by=request.by)}
+        return {"decision": _review_store().decide(project_id, request.comparison_id, chosen=request.chosen, by=_caller_by(request.by))}  # w34-sec F18
     return await asyncio.to_thread(_review_call, work)

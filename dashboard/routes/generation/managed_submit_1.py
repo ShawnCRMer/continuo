@@ -442,3 +442,71 @@ def _v4_exception(exc: BaseException, *, prefix: str | None = None) -> dict[str,
     if getattr(exc, "reason_code", None) == "project_rebase_pending" and isinstance(exc, (studio_core.ProjectError, _RebasePending)):
         return _v4_named("project_rebase_pending", prefix, str(exc))
     return _v4_exception_before_rebase(exc, prefix=prefix)
+
+
+# Lane w33-rel2 item 2 (VID-169): the client_request_ids whose /submit is still running in this process. /poll never
+# looks up or settles such a row (its submit still owns it); a row whose submit is gone is settled by /poll.
+_V4_SUBMITS_IN_FLIGHT: set[str] = set()
+_v4_submit_route_before_flight = _v4_submit_route
+
+
+async def _v4_submit_route(request: SubmitRequest) -> dict[str, Any]:  # noqa: F811
+    crid = getattr(request, "client_request_id", None)
+    owned = isinstance(crid, str) and crid not in _V4_SUBMITS_IN_FLIGHT
+    if owned:
+        _V4_SUBMITS_IN_FLIGHT.add(crid)
+    try:
+        return await _v4_submit_route_before_flight(request)
+    finally:
+        if owned:
+            _V4_SUBMITS_IN_FLIGHT.discard(crid)
+
+
+# Lane w35-ui-3 (critic run 3 #19): a refused path names itself and its side. A Frames take whose keyframe lay outside the
+# project's folders said "The output folder is not an approved media folder": the input check (h3_media.resolve_media,
+# PathBoundary.validate_input) raises the output folder's literal "path is outside approved roots". The input now carries
+# refused_side/refused_path/refused_key (h3_media.py) and the output folder check its path (_v4_destination below); the
+# answer names the input ("Keyframe 1 “still.png” is not inside an approved media folder", path_refused) or the output
+# folder ("The output folder “takes” is not an approved media folder"), with refused_side and refused_path as fields and
+# the full path in the error (Details / Copy error); reason_text, the line the page shows, carries the name only.
+_REFUSED_INPUT_ROLES = MappingProxyType({"keyframes": "Keyframe", "reference_images": "Reference picture", "reference_videos": "Reference video",
+                                         "control_video": "Motion guide", "reference_audios": "Reference sound", "sound_track": "Sound track",
+                                         "source": "Source take", "target": "Fill-gap take"})
+_v4_destination_before_refused_path = _v4_destination
+
+
+def _v4_destination(request: SubmitRequest) -> tuple[Path, str, str | None]:  # noqa: F811
+    try:
+        return _v4_destination_before_refused_path(request)
+    except studio_core.ProjectError as exc:
+        save_to = getattr(request, "save_to", None)
+        if str(exc) == "path is outside approved roots" and isinstance(save_to, str) and save_to:
+            exc.refused_side, exc.refused_path = "output", save_to
+        raise
+
+
+def _refused_input_words(key: str) -> str:
+    role, _sep, index = key.partition("/")
+    word = _REFUSED_INPUT_ROLES.get(role, "A chosen file")
+    return f"{word} {int(index) + 1}" if index.isdigit() and role in ("keyframes", "reference_images", "reference_videos", "reference_audios") else word
+
+
+_v4_exception_before_refused_path = _v4_exception
+
+
+def _v4_exception(exc: BaseException, *, prefix: str | None = None) -> dict[str, Any]:  # noqa: F811
+    side, path = getattr(exc, "refused_side", None), getattr(exc, "refused_path", None)
+    if side not in ("input", "output") or not isinstance(path, str) or not path or not isinstance(exc, ValueError):
+        return _v4_exception_before_refused_path(exc, prefix=prefix)
+    name = Path(path).name or path
+    if side == "output":
+        code, sentence = "output_folder_not_approved", f"The output folder \u201c{name}\u201d is not an approved media folder"
+    else:
+        words = _refused_input_words(str(getattr(exc, "refused_key", "") or ""))
+        literal = str(exc)
+        why = ("is not inside an approved media folder" if "outside approved roots" in literal
+               else _V4_PROJECT_MESSAGES.get(literal, "cannot be used").replace("A chosen folder or file ", "").replace("A chosen path ", "").replace("A chosen medium ", ""))
+        code, sentence = "path_refused", f"{words} \u201c{name}\u201d {why}"
+    full = f"{sentence} ({side}: {path})"
+    return {"error": f"{prefix}: {full}" if prefix else full, "reason_code": code, "reason_text": sentence,
+            "refused_side": side, "refused_path": path}

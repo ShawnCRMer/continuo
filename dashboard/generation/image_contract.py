@@ -467,12 +467,19 @@ def _png_facts(data: bytes) -> dict[str, Any]:
         raise ContractError("png-structure")
     width, height, color = ihdr
     channels = 3 if color == 2 else 4
+    row = width * channels
+    expected = (row + 1) * height
+    # Lane w34-sec (scan finding 26): inflate at most expected + 1 bytes. zlib.decompress materialised the whole stream
+    # (a few MiB of zeros inflate to GiB) before the length check; more output than IHDR allows, or input left over
+    # after it, is png-decode now without allocating more.
+    inflater = zlib.decompressobj()
     try:
-        raw = zlib.decompress(bytes(idat))
+        raw = inflater.decompress(bytes(idat), expected + 1)
     except zlib.error as exc:
         raise ContractError("png-data") from exc
-    row = width * channels
-    if len(raw) != (row + 1) * height:
+    if not inflater.eof and len(raw) < expected:
+        raise ContractError("png-data")  # a truncated stream, as zlib.decompress answered it
+    if len(raw) != expected or inflater.unconsumed_tail or not inflater.eof:
         raise ContractError("png-decode")
     if any(raw[index * (row + 1)] > 4 for index in range(height)):
         raise ContractError("png-decode")

@@ -4,11 +4,11 @@ from __future__ import annotations
 @project_router.post("/projects/state")
 async def projects_state(request: ProjectStateReadRequest) -> dict[str, Any]:
     try:
-        directory = _project_reference_directory(request.project_ref)
-        return _project_store_factory().read_shoot_state(
-            directory,
-            project_id=request.project_ref.project_id,
-        )
+        # Lane w33-rel2 item 1 (BCK-227): the whole store transaction (lock, read) runs off the event loop.
+        def read() -> dict[str, Any]:
+            directory = _project_reference_directory(request.project_ref)
+            return _project_store_factory().read_shoot_state(directory, project_id=request.project_ref.project_id)
+        return await asyncio.to_thread(read)
     except studio_core.ProjectError as exc:
         return _project_error_response(exc)
 
@@ -17,16 +17,18 @@ async def projects_state(request: ProjectStateReadRequest) -> dict[str, Any]:
 async def projects_state_write(request: ProjectStateWriteRequest) -> dict[str, Any]:
     # Lane p5d-frm (Project decision 2 + 4): a legacy outputFolder in the Video state is the project's output folder
     # while the manifest names none, so changing it is a folder decision: the artist's hand only, like a folder approval.
-    if _film_caller() == "hermes" and _state_output_changed(request):
+    if _film_caller() == "hermes" and await asyncio.to_thread(_state_output_changed, request):
         return _folder_refusal()
     try:
-        directory = _project_reference_directory(request.project_ref)
-        written = _project_store_factory().write_shoot_state(
-            directory,
-            project_id=request.project_ref.project_id,
-            expected_revision=request.expected_revision,
-            state=request.state,
-        )
+        def write() -> dict[str, Any]:  # BCK-227: the whole transaction in one worker thread
+            directory = _project_reference_directory(request.project_ref)
+            return _project_store_factory().write_shoot_state(
+                directory,
+                project_id=request.project_ref.project_id,
+                expected_revision=request.expected_revision,
+                state=request.state,
+            )
+        written = await asyncio.to_thread(write)
     except studio_core.ProjectError as exc:
         return _project_error_response(exc)
     # Lane w27-rows item 1: a save that changed nothing kept the revision (write_shoot_state); nothing to announce.
@@ -45,14 +47,16 @@ async def projects_metadata(request: ProjectMetadataRequest) -> dict[str, Any]:
     if _film_caller() == "hermes":  # lane p5-prj (HER-012): only the artist's hand approves folders
         return _folder_refusal()
     try:
-        directory = _project_reference_directory(request.project_ref)
-        metadata = _project_store_factory().write_metadata(
-            directory,
-            project_id=request.project_ref.project_id,
-            expected_revision=request.expected_revision,
-            name=request.name,
-            approved_roots=request.approved_roots,
-        )
+        def write() -> dict[str, Any]:  # BCK-227: off the event loop
+            directory = _project_reference_directory(request.project_ref)
+            return _project_store_factory().write_metadata(
+                directory,
+                project_id=request.project_ref.project_id,
+                expected_revision=request.expected_revision,
+                name=request.name,
+                approved_roots=request.approved_roots,
+            )
+        metadata = await asyncio.to_thread(write)
         return _public_metadata(metadata)
     except studio_core.ProjectError as exc:
         if getattr(exc, "code", None) == studio_core.project_store.PROJECT_FOLDER_OFFLINE:  # lane p13-prjb finding 1

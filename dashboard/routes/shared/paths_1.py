@@ -1,6 +1,14 @@
 from __future__ import annotations
 
 
+# Lane w34-sec (scan findings 1-7, 11-13): the one lexical guard against UNC / device paths
+# (studio_core/local_path.py), shared by every route that takes a path from a request or from project data.
+_local_path_spec = importlib.util.spec_from_file_location(
+    "film_suite_local_path", Path(__file__).with_name("studio_core") / "local_path.py")
+_local_path_module = importlib.util.module_from_spec(_local_path_spec)
+_local_path_spec.loader.exec_module(_local_path_module)
+
+
 class RecipeError(RuntimeError):
     pass
 
@@ -10,13 +18,16 @@ def resolve_approved_path(path: str, approved_roots: list[str]) -> Path:
     if not isinstance(path, str) or not path.strip():
         raise ValueError("A local path is required.")
     raw_path = path.strip()
-    if raw_path.startswith(("\\", "//")):
+    # Lane w34-sec (finding 6): every UNC / device spelling (\\host, //host, /\host, \/host, \\?\, \\.\) is refused
+    # on its text: realpath would contact the host before the containment check below. A remote root is skipped.
+    if raw_path.startswith(("\\", "//")) or _local_path_module.remote_path_reason(raw_path) is not None:
         raise ValueError("UNC paths are not allowed outside an approved local root.")
     if not approved_roots:
         raise ValueError("At least one approved root is required.")
 
     candidate = Path(os.path.realpath(os.path.expanduser(path.strip())))
-    roots = [Path(os.path.realpath(os.path.expanduser(root.strip()))) for root in approved_roots if root.strip()]
+    roots = [Path(os.path.realpath(os.path.expanduser(root.strip()))) for root in approved_roots
+             if isinstance(root, str) and root.strip() and _local_path_module.remote_path_reason(root) is None]
     if not roots:
         raise ValueError("At least one approved root is required.")
 

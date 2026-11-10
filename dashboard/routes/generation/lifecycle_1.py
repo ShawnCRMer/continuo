@@ -104,6 +104,12 @@ async def _v4_poll_route(request: PollRequest, looked_up: Any) -> dict[str, Any]
                 # The submit that owned this row is gone (lost answer or a
                 # restart).  GMI has no correlation marker: never resend.
                 row = _v4_finish_without_job(row, row.project_id, "submission_unknown")
+            if (
+                row.provider_id == "comfyui-local"
+                and row.state == "submitting"
+                and row.client_request_id not in _V4_SUBMITS_IN_FLIGHT
+            ):
+                return await _v4_recover_lost_submit(row)  # lane w33-rel2 item 2 (VID-169)
             return _receipt_from_job(row)
         if row.provider_id == "comfyui-local":
             profile, _graph = _comfy_assets(row.target_id)
@@ -401,3 +407,38 @@ async def _cancel_route(request: CancelRequest) -> dict[str, Any]:
         if isinstance(exc, asyncio.CancelledError):
             raise
         return _v4_exception(exc, prefix="Generation cancellation failed")
+
+
+# --- Lane w33-rel2 item 2 (VID-169, independent review R7): a lost submit answer never leaves a take "submitting" ----
+# ComfyUI accepted the prompt but its answer never reached Hermes (dropped connection, restart): the row is submitting
+# without a prompt id. /poll now settles it, never sending anything again: past a short grace (the submit may still be
+# uploading in another process) ComfyUI's queue and history are searched for the row's client_request_id; found = the
+# row is bound to that prompt and polls on as usual; not found by the bounded wait = failed submission_unknown with a
+# plain cause, and the page's Retry sends a new request. Reference: an idempotency-key lookup after an ambiguous
+# network failure (Stripe, S3 multipart): look the request up, never send it twice.
+V4_LOST_SUBMIT_GRACE_SECONDS = 20.0
+V4_LOST_SUBMIT_LIMIT_SECONDS = 300.0
+V4_LOST_SUBMIT_CAUSE = ("The answer to this submit was lost and ComfyUI does not list the take in its queue or history, "
+                        "so it was not made.")
+
+
+async def _v4_recover_lost_submit(row: Any) -> dict[str, Any]:
+    stamp = getattr(row, "updated_at", None)
+    age = time.time() - float(stamp) if isinstance(stamp, (int, float)) else V4_LOST_SUBMIT_LIMIT_SECONDS
+    if age < V4_LOST_SUBMIT_GRACE_SECONDS:
+        return _receipt_from_job(row)
+    recovered = await _comfy_provider_module.comfy_recover_submit_v4(
+        client=_comfy_client_module.ComfyUIClient(), client_request_id=row.client_request_id
+    )
+    if _v4_outcome_kind(recovered) == "accepted" and getattr(recovered, "provider_job_id", None):
+        bound = _comfy_store().bind_provider_job(
+            studio_job_id=row.studio_job_id,
+            provider_job_id=recovered.provider_job_id,
+            expected_project_id=row.project_id,
+        )
+        return _receipt_from_job(bound)
+    if age < V4_LOST_SUBMIT_LIMIT_SECONDS:
+        return _receipt_from_job(row)
+    failed = _v4_finish_without_job(row, row.project_id, "submission_unknown")
+    _job_cause_note(row.studio_job_id, V4_LOST_SUBMIT_CAUSE)
+    return {**_receipt_from_job(failed), "reason_text": V4_LOST_SUBMIT_CAUSE}

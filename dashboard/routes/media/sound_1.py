@@ -132,6 +132,10 @@ def _media_sound_fill(pending: list[tuple[dict[str, Any], tuple[str, int, int]]]
     probes = 0
     unread = 0
     for item, key in sorted(pending, key=lambda entry: -entry[0]["modified"]):
+        # Lane w36-audio item 2: a generated sound (music or voice take) names its take like a folder clip does (its
+        # recipe sidecar's job id), so Audio opens a take's tile as its file.
+        if (take_id := _media_folder_take_id(item["path"])) is not None:
+            item["take_id"] = take_id
         cached = MEDIA_PROBE_CACHE.get(key)
         if cached is None and probes < int(MEDIA_LIST_SOUND_PROBE_MAX) and time.monotonic() < deadline:
             probes += 1

@@ -9,7 +9,7 @@ python_dependencies:
   - "librosa>=0.11,<0.12"
   - "soundfile>=0.12.1,<0.15"
   - "httpx>=0.27,<1"
-  - "pillow>=10,<13"
+  - "pillow>=10,<14"
 provides_tools:
   - continuo_audio_stems_read
   - continuo_audio_stems_sound

@@ -30,6 +30,7 @@ import stat
 import subprocess
 import tempfile
 import threading
+import time
 import unicodedata
 import weakref
 from dataclasses import dataclass
@@ -44,6 +45,13 @@ _migration_module = _migration_import.module_from_spec(_migration_spec)
 _migration_spec.loader.exec_module(_migration_module)
 state_root = _migration_module.state_root
 TOMBSTONE_PATTERN = _migration_module.TOMBSTONE_PATTERN
+# Lane w34-sec (scan findings 5, 6): the one lexical guard against UNC / device paths, loaded by file like the
+# migration module above (this file is also loaded outside its package).
+_local_path_spec = _migration_import.spec_from_file_location(
+    "film_suite_path_boundary_local_path", Path(__file__).resolve().with_name("local_path.py")
+)
+_local_path = _migration_import.module_from_spec(_local_path_spec)
+_local_path_spec.loader.exec_module(_local_path)
 
 
 WINDOWS_JUNCTION_PRIVILEGE_UNAVAILABLE = "WINDOWS_JUNCTION_PRIVILEGE_UNAVAILABLE"
@@ -570,6 +578,9 @@ def _reject_path_spelling(text: str) -> None:
     drive, tail = ntpath.splitdrive(text)
     if text.startswith(("\\\\?\\", "\\\\.\\", "\\\\?/") ):
         _raise("invalid_project", "extended/device paths are not local paths")
+    # Lane w34-sec (finding 5): //host/share, /\\host and \\/host are UNC paths too; refused on the text, before abspath.
+    if _local_path.remote_path_reason(text) is not None:
+        _raise("invalid_project", "path must be an absolute local path")
     if text.startswith("\\\\") or (drive and not tail.startswith(("\\", "/"))):
         _raise("invalid_project", "path must be an absolute local path")
     if not drive and not os.path.isabs(text):
@@ -2503,6 +2514,11 @@ def _write_fully(handle: Any, payload: bytes) -> None:
     _flush_private_file(handle.fileno())
 
 
+# Lane w33-rel2 item 1 (BCK-227): the longest a project read/write waits for another process's project lock.
+PROJECT_LOCK_WAIT_SECONDS = 15.0
+PROJECT_BUSY = "project_busy"
+
+
 class NamedProjectLock:
     """Cross-process lock named from the HMAC of canonical handle identity."""
 
@@ -2525,24 +2541,35 @@ class NamedProjectLock:
             self._file = open(lock_file, "a+b")
 
     def acquire(self, blocking: bool = True) -> bool:
+        # Lane w33-rel2 item 1 (BCK-227, review R5): a blocking acquire waits at most PROJECT_LOCK_WAIT_SECONDS (read
+        # now, so a test or a caller can shorten it), then refuses PROJECT_BUSY; it never waits forever for another
+        # process. A non-blocking acquire answers as before.
         if self._owned:
             return True
+        wait = max(0.0, float(PROJECT_LOCK_WAIT_SECONDS)) if blocking else 0.0
         if os.name == "nt":
-            timeout = _INFINITE if blocking else 0
-            result = _WaitForSingleObject(self._handle, timeout)
+            result = _WaitForSingleObject(self._handle, int(wait * 1000))
             if result == _WAIT_OBJECT_0:
                 self._owned = True
                 return True
             if result == _WAIT_TIMEOUT:
+                if blocking:
+                    _raise(PROJECT_BUSY, "project lock is busy")
                 _raise("project_unavailable", "project lock is busy")
             _raise("project_unavailable", "project lock unavailable")
-        flags = fcntl.LOCK_EX | (0 if blocking else fcntl.LOCK_NB)
-        try:
-            fcntl.flock(self._file.fileno(), flags)
-        except OSError as exc:
-            if exc.errno in (errno.EACCES, errno.EAGAIN):
-                _raise("project_unavailable", "project lock is busy")
-            _raise("project_unavailable", "project lock unavailable")
+        deadline = time.monotonic() + wait
+        while True:
+            try:
+                fcntl.flock(self._file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except OSError as exc:
+                if exc.errno not in (errno.EACCES, errno.EAGAIN):
+                    _raise("project_unavailable", "project lock unavailable")
+                if not blocking:
+                    _raise("project_unavailable", "project lock is busy")
+                if time.monotonic() >= deadline:
+                    _raise(PROJECT_BUSY, "project lock is busy")
+                time.sleep(0.02)
         self._owned = True
         return True
 

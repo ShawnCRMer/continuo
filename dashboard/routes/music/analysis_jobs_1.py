@@ -21,7 +21,10 @@ class MusicOpenRequest(BaseModel):
 
 
 class MusicAnalyseStartRequest(BaseModel):
-    path: str
+    # Lane w36-audio item 1: a song on a Cut music lane is named by its content id (file:<sha256>, no path); with
+    # project_ref the file is the project's own file of that content (the footage index), analysed once per file.
+    path: str | None = Field(default=None, min_length=1)
+    track_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     approved_roots: list[str] = Field(default_factory=list)
     project_ref: ProjectReference | None = None
     engine: str | None = Field(default=None, pattern=r"^(beat_this|librosa)$")
@@ -205,17 +208,52 @@ def _music_job_run(job: dict[str, Any], source: Path) -> None:
         job["status"], job["stage"], job["error"] = "error", "error", _music_error(exc)
 
 
+# Lane w36-audio item 1: the songs a Cut started by content id (sha256 -> its job). One start per file in this process:
+# a running, finished or failed analysis answers again instead of starting another (a failure is a fact, never a loop).
+_MUSIC_SONG_STARTS: dict[str, dict[str, Any]] = {}
+
+
+def _music_song_file(track_sha256: str, project_ref: Any) -> str:
+    """The project's own file of this content (the Cut's footage index: confined to the project's folders, relinked by
+    content after a move); refused by name when the project has no such file."""
+    if project_ref is None:
+        raise RecipeError("A song named by its content needs its project.")
+    try:
+        path, _facts = _timeline_footage_lookup(project_ref.project_id)("file:" + track_sha256)
+    except Exception:  # noqa: BLE001 - no file of this content in the project's folders
+        raise RecipeError("That track could not be found.") from None
+    return str(path)
+
+
 def _music_analyse_start_sync(request: MusicAnalyseStartRequest) -> dict[str, Any]:
+    by_content = request.path is None
+    if by_content:
+        if request.track_sha256 is None:
+            raise RecipeError("A path or a track_sha256 is required.")
+        with _MUSIC_JOBS_LOCK:
+            known = _MUSIC_SONG_STARTS.get(request.track_sha256)
+            if known is not None and known["status"] in ("running", "done", "error"):
+                return _music_job_public(known)
+        request = request.model_copy(update={"path": _music_song_file(request.track_sha256, request.project_ref)})
     source = _confined_music_path(request.path, _request_roots(request.approved_roots, request.project_ref, path=request.path, server_list=True))
     digest = music_analysis._sha256_file(source)
+    if by_content and digest != request.track_sha256:
+        raise RecipeError("That track could not be found.")
     engine = request.engine or music_analysis.default_engine()
     with _MUSIC_JOBS_LOCK:
+        known = _MUSIC_SONG_STARTS.get(digest) if by_content else None
+        if known is not None and known["status"] in ("running", "done", "error"):
+            return _music_job_public(known)
         for job in _MUSIC_JOBS.values():
             if job["track_sha256"] == digest and job["engine"] == engine and job["status"] == "running":
+                if by_content:
+                    _MUSIC_SONG_STARTS[digest] = job
                 return _music_job_public(job)
         job = {"job_id": f"man_{uuid.uuid4().hex}", "track_sha256": digest, "engine": engine, "status": "running",
                "progress": 0.0, "stage": "starting", "stop": False, "result": None, "error": None, "started": time.time()}
         _MUSIC_JOBS[job["job_id"]] = job
+        if by_content:
+            _MUSIC_SONG_STARTS[digest] = job
         for old in sorted(_MUSIC_JOBS.values(), key=lambda row: row["started"])[:-_MUSIC_JOBS_KEEP]:
             if old["status"] != "running":
                 _MUSIC_JOBS.pop(old["job_id"], None)

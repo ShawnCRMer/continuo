@@ -80,13 +80,29 @@ async def projects_timeline_export_check(request: TimelineExportCheckRequest) ->
         return {"error": {"code": "check_failed", "message": "The check failed."}}
 
 
-def _timeline_export_files_missing(directory: Any, result: Any) -> bool:
+def _timeline_export_files_missing(directory: Any, result: Any, project_id: Any = None) -> bool:
     """Lane w22-cut (CUT-006 polish): True when a done job's written folder or any of its files is gone (read now)."""
     if not isinstance(result, dict) or not isinstance(result.get("folder"), str) or not result["folder"]:
         return False
+    # Lane w34-sec (finding 2): the stored row comes from the project folder (state/export-queue.json). A network or
+    # device folder is missing here without a probe; any other folder is confined like _timeline_export_done_folder
+    # (the project folder and its approved folders), else it is missing too.
+    if _local_path_module.remote_path_reason(result["folder"]) is not None:
+        return True
     folder = Path(result["folder"])
     if not folder.is_absolute():
         folder = Path(directory) / folder
+    try:
+        roots = [os.path.realpath(str(directory))]
+        if project_id is not None:
+            roots += list(_project_store_factory().read_project(directory, expected_project_id=project_id)["approved_roots"])
+            # the project's output folder too (an outside folder the artist chose here, BCK-226), when it may be used
+            output = _project_output_existing(project_id, directory)
+            if output is not None:
+                roots.append(output)
+        folder = resolve_approved_path(str(folder), roots)
+    except Exception:  # noqa: BLE001 - unknown project, outside its folders: the files are not there for this project
+        return True
     if not folder.is_dir():
         return True
     files = result.get("files") if isinstance(result.get("files"), dict) else {}
@@ -132,7 +148,7 @@ async def projects_timeline_export_queue(request: TimelineExportQueueRequest) ->
     # files are gone reads files_missing, checked now on every list (page and Hermes alike).
     for row in rows:
         if row.get("state") == "done":
-            row["files_missing"] = _timeline_export_files_missing(directory, row.get("result"))
+            row["files_missing"] = _timeline_export_files_missing(directory, row.get("result"), project_id)
     # A done job's result names its folder relative to the project (or the artist's chosen folder).
     answer["jobs"] = rows
     answer["running"] = next((row["job_id"] for row in rows if row["state"] == "running"), None)

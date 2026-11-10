@@ -351,6 +351,8 @@ def _voice_plan(request: VoiceGenerateRequest) -> dict[str, Any]:
     manifest = target["manifest"]
     state = _voice_store_module.read(_voice_state_dir(), project_id)
     line, voice = _voice_store_module.voice_of_line(state, request.line_id)
+    if not line["text"].strip():  # w35-ui item A: an empty line is stored as a draft, never spoken
+        raise _voice_store_module.VoiceStoreError("line_empty", "This line has no text yet")
     if voice is None:
         raise _voice_store_module.VoiceStoreError("no_voice", f"{line['character']} has no voice yet")
     if manifest["voice_from"] != voice["source"]:

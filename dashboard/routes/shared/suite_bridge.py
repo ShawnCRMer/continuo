@@ -140,7 +140,7 @@ def _validate_start(start: Any) -> None:
 
 
 def validate_state(state: Any) -> dict[str, Any]:
-    _keys(state, "state", {"schema", "page", "screen", "project", "surface_visible", "script"}, {"media", "start", "cut"})
+    _keys(state, "state", {"schema", "page", "screen", "project", "surface_visible", "script"}, {"media", "start", "cut", "video"})
     if state["schema"] != STATE_SCHEMA:
         _fail("state schema is invalid")
     if state["page"] not in PAGES or state["screen"] not in {"start", "page", "media"}:
@@ -213,7 +213,28 @@ def validate_state(state: Any) -> dict[str, Any]:
         _validate_start(state["start"])
     if state.get("cut") is not None:
         _validate_cut(state["cut"])
+    if state.get("video") is not None:
+        _validate_video(state["video"])
     return json.loads(json.dumps(state, ensure_ascii=False, sort_keys=True))
+
+
+_TAKE_ID_MAX = 120
+
+
+def _validate_video(video: Any) -> None:
+    """lane w35-ui (GEM-222): the take on the Video stage {take_id, barely_moves, motion_activity} or null. The stage no
+    longer prints "This take barely moves"; Hermes reads it here and re-rolls the seed itself."""
+    _keys(video, "video", {"take"})
+    take = video["take"]
+    if take is None:
+        return
+    _keys(take, "video.take", {"take_id", "barely_moves", "motion_activity"})
+    _text(take["take_id"], "video.take.take_id", _TAKE_ID_MAX, empty=False)
+    if not isinstance(take["barely_moves"], bool):
+        _fail("video.take.barely_moves is invalid")
+    motion = take["motion_activity"]
+    if motion is not None and (isinstance(motion, bool) or not isinstance(motion, (int, float)) or motion != motion or abs(motion) > 1e9):
+        _fail("video.take.motion_activity is invalid")
 
 
 def _validate_cut(cut: Any) -> None:

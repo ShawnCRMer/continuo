@@ -31,6 +31,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable, Mapping
 
+from .path_boundary import _local_path  # lane w34-sec: the lexical UNC / device guard (local_path.py)
 from .path_boundary import (
     NamedProjectLock,
     PathBoundary,
@@ -84,6 +85,11 @@ def _validate_output_folder(value: dict[str, Any]) -> None:
     folder = value["output_folder"]
     if not isinstance(folder, str) or not folder.strip() or len(folder) > 32767 or "\x00" in folder:
         _invalid("manifest output folder is invalid")
+    # Lane w34-sec (finding 13): the output folder is refused like an approved root when its text names a network or
+    # device folder (the manifest is invalid, as with a \\\\host root). Where a local folder may receive files ("..",
+    # outside the project, a link) is decided per write and per root list by BCK-226 (_project_output_refusal).
+    if _local_path.remote_path_reason(folder) is not None:
+        _invalid("manifest output folder is invalid")
 
 
 def output_folder_of(directory: str | Path, manifest: Mapping[str, Any], state_output: Any = None) -> tuple[Path, bool]:
@@ -97,7 +103,8 @@ def output_folder_of(directory: str | Path, manifest: Mapping[str, Any], state_o
     if isinstance(stored, str) and stored.strip():
         candidate = Path(stored)
         folder = candidate if candidate.is_absolute() else project_dir / candidate
-    elif isinstance(state_output, str) and state_output.strip() and Path(state_output.strip()).is_absolute():
+    elif (isinstance(state_output, str) and state_output.strip() and Path(state_output.strip()).is_absolute()
+          and _local_path.remote_path_reason(state_output) is None):  # lane w34-sec: never a network folder
         folder = Path(state_output.strip())
     else:
         folder = project_dir / OUTPUT_DEFAULT_NAME
@@ -603,7 +610,9 @@ def offline_roots(roots: Any) -> list[str]:
     out: list[str] = []
     for root in roots if isinstance(roots, list) else ():
         try:
-            if isinstance(root, str) and root and not os.path.isdir(root):
+            if isinstance(root, str) and root and _local_path.remote_path_reason(root) is not None:
+                out.append(root)  # lane w34-sec: a network / device folder is never probed; it is no folder here
+            elif isinstance(root, str) and root and not os.path.isdir(root):
                 out.append(root)
         except OSError:
             out.append(root)
@@ -1184,7 +1193,7 @@ def _infer_previous_directory(project_dir: Path, stored_roots: list[Any], eviden
     [RV-RL]). The most common corroborated answer wins; None when there is none.
     """
     witnesses = [os.path.normpath(text) for text in [*stored_roots, *evidence]
-                 if isinstance(text, str) and text and os.path.isabs(text)]
+                 if isinstance(text, str) and text and os.path.isabs(text) and _local_path.remote_path_reason(text) is None]
 
     def corroborated(old: str, source: str) -> bool:
         key, source_key = os.path.normcase(old), os.path.normcase(source)
@@ -1202,7 +1211,9 @@ def _infer_previous_directory(project_dir: Path, stored_roots: list[Any], eviden
     votes: dict[str, int] = {}
     order: list[str] = []
     for root in stored_roots:
-        if not isinstance(root, str) or not os.path.isabs(root) or os.path.isdir(root):
+        if not isinstance(root, str) or not os.path.isabs(root) or _local_path.remote_path_reason(root) is not None:
+            continue  # lane w34-sec: a network / device folder is never probed
+        if os.path.isdir(root):
             continue
         norm = os.path.normpath(root)
         parts = Path(norm).parts
@@ -2628,6 +2639,10 @@ class ProjectStore:
             raw = _loads_bounded(_read_regular(self.boundary, project_dir / "project.json", max_bytes=MANIFEST_MAX_BYTES))
             if not isinstance(raw, dict) or not isinstance(raw.get("approved_roots"), list):
                 return None
+            # Lane w34-sec (finding 3): a network / device root is refused on its text before the move detection
+            # below probes any stored root (isdir/exists would contact the host); read_project refuses it the same way.
+            if any(isinstance(root, str) and _local_path.remote_path_reason(root) is not None for root in raw["approved_roots"]):
+                _invalid("approved roots are invalid")
             new_text = str(project_dir)
             state_path = project_dir / "state" / "shoot.json"
             current = None
@@ -4002,9 +4017,13 @@ class RecentProjectStore:
         for root in roots if isinstance(roots, list) else ():
             if not isinstance(root, str) or not os.path.isabs(root):
                 continue  # lane p12-med: a relative root is the project's own folder, never a previous place
+            if _local_path.remote_path_reason(root) is not None:
+                continue  # lane w34-sec (finding 3): a network / device root is never opened, not even to compare
             try:
-                other = json.loads(Path(root, "project.json").read_text(encoding="utf-8"))
-            except (OSError, ValueError, TypeError):
+                # Lane w34-sec (finding 3): through the boundary (reparse, HERMES_HOME) and its size bound.
+                folder = self.boundary.validate_project_directory(root, operation="open")
+                other = _loads_bounded(_read_regular(self.boundary, folder / "project.json", max_bytes=MANIFEST_MAX_BYTES))
+            except (ProjectError, OSError, ValueError, TypeError, UnicodeError):
                 continue
             if isinstance(other, dict) and other.get("project_id") == project_id:
                 candidates.append(root)

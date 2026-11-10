@@ -174,7 +174,7 @@ def _image_media_for_scope(owner_scope: str, limit: int, window: dict[str, int] 
             "kind": "image",
             "module": "image",
             "item_id": job_id,
-            "label": (mark and mark["name"]) or _job_label(prompt) or "Untitled",
+            "label": (mark and mark["name"]) or _job_label(_image_human_prompt(job_id, prompt)) or "Untitled",  # w35-ui-3 #11: never the JSON caption
             "prompt": prompt,
             "render_spec": _job_render_spec(job),
             "width": artifact.get("width") if type(artifact.get("width")) is int else artist.get("width"),
@@ -291,8 +291,8 @@ async def media_feed(request: MediaFeedRequest) -> dict[str, Any]:
     for seq, item in enumerate(items):
         _merge_media_mark(item, marks.get(item["item_id"]))
         item["_seq"] = seq
-    for item in items:
         item["bin"] = _media_item_bin(item)
+    _job_authors_tag(items)  # w36-media (GEM-231): by hermes | artist, so a Media tile shows Hermes' mark
     try:
         view = _media_view(items, request)
     except ValueError:

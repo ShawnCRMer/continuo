@@ -52,10 +52,17 @@ def _vsr_is_upscale(request: SubmitRequest) -> bool:
 
 
 def _vsr_project_directory(project_ref: Any) -> str | None:
+    """The folder of the NAMED project, or None. Lane w34-sec (scan finding 11): a caller directory is used only after
+    its text is a local path (a network / device path is never opened) and its project.json, read through the project
+    store's boundary, names this project_id; any other folder is no project here and nothing is read or written."""
     if project_ref is None:
         return None
     try:
-        return _project_reference_directory(project_ref)
+        directory = _project_reference_directory(project_ref)
+        if _local_path_module.remote_path_reason(directory) is not None:
+            return None
+        _project_store_factory().read_project(directory, expected_project_id=project_ref.project_id)
+        return directory
     except Exception:  # noqa: BLE001 - an unreachable project only means nothing is remembered
         return None
 

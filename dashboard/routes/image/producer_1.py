@@ -414,7 +414,7 @@ async def image_producer_submit(request: ImageProducerSubmitRequest) -> dict[str
         }
         if (job.get("request_snapshot") or {}).get("operation") in {"workflow_create", "workflow_edit"}:
             result["sent_prompt"] = job.get("sent_prompt")
-            result["request_contract"] = "studio.image-workflow-request/1"
+            result.update(request_contract="studio.image-workflow-request/1", title=_image_human_title(job))  # w35-ui-3 #11: the artist's words
         for optional in ("failure_reason", "quarantine_reason"):
             if job.get(optional) is not None:
                 result[optional] = job[optional]
@@ -775,7 +775,7 @@ async def image_producer_status(request: ImageProducerStatusRequest) -> dict[str
         }
         if (job.get("request_snapshot") or {}).get("operation") in {"workflow_create", "workflow_edit"}:
             result["sent_prompt"] = job.get("sent_prompt")
-            result["request_contract"] = "studio.image-workflow-request/1"
+            result.update(request_contract="studio.image-workflow-request/1", title=_image_human_title(job))  # w35-ui-3 #11: the artist's words
         for optional in ("failure_reason", "quarantine_reason"):
             if job.get(optional) is not None:
                 result[optional] = job[optional]

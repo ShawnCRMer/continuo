@@ -134,7 +134,7 @@ def _control_source(request: ControlExtractRequest) -> Any:
             raise RecipeError("The picture is not ready yet.")
         data, artifact = reader.read_published_job(request.source_id)
         staged = _stage_opening_frame_bytes(data, artifact["artifact_sha256"], artifact["mime_type"])
-        label = _job_label(str(((job.get("request_snapshot") or {}).get("artist_input") or {}).get("prompt") or "")) or "Picture"
+        label = _job_label(_image_human_prompt(request.source_id, ((job.get("request_snapshot") or {}).get("artist_input") or {}).get("prompt"))) or "Picture"
         return extract.Source(source_id=request.source_id, kind="image", path=Path(staged), label=label, sha256=artifact["artifact_sha256"])
     if request.source_id:
         try:

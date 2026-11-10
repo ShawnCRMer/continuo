@@ -150,13 +150,19 @@ async def projects_settings_output(request: ProjectOutputWriteRequest) -> dict[s
     if _film_caller() == "hermes":  # the same rule as a folder approval (Project charter decision 4)
         return _folder_refusal()
     try:
-        directory = _project_reference_directory(request.project_ref)
-        if request.output_folder is not None and not Path(request.output_folder.strip()).is_dir():
+        def write() -> dict[str, Any] | None:  # BCK-227: the whole transaction off the event loop
+            directory = _project_reference_directory(request.project_ref)
+            if request.output_folder is not None and not Path(request.output_folder.strip()).is_dir():
+                return None
+            _project_store_factory().write_output_folder(
+                directory, request.project_ref.project_id,
+                None if request.output_folder is None else request.output_folder.strip())
+            if request.output_folder is not None:  # BCK-226: the artist's hand choice, recorded on this computer only
+                _output_consents().record(request.project_ref.project_id, directory, request.output_folder.strip())
+            return _project_output_public(directory, request.project_ref.project_id)
+        public = await asyncio.to_thread(write)
+        if public is None:
             return {"ok": False, "reason_code": "folder_missing", "message": "That folder does not exist."}
-        _project_store_factory().write_output_folder(
-            directory, request.project_ref.project_id,
-            None if request.output_folder is None else request.output_folder.strip())
-        public = _project_output_public(directory, request.project_ref.project_id)
     except studio_core.ProjectError as exc:
         if getattr(exc, "code", None) == studio_core.project_store.PROJECT_FOLDER_OFFLINE:  # lane p13-prjb finding 1
             return {"ok": False, "reason_code": exc.code, "message": str(exc), "error": {"code": exc.code, "message": str(exc)}}
@@ -176,20 +182,25 @@ _projects_state_read_before_output = projects_state
 async def _projects_state_with_output(request: ProjectStateReadRequest) -> dict[str, Any]:
     answer = await _projects_state_read_before_output(request)
     if isinstance(answer, dict) and "state" in answer:
-        try:
-            directory = _project_reference_directory(request.project_ref)
-            answer = {**answer, **_project_output_public(directory, request.project_ref.project_id)}
-            # Lane p5d-frm (Project settings): the project folder and its approved folders, read-only (Hermes reads the
-            # list, Project decision 4; only Media's hand changes it).
-            manifest = _project_store_factory().read_project(directory, expected_project_id=request.project_ref.project_id)
-            # Lane w20-vid (VID-061): the output folder is one of the approved folders for every reader of this answer
-            # (page and Hermes), the same list submit admission uses (_manifest_roots_of); listed once it exists.
-            answer = {**answer, "project_folder": str(Path(directory)),
-                      "approved_roots": _with_output_root(list(manifest["approved_roots"]), _project_output_existing(request.project_ref.project_id, directory)),
-                      # lane p13-prj item 3 (PRJ-019): the approved folders that are offline now (unplugged drive)
-                      "offline_roots": studio_core.project_store.offline_roots(manifest["approved_roots"])}
-        except Exception:  # noqa: BLE001 - the state still reads
-            pass
+        return await asyncio.to_thread(_projects_state_output_answer, request, answer)  # BCK-227: off the event loop
+    return answer
+
+
+def _projects_state_output_answer(request: ProjectStateReadRequest, answer: dict[str, Any]) -> dict[str, Any]:
+    try:
+        directory = _project_reference_directory(request.project_ref)
+        answer = {**answer, **_project_output_public(directory, request.project_ref.project_id)}
+        # Lane p5d-frm (Project settings): the project folder and its approved folders, read-only (Hermes reads the
+        # list, Project decision 4; only Media's hand changes it).
+        manifest = _project_store_factory().read_project(directory, expected_project_id=request.project_ref.project_id)
+        # Lane w20-vid (VID-061): the output folder is one of the approved folders for every reader of this answer
+        # (page and Hermes), the same list submit admission uses (_manifest_roots_of); listed once it exists.
+        answer = {**answer, "project_folder": str(Path(directory)),
+                  "approved_roots": _with_output_root(list(manifest["approved_roots"]), _project_output_existing(request.project_ref.project_id, directory)),
+                  # lane p13-prj item 3 (PRJ-019): the approved folders that are offline now (unplugged drive)
+                  "offline_roots": studio_core.project_store.offline_roots(manifest["approved_roots"])}
+    except Exception:  # noqa: BLE001 - the state still reads
+        pass
     return answer
 
 
@@ -222,9 +233,12 @@ def _manifest_roots_of(reference: Any) -> list[str]:  # noqa: F811 - append-only
     try:
         project_id = getattr(reference, "project_id", None)
         directory = getattr(reference, "directory", None) or _recent_directory(_recent_project_store_factory(), project_id)
-        folder = str(_project_output_dir(directory, project_id))
     except Exception:  # noqa: BLE001 - fail closed: only the manifest roots
         return roots
+    try:
+        folder = str(_project_output_dir(directory, project_id))
+    except Exception:  # noqa: BLE001 - BCK-226: an output folder that is no destination is no root either
+        folder = None
     media = _project_media_dir(directory)
     return _with_output_root(roots, folder, str(media) if media.is_dir() else None)
 
@@ -305,11 +319,12 @@ def _project_folders_answer(answer: Any, project_id: Any, directory: Any) -> Any
 async def _projects_open_with_folders(request: ProjectOpenRequest) -> dict[str, Any]:
     answer = await _projects_open_before_folders(request)
     project = answer.get("project") if isinstance(answer, dict) else None
-    return _project_folders_answer(answer, project.get("project_id") if isinstance(project, dict) else None, request.directory)
+    return await asyncio.to_thread(_project_folders_answer, answer, project.get("project_id") if isinstance(project, dict) else None,
+                                   request.directory)  # BCK-227
 
 
 async def _projects_open_recent_with_folders(request: ProjectOpenRecentRequest) -> dict[str, Any]:
-    return _project_folders_answer(await _projects_open_recent_before_folders(request), request.project_id, None)
+    return await asyncio.to_thread(_project_folders_answer, await _projects_open_recent_before_folders(request), request.project_id, None)
 
 
 _projects_open_with_folders.__name__ = "projects_open"  # the route keeps its name (route surface, p5e-frm)
@@ -340,3 +355,118 @@ def _project_output_dir(directory: str, project_id: str, *, create: bool = False
             raise studio_core.ProjectError(studio_core.project_store.PROJECT_REBASE_PENDING,
                                            studio_core.project_store.project_rebase_pending_message(offline))
     return _project_output_dir_before_rebase(directory, project_id, create=create)
+
+
+# --- Lane w33-rel2 item 0 (BCK-226, independent review S1): the output folder text of project.json is no grant ------
+# A project folder can come from anywhere (a download, a colleague's drive); its project.json (and a legacy Shoot state)
+# names the output folder as text. That text is a destination only when the folder, links resolved, lies inside the
+# project folder, inside one of the project's approved folders, or when the artist chose it on THIS computer in Project
+# settings (a machine-local record under LOCALAPPDATA, never in the project). Otherwise it is no approved root and every
+# write there is refused with output_folder_not_approved and a reason naming the setting. Reference: Resolve /
+# Premiere open a foreign project with its render locations offline until they are linked again on this machine.
+import threading  # noqa: E402 - the composition namespace has no threading import
+
+OUTPUT_FOLDER_REFUSAL = ("The output folder in Project settings is outside this project and its approved folders, "
+                         "and it was not chosen on this computer.")
+_OUTPUT_CONSENT_LOCK = threading.Lock()
+
+
+class _OutputConsents:
+    """The output folders the artist chose by hand on this computer: (project_id, project folder, folder), canonical."""
+
+    MAX = 512
+
+    def __init__(self, path: Path) -> None:
+        self.path = path
+
+    def _entries(self) -> list[dict[str, str]]:
+        try:
+            raw = json.loads(self.path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return []  # none or unreadable: nothing chosen (fail closed)
+        rows = raw.get("entries") if isinstance(raw, dict) else None
+        return [r for r in rows or () if isinstance(r, dict) and all(isinstance(r.get(k), str) for k in ("project_id", "project", "folder"))]
+
+    def holds(self, project_id: str, directory: Any, folder: Any) -> bool:
+        key = {"project_id": str(project_id), "project": _approved_roots_module.canonical(str(directory)),
+               "folder": _approved_roots_module.canonical(str(folder))}
+        return None not in key.values() and key in self._entries()
+
+    def record(self, project_id: str, directory: Any, folder: Any) -> None:
+        key = {"project_id": str(project_id), "project": _approved_roots_module.canonical(str(directory)),
+               "folder": _approved_roots_module.canonical(str(folder))}
+        if None in key.values():
+            return
+        with _OUTPUT_CONSENT_LOCK:
+            rows = [r for r in self._entries() if r != key][-(self.MAX - 1):] + [key]
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            temporary = self.path.with_name(f".{self.path.name}.{uuid.uuid4().hex}.tmp")
+            try:
+                with open(temporary, "w", encoding="utf-8") as handle:
+                    json.dump({"schema": "studio.output-folder-consents/1", "entries": rows}, handle, indent=1)
+                    handle.flush()
+                    os.fsync(handle.fileno())
+                os.replace(temporary, self.path)
+            finally:
+                temporary.unlink(missing_ok=True)
+
+
+def _output_consents() -> _OutputConsents:
+    base = os.environ.get("LOCALAPPDATA") or tempfile.gettempdir()
+    return _OutputConsents(state_root(Path(base) / "hermes") / "output-folder-consents.json")
+
+
+def _project_output_refusal(directory: Any, project_id: str, folder: Any) -> str | None:
+    """None when ``folder`` may receive this project's files; else the plain reason (BCK-226)."""
+    target = _approved_roots_module.canonical(str(folder))
+    project = _approved_roots_module.canonical(str(directory))
+    if target is None or project is None:
+        return OUTPUT_FOLDER_REFUSAL
+    if _approved_roots_module.within(target, project):
+        return None
+    try:
+        manifest = _project_store_factory().read_project(directory, expected_project_id=project_id)
+        roots = [c for c in (_approved_roots_module.canonical(r) for r in manifest["approved_roots"]) if c]
+    except Exception:  # noqa: BLE001 - an unreadable manifest approves nothing
+        roots = []
+    if any(_approved_roots_module.within(target, root) for root in roots):
+        return None
+    return None if _output_consents().holds(project_id, directory, folder) else OUTPUT_FOLDER_REFUSAL
+
+
+_project_output_dir_before_consent = _project_output_dir
+
+
+def _project_output_dir(directory: str, project_id: str, *, create: bool = False) -> Path:  # noqa: F811
+    folder, _default = _project_output_resolve(directory, project_id)
+    reason = _project_output_refusal(directory, project_id, folder)
+    if reason is not None:
+        raise studio_core.ProjectError("output_folder_not_approved", reason)
+    return _project_output_dir_before_consent(directory, project_id, create=create)
+
+
+_project_output_public_before_consent = _project_output_public
+
+
+def _project_output_public(directory: str, project_id: str) -> dict[str, Any]:  # noqa: F811
+    public = _project_output_public_before_consent(directory, project_id)
+    reason = _project_output_refusal(directory, project_id, public["output_folder"])
+    return public if reason is None else {**public, "output_folder_reason": reason}
+
+
+_v4_exception_before_consent = _v4_exception
+
+
+def _v4_exception(exc: BaseException, *, prefix: str | None = None) -> dict[str, Any]:  # noqa: F811
+    if isinstance(exc, studio_core.ProjectError) and getattr(exc, "code", None) == "output_folder_not_approved":
+        return _v4_named("output_folder_not_approved", prefix, str(exc))
+    return _v4_exception_before_consent(exc, prefix=prefix)
+
+
+_project_error_response_before_consent = _project_error_response
+
+
+def _project_error_response(exc: BaseException) -> dict[str, Any]:  # noqa: F811
+    if getattr(exc, "code", None) == "output_folder_not_approved":  # BCK-226: Deliver, Use in Cut, voice, stems
+        return {"error": {"code": "output_folder_not_approved", "message": OUTPUT_FOLDER_REFUSAL}}
+    return _project_error_response_before_consent(exc)

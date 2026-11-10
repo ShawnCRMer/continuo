@@ -20,6 +20,7 @@ async def _media_trim(
         destination = _confined_output_path(request.dest, roots)
         if source == destination:
             raise RecipeError("Trim output must be a new file; the source is never overwritten.")
+        _trim_destination_new(destination)  # lane w34-sec (finding 17): a new .mp4, never an existing file
 
         if stable_source is None:
             owned_source_snapshot, _ = await asyncio.to_thread(_snapshot_derivation_source, source)
@@ -104,7 +105,7 @@ async def _media_trim(
         if await asyncio.to_thread(_read_embedded_recipe, temp_path) != derivation:
             raise RecipeError("ffmpeg did not write fresh derivation metadata.")
         derivation_response = _derivation_response(derivation, temp_path)
-        os.replace(temp_path, destination)
+        _publish_new_file(temp_path, destination)
         temp_path = None
         return {
             "trimmed": True,

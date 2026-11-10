@@ -83,7 +83,41 @@ def _job_workflow_labels() -> dict[str, str]:
 def _job_workflow_label(target_id: Any) -> str | None:
     if not isinstance(target_id, str) or not target_id:
         return None
-    return _job_workflow_labels().get(target_id) or target_id
+    return _job_workflow_labels().get(target_id) or _job_workflow_label_unlisted(target_id) or target_id
+
+
+# Lane w35-ui-3 (critic run 3 #12): Jobs showed "yue2-song-v1", "relayvsr-video-upscale-v1", "minimax-h3-finish-v1". The
+# map above reads the registry's LISTED targets and the model catalog; two workflow kinds are in neither: the registry's
+# operations on a finished take (H3 Finish, RelayVSR upscale: resolvable, never listed) and the pinned music targets
+# (music_gen/targets.py: SA3, YuE2, Foundation-1). They are named from their own registrations, read once per id; the
+# id stays the row's target_id (Details).
+def _job_workflow_label_unlisted(target_id: str) -> str | None:
+    known = globals().setdefault("_JOB_WORKFLOW_LABELS_UNLISTED", {})
+    if target_id in known:
+        return known[target_id]
+    label = None
+    try:
+        registry = _generation_registry.DEFAULT_REGISTRY
+        places = {p["id"]: p.get("display_label") or p.get("label") or p["id"] for p in _generation_registry.catalog().get("providers", [])}
+        for provider_id in registry.provider_ids():
+            try:
+                resolved = registry.resolve(provider_id, target_id)
+            except Exception:  # noqa: BLE001 - not this provider's
+                continue
+            label = f"{places.get(provider_id, resolved.provider_label)} · {resolved.label}" if resolved.label else None
+            break
+    except Exception:  # noqa: BLE001 - without the registry the music targets still name
+        label = None
+    music = globals().get("_music_gen_targets")
+    if label is None and music is not None and target_id in getattr(music, "TARGET_IDS", ()):
+        try:
+            name = music.load_target(target_id)["manifest"]["label"]
+            local = next((v.split(" · ", 1)[0] for v in _job_workflow_labels().values() if v.startswith("Local · ")), "Local")
+            label = f"{local} · {name}" if isinstance(name, str) and name else None
+        except Exception:  # noqa: BLE001 - an unreadable manifest answers its id
+            label = None
+    known[target_id] = label
+    return label
 
 
 _jobs_list_before_names = jobs_list

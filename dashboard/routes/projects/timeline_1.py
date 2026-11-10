@@ -293,11 +293,12 @@ async def projects_timeline_write(request: TimelineWriteRequest) -> dict[str, An
         project_id = request.project_ref.project_id
         store = _project_store_factory()
         _revision, before = await asyncio.to_thread(_timeline_current, store, directory, project_id)
+        by = _caller_by(request.by)  # lane w34-sec (finding 18): a Hermes call is Hermes' revision
         written = await asyncio.to_thread(
             store.write_timeline, directory, project_id=project_id, expected_revision=request.expected_revision,
-            state=request.state, label=request.label, by=request.by, reason=request.reason,
+            state=request.state, label=request.label, by=by, reason=request.reason,
         )
-        film_events.timeline_changed(project_id, written["revision"], request.by)
+        film_events.timeline_changed(project_id, written["revision"], by)
         summary = _timeline_module("document").summarize(before, written["state"])
         return {"revision": written["revision"], "updated_at": written["updated_at"], **summary}
     except (studio_core.ProjectError, ValueError) as exc:
@@ -330,7 +331,8 @@ async def projects_timeline_apply(request: TimelineApplyRequest) -> dict[str, An
         ducking = await asyncio.to_thread(_timeline_reduck, before, after, ops, project_id)
         summary = _timeline_module("document").summarize(before, after)
         verbs = ", ".join(dict.fromkeys(op["op"] for op in ops))
-        label = request.label or (("Hermes: " if request.by == "hermes" else "") + verbs)[:_TIMELINE_LABEL_MAX]
+        by = _caller_by(request.by)  # lane w34-sec (finding 18): a Hermes call is Hermes' revision, labelled so
+        label = request.label or (("Hermes: " if by == "hermes" else "") + verbs)[:_TIMELINE_LABEL_MAX]
         extra = {"ducking": ducking} if ducking is not None else {}
         if request.dry_run:
             return {"dry_run": True, "revision": revision, "label": label, "results": results, **summary, **extra}
@@ -338,14 +340,14 @@ async def projects_timeline_apply(request: TimelineApplyRequest) -> dict[str, An
         remember = {"request_id": request.request_id, "ops_sha256": digest, "answer": answer} if request.request_id is not None else None
         written = await asyncio.to_thread(
             store.write_timeline, directory, project_id=project_id, expected_revision=revision,
-            state=after, label=label, by=request.by, reason=request.reason, request=remember,
+            state=after, label=label, by=by, reason=request.reason, request=remember,
         )
         if remember is not None:
             if "revision" not in written:  # the first try landed while this retry was on its way
                 return {**written["request"]["answer"], "replayed": True}
-            film_events.timeline_changed(project_id, written["revision"], request.by)
+            film_events.timeline_changed(project_id, written["revision"], by)
             return {**written["request"]["answer"], "replayed": False}
-        film_events.timeline_changed(project_id, written["revision"], request.by)
+        film_events.timeline_changed(project_id, written["revision"], by)
         return {**answer, "revision": written["revision"]}
     except (studio_core.ProjectError, ValueError) as exc:
         return _timeline_error(exc)

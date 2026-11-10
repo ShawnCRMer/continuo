@@ -90,7 +90,7 @@ def _image_jobs_for_scope(owner_scope: str, limit: int, rows: list[dict[str, Any
             "job_id": job["image_producer_job_id"],
             "state": view,
             "raw_state": raw,
-            "label": _job_label(artist.get("prompt")),
+            "label": _job_label(_image_human_prompt(job["image_producer_job_id"], artist.get("prompt"))),  # w35-ui-3 #11
             "result_name": result_names.get(job["image_producer_job_id"]),
             "target_id": (job.get("provider") or {}).get("target_id"),
             # Rows written before the ledger kept times read None: unknown,

@@ -83,6 +83,13 @@ def _source_path(raw: Any) -> Path:
     return path
 
 
+# Lane w34-sec: the one lexical guard against UNC / device paths (dashboard/studio_core/local_path.py, stdlib).
+_LOCAL_PATH_SPEC = importlib.util.spec_from_file_location(
+    "film_suite_agent_local_path", Path(__file__).parent / "dashboard" / "studio_core" / "local_path.py")
+_LOCAL_PATH = importlib.util.module_from_spec(_LOCAL_PATH_SPEC)
+_LOCAL_PATH_SPEC.loader.exec_module(_LOCAL_PATH)
+
+
 class _FolderRefused(Exception):
     """Lane w21-rel (AUD-144): the file is outside the folders the artist approved."""
 
@@ -107,6 +114,10 @@ def _approved_source(args: dict[str, Any]) -> Path:
     """Lane w21-rel (AUD-144; reference: the hand route /music/analyze, routes/music/analysis_1.py): the file only
     inside the server's approved folders (project_ref: the project's, else Loose work; approved_roots only narrow),
     checked as Hermes (the same _request_roots + _confined_music_path the page's route calls)."""
+    # Lane w34-sec (scan finding 12): a network / device path is refused on its text, before _source_path resolves
+    # and stats it (on Windows that opens an SMB session to the named host).
+    if _LOCAL_PATH.remote_path_reason(str(args.get("path") or "")) is not None:
+        raise _FolderRefused()
     _source_path(args.get("path"))  # the old "path is required" / "does not exist" answers stay
     api = _route_api()
     raw_ref = args.get("project_ref")
@@ -1086,7 +1097,9 @@ _SUITE_TOOLS = (
         "timeline=Cut, deliver), the screen (start, page, media), the project, and the Script page (state none|ready|loading|error|no_project, "
         "revision, title, scene list number + heading + act (the author's act mark the scene belongs to, e.g. AKT 1)), and on Image, Video, Audio and Cut the Media column: media {visible, bin all|kept|cut|uncut, "
         "types (image|video|audio shown), query, sort, min_rating, count (items shown), total (in the bin), selected (item id or null)}; media is null "
-        "on other pages. On Start (page start) start {recent: [{project_id, name, available}], busy: ''|restore|open} lists its Recent tiles, "
+        "on other pages. On Video (page shoot) video {take: {take_id, barely_moves, motion_activity} | null}: the take on the stage; "
+        "barely_moves true = it barely moves (the stage does not say so): re-roll it with continuo_video_submit, seed + 1, same args. "
+        "On Start (page start) start {recent: [{project_id, name, available}], busy: ''|restore|open} lists its Recent tiles, "
         "also before any project is chosen. Only connected windows are listed. page_labels maps ids to the bar's names. Path-free.",
         {"max_age_seconds": {"type": "number", "minimum": 0.5, "maximum": 60, "default": 20}},
         [],

@@ -106,8 +106,9 @@ def _timeline_audio_place(directory: str, project_id: str, audio: list[dict[str,
     ducking = _timeline_reduck(before, after, ops, project_id)  # lane p12-cutb: the duck lands in this same revision
     track = results[0]["track"]
     label = f"Add {len(ops)} sound{'s' if len(ops) != 1 else ''} to {track}"
-    written = store.write_timeline(directory, project_id=project_id, expected_revision=revision, state=after, label=label, by=place.by)
-    film_events.timeline_changed(project_id, written["revision"], place.by)
+    by = _caller_by(place.by)  # lane w34-sec (finding 18): a Hermes call is Hermes' revision
+    written = store.write_timeline(directory, project_id=project_id, expected_revision=revision, state=after, label=label, by=by)
+    film_events.timeline_changed(project_id, written["revision"], by)
     summary = _timeline_module("document").summarize(before, after)
     return {"track": track, "revision": written["revision"], "label": label, "created": summary["created"],
             "placed_refs": summary["placed_refs"], **({"ducking": ducking} if ducking is not None else {})}

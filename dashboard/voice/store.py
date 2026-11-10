@@ -134,7 +134,8 @@ def validate_body(body: Mapping[str, Any]) -> dict[str, Any]:
             _bad(f"{at}.id is invalid")
         line_ids.add(line["id"])
         _text(line["character"], f"{at}.character", max_len=80, empty=False)
-        _text(line["text"], f"{at}.text", max_len=2000, empty=False)
+        # w35-ui item A: a new line (the page's "+") has no text yet; it is a draft, refused only at generate (line_empty)
+        _text(line["text"], f"{at}.text", max_len=2000)
         _text(line["direction"], f"{at}.direction", max_len=200)
     takes = body["takes"]
     if type(takes) is not dict or len(takes) > MAX_TAKES:

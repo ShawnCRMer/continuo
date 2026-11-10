@@ -204,10 +204,19 @@ def render_mix_samples(plan: Plan) -> int:
     return samples(plan.total_frames, plan.rate)
 
 
+_CSV_FORMULA_STARTS = ("=", "+", "-", "@", "\t", "\r")
+
+
+def _csv_cell(value: Any) -> Any:
+    """Lane w34-sec (scan finding 19): a text cell that starts like a formula (= + - @ TAB CR) is written with a leading
+    single quote, so a spreadsheet shows it as text (OWASP CSV injection). Numbers are not text and stay as they are."""
+    return "'" + value if isinstance(value, str) and value.startswith(_CSV_FORMULA_STARTS) else value
+
+
 def _csv(rows: list[list[Any]]) -> str:
     buffer = io.StringIO()
     writer = csv.writer(buffer, lineterminator="\r\n")
-    writer.writerows(rows)
+    writer.writerows([[_csv_cell(cell) for cell in row] for row in rows])
     return "\ufeff" + buffer.getvalue()
 
 

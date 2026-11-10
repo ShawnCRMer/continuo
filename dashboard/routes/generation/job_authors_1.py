@@ -23,6 +23,12 @@ def _film_caller() -> str:
     return "hermes" if _FILM_CALLER.get() == "hermes" else "artist"
 
 
+def _caller_by(by: Any) -> str:
+    """The author a change is recorded under (lane w34-sec, scan finding 18; as _script_by, SCR-072): an agent call is
+    always Hermes', whatever ``by`` it sends; the page keeps the ``by`` it sends."""
+    return "hermes" if _film_caller() == "hermes" else by
+
+
 def _job_authors_path() -> Path:
     base = os.environ.get("LOCALAPPDATA") or tempfile.gettempdir()
     return Path(state_root(Path(base) / "hermes")) / "job-authors.sqlite3"
@@ -83,6 +89,13 @@ def _job_authors_read(job_ids: Any) -> dict[str, str]:
     except Exception:  # noqa: BLE001 - unknown reads as the artist
         return {}
     return found
+
+
+def _job_authors_tag(items: list[dict[str, Any]], key: str = "item_id") -> None:
+    """w36-media (GEM-231): each item's ``by`` (hermes | artist) from its job's author note, one read for the list."""
+    authors = _job_authors_read([item.get(key) for item in items])
+    for item in items:
+        item["by"] = "hermes" if authors.get(item.get(key)) == "hermes" else "artist"
 
 
 def _job_authors_note_shoot(studio_job_id: Any) -> None:

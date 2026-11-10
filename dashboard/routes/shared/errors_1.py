@@ -10,6 +10,8 @@ _PROJECT_ERROR_MESSAGES = {
     "project_scope_mismatch": "Project belongs to a different context",
     "project_unavailable": "Project is unavailable",
     "project_io_failed": "Project could not be saved",
+    # Lane w33-rel2 item 1 (BCK-227): another process held the project lock past the bounded wait.
+    "project_busy": "Project is busy: another window or Hermes is saving it. Nothing was changed.",
 }
 _PROJECT_ERROR_CODES = frozenset(_PROJECT_ERROR_MESSAGES)
 

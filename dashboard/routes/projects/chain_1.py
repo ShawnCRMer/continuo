@@ -58,6 +58,19 @@ def _chain_roots(directory: str, manifest: dict[str, Any]) -> list[str]:
     return [*manifest["approved_roots"], str(Path(os.path.realpath(directory)))]
 
 
+def _chain_stored_guide(guide: dict[str, Any], manifest: dict[str, Any]) -> Path:
+    """Lane w34-sec (scan finding 1): a guide read back from state/chains/<id>.json is project data, never trusted.
+    It is confined again to the project's approved folders (as set_guide's probe_guide did) before any open: a network
+    or device path is refused on its text, anything outside the folders is unreadable."""
+    path = guide.get("path") if isinstance(guide, dict) else None
+    try:
+        if not isinstance(path, str) or _local_path_module.remote_path_reason(path) is not None:
+            raise ValueError("not a local path")
+        return resolve_approved_path(path, list(manifest["approved_roots"]))
+    except (OSError, ValueError):
+        _chain_doc().fail("guide_unreadable", "the guide is missing or outside the project's approved folders")
+
+
 def _chain_step_manifest(target_id: str | None) -> dict[str, Any] | None:
     if target_id is None:
         return None
@@ -120,12 +133,13 @@ def _chain_env(project_id: str, directory: str, manifest: dict[str, Any]) -> dic
 
     def pull_still(guide: dict[str, Any], frame: int) -> dict[str, Any]:
         """The guide frame at full size (an exact frame by index, not a time seek) as an owned Image picture."""
-        if _chain_sha256(Path(guide["path"])) != guide["sha256"]:
+        stored = _chain_stored_guide(guide, manifest)  # lane w34-sec (finding 1): confined again before the open
+        if _chain_sha256(stored) != guide["sha256"]:
             document.fail("still_failed", "the guide file changed since it was set")
         fd, name = tempfile.mkstemp(prefix="chain-still-", suffix=".png")
         os.close(fd)
         try:
-            run = subprocess.run([str(FFMPEG_PATH), "-hide_banner", "-loglevel", "error", "-y", "-i", guide["path"],
+            run = subprocess.run([str(FFMPEG_PATH), "-hide_banner", "-loglevel", "error", "-y", "-i", str(stored),
                                   "-vf", f"select=eq(n\\,{int(frame)})", "-vsync", "0", "-frames:v", "1", name],
                                  capture_output=True, timeout=300, check=False)
             data = Path(name).read_bytes() if run.returncode == 0 else b""
@@ -242,7 +256,7 @@ def _chain_apply_sync(request: ChainApplyRequest) -> dict[str, Any]:
             chain_id = chain_id or document.new_chain_id()
             if store.read_chain(directory, project_id=project_id, chain_id=chain_id) is not None:
                 raise studio_core.ProjectError("chain_conflict", f"the chain {chain_id} exists already")
-            envelope = {"chain": document.new_chain(chain_id, project_id, "Shot", None, "", request.by), "bindings": {}, "take_inputs": {}}
+            envelope = {"chain": document.new_chain(chain_id, project_id, "Shot", None, "", _caller_by(request.by)), "bindings": {}, "take_inputs": {}}
         else:
             envelope = _chain_envelope(store, directory, project_id, chain_id)
         revision = envelope["chain"]["revision"]
@@ -256,7 +270,7 @@ def _chain_apply_sync(request: ChainApplyRequest) -> dict[str, Any]:
     # A kept request remembers the revision it made; its answer is rebuilt from that kept revision (same chain).
     remember = {"request_id": request.request_id, "ops_sha256": digest, "answer": {}} if request.request_id is not None else None
     written = store.write_chain(directory, project_id=project_id, chain_id=chain_id, expected_revision=revision, chain=chain,
-                                bindings=bindings, take_inputs=envelope["take_inputs"], by=request.by, reason=request.reason,
+                                bindings=bindings, take_inputs=envelope["take_inputs"], by=_caller_by(request.by), reason=request.reason,
                                 request=remember)
     if remember is not None and "chain" not in written:  # the first try landed while this retry was on its way
         return _chain_replay(store, directory, project_id, manifest, chain_id, written["request"])
@@ -449,7 +463,7 @@ class ChainMeasureRequest(_ProjectRequest):
 
 
 def _chain_measure_sync(request: ChainMeasureRequest) -> dict[str, Any]:
-    directory, project_id, _manifest = _chain_project(request.project_ref)
+    directory, project_id, manifest = _chain_project(request.project_ref)
     store = _project_store_factory()
     envelope = _chain_envelope(store, directory, project_id, request.chain_id)
     chain = copy.deepcopy(envelope["chain"])
@@ -459,8 +473,9 @@ def _chain_measure_sync(request: ChainMeasureRequest) -> dict[str, Any]:
     if chain["guide"] is None:
         raise studio_core.ProjectError("no_guide", "the chain has no guide to compare with")
     flow = _camera_flow()
+    stored = _chain_stored_guide(chain["guide"], manifest)  # lane w34-sec (finding 1): guide_unreadable outside
     try:
-        guide = _camera_measure(Path(chain["guide"]["path"]))
+        guide = _camera_measure(stored)
         shot = _camera_measure(_camera_take_file(request.studio_job_id, project_id))
     except _SceneError as exc:
         code = "take_unknown" if exc.code == "take_unknown" else "measure_unavailable"

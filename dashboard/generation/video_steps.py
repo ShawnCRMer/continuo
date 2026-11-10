@@ -305,9 +305,10 @@ def _file_reasons(what: str, value: Any, suffixes: tuple[str, ...], roots: list[
         confine(value, roots)
     except Exception as exc:  # noqa: BLE001 - confine answers outside/missing with its own text
         text = str(exc).lower()
+        # Lane w34-sec (scan finding 7): the refused value itself is never probed (Path.exists on a UNC path opens an
+        # SMB session; on a local path it answered whether any file on the disk exists). Confinement already said
+        # "missing" for a file inside the folders; every other refusal is "outside the approved folders".
         if "not exist" in text or "missing" in text or "no such" in text:
             return [f"{what}: {Path(value).name} is missing."]
-        if Path(value).exists():
-            return [f"{what}: {Path(value).name} is outside the approved folders."]
-        return [f"{what}: {Path(value).name} is missing."]
+        return [f"{what}: {Path(value).name} is outside the approved folders."]
     return []

@@ -38,6 +38,13 @@ import numpy as np
 
 from . import camera as camera_solve
 
+# Lane w34-sec (scan finding 4): the one lexical guard against UNC / device paths (studio_core/local_path.py, stdlib).
+import importlib.util as _import_util
+_local_path_spec = _import_util.spec_from_file_location(
+    "film_suite_control_local_path", Path(__file__).resolve().parents[1] / "studio_core" / "local_path.py")
+_local_path = _import_util.module_from_spec(_local_path_spec)
+_local_path_spec.loader.exec_module(_local_path)
+
 SCHEMA = "studio.control-layers/1"
 LAYERS = ("pose", "depth", "edges", "lineart", "camera")
 LAYER_LABELS = {"pose": "Pose", "depth": "Depth", "edges": "Edges", "lineart": "Line art", "camera": "Camera move"}
@@ -150,6 +157,27 @@ class Store:
     def index_path(self) -> Path:
         return self.root / "index.json"
 
+    def own_file(self, value: Any) -> Path | None:
+        """Lane w34-sec (finding 4): index.json travels with a project folder, so its paths are untrusted. A path is
+        used only when its text is local and it resolves inside this store's root; anything else is no file here,
+        decided before any stat (a network path is never touched)."""
+        if not isinstance(value, str) or not value.strip() or _local_path.remote_path_reason(value) is not None:
+            return None
+        try:
+            root = os.path.normcase(os.path.realpath(self.root))
+            target = os.path.realpath(value)
+            if os.path.normcase(os.path.commonpath([os.path.normcase(target), root])) != root:
+                return None
+        except (OSError, ValueError):
+            return None
+        return Path(target)
+
+    def _alive(self, item: Mapping[str, Any]) -> bool:
+        if item.get("kind") == "text":
+            return True
+        path = self.own_file(item.get("path"))
+        return path is not None and path.is_file()
+
     def read(self) -> dict[str, Any]:
         try:
             value = json.loads(self.index_path.read_text(encoding="utf-8"))
@@ -163,17 +191,22 @@ class Store:
         for key, item in items.items():
             if isinstance(item, dict) and "key" not in item:
                 item["key"] = key
-                if not item.get("sha256") and Path(item.get("path") or "").is_file():
+                own = self.own_file(item.get("path"))
+                if not item.get("sha256") and own is not None and own.is_file():
                     # A camera sentence of that time had no hash: its json file is its content.
-                    item["sha256"] = sha256_file(Path(item["path"]))
+                    item["sha256"] = sha256_file(own)
                 if item.get("sha256"):
                     item["item_id"] = "file:" + item["sha256"]
-        return items
+        # Lane w34-sec (finding 4): an item naming a file outside this store (another folder, a network path) or
+        # pose keypoints outside it is dropped from what this store answers; nothing of it is read.
+        return {key: item for key, item in items.items() if isinstance(item, dict)
+                and self.own_file(item.get("path")) is not None
+                and (not item.get("keypoints") or self.own_file(item.get("keypoints")) is not None)}
 
     def items(self, source_id: str | None = None) -> list[dict[str, Any]]:
         found = [item for item in self.read().values() if source_id is None or item.get("derived_from") == source_id]
         # Only items whose file is still there are listed (a deleted project folder loses its layers).
-        alive = [item for item in found if item.get("kind") == "text" or Path(item.get("path") or "").is_file()]
+        alive = [item for item in found if self._alive(item)]
         # One layer per source, layer and range: a layer made again by a newer extractor replaces the older one.
         newest: dict[tuple[Any, ...], dict[str, Any]] = {}
         for item in alive:
@@ -187,7 +220,7 @@ class Store:
         """One layer by its cache key (ctrl_...) or its Media item id (file:<sha256>)."""
         items = self.read()
         item = items.get(key) or next((value for value in items.values() if value.get("item_id") == key), None)
-        if item and (item.get("kind") == "text" or Path(item.get("path") or "").is_file()):
+        if item and self._alive(item):
             return item
         return None
 

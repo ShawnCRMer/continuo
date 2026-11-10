@@ -26,6 +26,13 @@ import threading
 from collections.abc import Callable, Iterable
 from pathlib import Path
 from typing import Any
+import importlib.util as _import_util
+
+# Lane w34-sec (finding 6): the one lexical guard against UNC / device paths (stdlib, loaded by file: this module is
+# loaded by file too). canonical() refuses those on the text, before realpath can contact a host.
+_local_path_spec = _import_util.spec_from_file_location("film_suite_approved_roots_local_path", Path(__file__).with_name("local_path.py"))
+_local_path = _import_util.module_from_spec(_local_path_spec)
+_local_path_spec.loader.exec_module(_local_path)
 
 REASON_CODE = "folder_not_approved"
 MESSAGE = "Folder not approved."
@@ -51,7 +58,7 @@ def canonical(root: Any) -> str | None:
     if not isinstance(root, str) or not root.strip():
         return None
     text = root.strip()
-    if text.startswith(("\\\\", "//")):
+    if text.startswith(("\\\\", "//")) or _local_path.remote_path_reason(text) is not None:
         return None
     try:
         return os.path.normcase(os.path.realpath(os.path.expanduser(text)))

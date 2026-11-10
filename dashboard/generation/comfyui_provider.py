@@ -587,6 +587,17 @@ def _v4_refusal(reason_code: str = "invalid_request") -> ComfySubmitOutcome:
     return ComfySubmitOutcome("refused", None, reason_code)
 
 
+def _v4_plain_subfolder(subfolder: str) -> bool:
+    """Lane w34-sec (scan finding 20): a ComfyUI output subfolder is empty or ONE plain folder name: no NUL or control
+    character, no '/' or '\\', not '.' or '..', no drive (':'). The literals before this lane were double-escaped, so
+    they tested for the text "\\x00" and a double backslash and let '..' and '..\\..' through to /view."""
+    if subfolder == "":
+        return True
+    return (subfolder not in (".", "..")
+            and not any(ord(char) < 32 for char in subfolder)
+            and not any(char in subfolder for char in ("/", "\\", ":")))
+
+
 def _v4_output_descriptor(entry: Any, manifest: Mapping[str, Any]) -> dict[str, str]:
     """Extract one manifest-approved descriptor without importing publication code."""
     if not isinstance(entry, Mapping) or not isinstance(manifest, Mapping):
@@ -646,13 +657,11 @@ def _v4_output_descriptor(entry: Any, manifest: Mapping[str, Any]) -> dict[str, 
                 not filename
                 or filename != os.path.basename(filename)
                 or ntpath.basename(filename) != filename
-                or "\\x00" in filename
-                or "\\\\" in filename
+                or "\x00" in filename
+                or "\\" in filename
                 or "/" in filename
                 or not filename.lower().endswith(extension.lower())
-                or "\\x00" in subfolder
-                or "/" in subfolder
-                or "\\\\" in subfolder
+                or not _v4_plain_subfolder(subfolder)  # lane w34-sec (finding 20): real NUL/backslash, no ".."
                 or folder_type != required_type
             ):
                 raise ValueError("output descriptor is invalid")
@@ -846,13 +855,11 @@ async def comfy_stream_output_v4(
         or not filename
         or filename != os.path.basename(filename)
         or ntpath.basename(filename) != filename
-        or "\\x00" in filename
-        or "\\\\" in filename
+        or "\x00" in filename
+        or "\\" in filename
         or "/" in filename
         or not filename.lower().endswith(".mp4")
-        or "\\x00" in subfolder
-        or "/" in subfolder
-        or "\\\\" in subfolder
+        or not _v4_plain_subfolder(subfolder)  # lane w34-sec (finding 20)
         or folder_type != "output"
         or not callable(getattr(client, "stream_view_to_sink", None))
     ):

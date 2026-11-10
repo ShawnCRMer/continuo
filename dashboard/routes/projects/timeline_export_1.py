@@ -409,7 +409,7 @@ async def projects_timeline_export(request: TimelineExportRequest) -> Any:
 
 @project_router.post("/projects/timeline/export/status")
 async def projects_timeline_export_status(request: TimelineExportStatusRequest) -> Any:
-    jobs = _timeline_export_jobs_knowing(request.job_id)
+    jobs = await asyncio.to_thread(_timeline_export_jobs_knowing, request.job_id)  # BCK-227: queue files off the loop
     state = None if jobs is None else await jobs.wait(request.job_id, request.wait_ms)
     if state is None:
         return JSONResponse(status_code=404, content={"error": {"code": "job_unknown", "message": "Export job is unknown"}})
@@ -418,8 +418,8 @@ async def projects_timeline_export_status(request: TimelineExportStatusRequest) 
 
 @project_router.post("/projects/timeline/export/cancel")
 async def projects_timeline_export_cancel(request: TimelineExportCancelRequest) -> Any:
-    jobs = _timeline_export_jobs_knowing(request.job_id)
-    state = None if jobs is None else jobs.cancel(request.job_id)
+    jobs = await asyncio.to_thread(_timeline_export_jobs_knowing, request.job_id)  # BCK-227: Stop never waits on the loop
+    state = None if jobs is None else await asyncio.to_thread(jobs.cancel, request.job_id)
     if state is None:
         return JSONResponse(status_code=404, content={"error": {"code": "job_unknown", "message": "Export job is unknown"}})
     return _timeline_export_answer(state)

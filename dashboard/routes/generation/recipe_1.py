@@ -710,3 +710,78 @@ def _image_keep_assign_shot(owner_scope: str, job_id: str, shot_id: str) -> None
         except Exception as exc:  # noqa: BLE001 - a conflict is read again; anything else leaves the keep as it is
             if getattr(exc, "code", None) != "project_conflict":
                 return
+
+
+# --- The artist's own words as an Image job's title (lane w35-ui-3, critic run 3 #11) ------------------------------
+# A JSON-caption model (Ideogram 4, prompt_grammar ideogram_json) gets a caption the page builds from the artist's plain
+# words; the ledger's artist_input.prompt is that built JSON (the snapshot is rebuilt byte-exactly, so it stays as it is)
+# and Jobs, Media and the Image stage named the run "{"high_level_description":...". The page now sends the words it
+# built the caption from as ``title``; it is written once per new job id next to the recipes (one small JSON file) and is
+# the human-facing name. The caption stays the job's prompt (metadata: Media's caption, the recipe, the export).
+# A job written before (no title file) reads the caption's own one-sentence summary, never raw JSON.
+_IMAGE_TITLE_MAX = 2_000
+
+
+def _image_job_titles_dir() -> Path:
+    return _image_job_recipes_dir().parent / "image-titles"
+
+
+def _image_job_title_write(job_ids: Any, title: Any) -> None:
+    """studio.image-title/1 for each new job of a run (write-once, never raises)."""
+    try:
+        text = " ".join(str(title).split()) if type(title) is str else ""
+        if not text:
+            return
+        folder = _image_job_titles_dir()
+        folder.mkdir(parents=True, exist_ok=True)
+        for job_id in job_ids or ():
+            if type(job_id) is not str or not _IMAGE_JOB_ID_RE.fullmatch(job_id):
+                continue
+            path = folder / f"{job_id}.json"
+            if path.exists():
+                continue
+            temporary = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
+            try:
+                temporary.write_text(json.dumps({"schema": "studio.image-title/1", "job_id": job_id, "title": text[:_IMAGE_TITLE_MAX]},
+                                                ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+                if not path.exists():
+                    os.replace(temporary, path)
+            finally:
+                temporary.unlink(missing_ok=True)
+    except Exception:  # noqa: BLE001 - a title note never fails a submit
+        pass
+
+
+def _image_job_title(job_id: Any) -> str | None:
+    """The artist's words a job was submitted with, or None (no title written, unreadable)."""
+    try:
+        if type(job_id) is not str or not _IMAGE_JOB_ID_RE.fullmatch(job_id):
+            return None
+        value = _read_json(_image_job_titles_dir() / f"{job_id}.json")
+        title = value.get("title") if isinstance(value, dict) and value.get("job_id") == job_id else None
+        return title if type(title) is str and title.strip() else None
+    except Exception:  # noqa: BLE001 - unknown reads as no title
+        return None
+
+
+def _image_human_prompt(job_id: Any, prompt: Any) -> str:
+    """The human-facing words of an Image job: its prompt, or for a JSON caption the artist's title (else the caption's
+    summary sentence). Only a prompt that is a JSON object is looked up, so plain prompts cost nothing."""
+    text = str(prompt or "")
+    if not text.lstrip().startswith("{"):
+        return text
+    title = _image_job_title(job_id)
+    if title:
+        return title
+    try:
+        caption = json.loads(text)
+    except ValueError:
+        return text
+    summary = caption.get("high_level_description") if isinstance(caption, dict) else None
+    return summary if type(summary) is str and summary.strip() else text
+
+
+def _image_human_title(job: Any) -> str:
+    """A ledger job's human title (the status / submit answers' ``title``)."""
+    job = job if isinstance(job, dict) else {}
+    return _image_human_prompt(job.get("image_producer_job_id"), ((job.get("request_snapshot") or {}).get("artist_input") or {}).get("prompt"))

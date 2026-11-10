@@ -5,7 +5,7 @@ from __future__ import annotations
 async def projects_recent() -> dict[str, Any]:
     """Read-only recent-project projection; no repair is attempted here."""
     try:
-        return _recent_project_store_factory().list_recent()
+        return await asyncio.to_thread(lambda: _recent_project_store_factory().list_recent())  # BCK-227
     except studio_core.ProjectError as exc:
         return _project_error_response(exc)
 
@@ -55,6 +55,10 @@ def _with_modules(payload: dict[str, Any], modules: dict[str, Any] | None) -> di
 
 @project_router.post("/projects/create")
 async def projects_create(request: ProjectCreateRequest) -> dict[str, Any]:
+    return await asyncio.to_thread(_projects_create_sync, request)  # BCK-227: the whole create off the event loop
+
+
+def _projects_create_sync(request: ProjectCreateRequest) -> dict[str, Any]:
     try:
         root, modules = _module_root_or_state()
         create_kwargs: dict[str, Any] = {}
@@ -83,6 +87,10 @@ async def projects_create(request: ProjectCreateRequest) -> dict[str, Any]:
 
 @project_router.post("/projects/open")
 async def projects_open(request: ProjectOpenRequest) -> dict[str, Any]:
+    return await asyncio.to_thread(_projects_open_sync, request)  # BCK-227: the whole open off the event loop
+
+
+def _projects_open_sync(request: ProjectOpenRequest) -> dict[str, Any]:
     try:
         root, modules = _module_root_or_state()
         opened = _recent_project_store_factory().open_project(request.directory)
@@ -115,6 +123,10 @@ def _recent_directory(store: Any, project_id: str) -> str:
 
 @project_router.post("/projects/open-recent")
 async def projects_open_recent(request: ProjectOpenRecentRequest) -> dict[str, Any]:
+    return await asyncio.to_thread(_projects_open_recent_sync, request)  # BCK-227: off the event loop
+
+
+def _projects_open_recent_sync(request: ProjectOpenRecentRequest) -> dict[str, Any]:
     try:
         root, modules = _module_root_or_state()
         store = _recent_project_store_factory()
