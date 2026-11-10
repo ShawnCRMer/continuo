@@ -6,11 +6,8 @@ from __future__ import annotations
 # python_dependencies (plugin.yaml) about 100 s after the first boot, and a running process never switches
 # environments (Hermes docs, reference/package-management.md, Troubleshooting: "New environment requires restart
 # ... Do not add a second site-packages tree to its live imports"). So the plugin never edits sys.path; it only
-# names the state, the way Hermes' own loader does (hermes_cli.plugins_loader.installed_in_selected_environment):
-#   ready     every declared module imports here;
-#   preparing a declared module is missing and the selected environment does not carry it yet (PM still builds);
-#   restart   the selected environment carries it, this process started before it was published.
-# Read-only, stdlib + Hermes' public loader helpers; any failure of those helpers reads as "preparing".
+# Read-only: importability can establish readiness, but not whether the package manager is still
+# preparing the next environment or whether this process needs a restart.
 
 _DEPENDENCY_NAME_RE = re.compile(r"^\s*([A-Za-z0-9][A-Za-z0-9._-]*)")
 
@@ -61,15 +58,7 @@ def _film_suite_dependencies() -> dict[str, Any]:
     missing = [_requirement_module(req) for req in missing_reqs]
     if not missing:
         return {"ready": True, "state": "ready", "missing": []}
-    state = "preparing"
-    try:
-        from hermes_cli.plugins_loader import installed_in_selected_environment  # noqa: PLC0415
-
-        if installed_in_selected_environment(missing_reqs):
-            state = "restart"
-    except Exception:  # noqa: BLE001 - an older Hermes without the helper: the build is still the honest guess
-        state = "preparing"
-    return {"ready": False, "state": state, "missing": missing}
+    return {"ready": False, "state": "preparing", "missing": missing}
 
 
 def _dependency_fact(missing_module: str | None) -> dict[str, Any] | None:
@@ -84,10 +73,8 @@ def _dependency_fact(missing_module: str | None) -> dict[str, Any] | None:
 
 _DEPENDENCY_TEXTS = {
     # Facts, no instruction (DESIGN "UI texts"): what is happening, and what the state waits for.
-    ("audio", "preparing"): "Preparing the Audio engine",
-    ("audio", "restart"): "Audio engine installed \u00b7 active after a Hermes restart",
-    ("image", "preparing"): "Preparing picture import",
-    ("image", "restart"): "Picture import installed \u00b7 active after a Hermes restart",
+    ("audio", "preparing"): "Preparing the Audio engine, or restart Hermes",
+    ("image", "preparing"): "Preparing picture import, or restart Hermes",
 }
 
 

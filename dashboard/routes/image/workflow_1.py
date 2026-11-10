@@ -1,6 +1,17 @@
 from __future__ import annotations
 
 
+@project_router.post("/projects/image-producer/session")
+async def image_producer_session(http_request: Request) -> dict[str, Any]:
+    """Establish Desktop authority only through the host's verified HTTP gate."""
+    try:
+        _image_film_caller_scope_module._read_request_auth_state(http_request)
+        _image_film_caller_scope_module._desktop_loopback_request_is_authenticated(http_request)
+        return {"ok": True}
+    except Exception as exc:  # noqa: BLE001 - same finite Image boundary
+        return _image_film_error_response(exc)
+
+
 class ImageWorkflowReference(_ProjectRequest):
     image_producer_job_id: str = Field(pattern=r"^imgjob_[0-9a-f]{32}$")
     role: str = Field(min_length=1, max_length=64)

@@ -268,19 +268,18 @@ Only while something you started runs:
 
 ### Private Hermes access
 
-Hermes has no public plugin interface for two things Continuo needs, so it uses Hermes internals for them:
+Hermes has no public plugin interface for the caller identity Continuo needs, so it uses Hermes internals:
 
-- **The session token**, so Hermes' tool calls use the same signed-in routes as your clicks, and Continuo can check
-  that a request really comes from your Hermes desktop app.
-- **Hermes' package check**, so Continuo can tell "still setting up" from "restart Hermes to finish".
+- **Hermes' own session check**, so Continuo can verify that a request to its image and film routes really comes from
+  your signed-in Hermes desktop app. Continuo never reads, holds or forwards the session token: it asks Hermes'
+  verifier for a yes or no. Hermes' tool calls reach the same routes in-process, and they work only after your desktop
+  app has been verified once. The desktop app does this automatically when Continuo opens.
 
 <details>
 <summary>The internals by name</summary>
 
-- `hermes_cli.web_server._SESSION_TOKEN (agent_tools.py)`
 - `hermes_cli.web_server._has_valid_session_token (caller_scope.py)`
 - `hermes_cli.dashboard_auth.base.Session (caller_scope.py)`
-- `hermes_cli.plugins_loader.installed_in_selected_environment (dependencies_1.py)`
 
 </details>
 
@@ -290,7 +289,7 @@ Hermes has no public plugin interface for two things Continuo needs, so it uses 
 |:---|:---|
 | The install asks about a **caution** rating | Expected for this plugin (see [Install](#install)). Answer `y`, or run the install again with `--force`. |
 | Continuo is not in the sidebar | Restart Hermes after `hermes plugins enable film-suite`. |
-| "Preparing the Audio engine", "Preparing picture import" or "… active after a Hermes restart" | Hermes is still setting up the Python packages (first start only). Wait until it is done, then restart Hermes once. Hermes can check with `continuo_dependencies`. |
+| "Preparing the Audio engine, or restart Hermes" or "Preparing picture import, or restart Hermes" | A Python package is unavailable in this process. Hermes may still be setting it up, or may need a restart after setup. Hermes can check with `continuo_dependencies`. |
 | The Sample film tile says "ffmpeg not found" | Install ffmpeg and put it on `PATH`, set `FFMPEG_PATH`, or place it in `C:\ffmpeg\bin`; then choose **Sample film** again. No half-made sample is left behind. |
 | "ComfyUI is not running." | Start ComfyUI on this machine at `http://127.0.0.1:8188`. Continuo uses no other address. |
 | A model is missing | Ask Hermes "Which model files am I missing for &lt;workflow&gt;?" (`continuo_models_missing`), which names each file with its folder, size, sha256 and pinned download link; put the file into that ComfyUI folder. |

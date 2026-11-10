@@ -14,6 +14,8 @@ browser, conversation, or user-session identifier.
 """
 from __future__ import annotations
 
+import contextvars
+from contextlib import contextmanager
 import hashlib
 import json
 import os
@@ -31,8 +33,22 @@ _DESKTOP_SCOPE_PRINCIPAL = "desktop"
 _CALLER_SCOPE_PREFIX = "imgcaller_"
 _MAX_ID_TEXT = 256
 _LOOPBACK_HOSTS = frozenset({"localhost", "127.0.0.1", "::1"})
-_DESKTOP_SCOPE_NONCE_ATTR = "_studio_image_film_desktop_scope_nonce"
+_DESKTOP_SCOPE_NONCE = None
+_DESKTOP_SCOPE_AUTH_STATE = None
 _DESKTOP_SCOPE_NONCE_LOCK = threading.Lock()
+_AGENT_SENTINEL = object()
+_AGENT_CALL = contextvars.ContextVar("studio_trusted_agent_call", default=None)
+
+
+@contextmanager
+def trusted_agent_call():
+    # Child asyncio tasks inherit context, including after the parent resets it.
+    # External server tasks and threads started outside this call do not.
+    token = _AGENT_CALL.set(_AGENT_SENTINEL)
+    try:
+        yield
+    finally:
+        _AGENT_CALL.reset(token)
 
 
 class ImageFilmCallerScopeError(ValueError):
@@ -148,16 +164,14 @@ def _desktop_loopback_request_is_authenticated(request: Any) -> str:
         _fail("caller_identity_unavailable")
     if type(authenticated) is not bool or not authenticated:
         _fail("caller_identity_unavailable")
-    # The token is an authentication credential, not an identity claim. Bind
-    # the scope to a host-owned, per-application nonce instead. This is stable
-    # for the lifetime of this backend, does not expose/derive from the
-    # credential, and cannot be inherited by a separately spawned backend.
+    # Only a verified Desktop HTTP request may establish the process scope.
+    global _DESKTOP_SCOPE_NONCE, _DESKTOP_SCOPE_AUTH_STATE
     try:
         with _DESKTOP_SCOPE_NONCE_LOCK:
-            nonce = getattr(app_state, _DESKTOP_SCOPE_NONCE_ATTR, None)
-            if nonce is None:
-                nonce = secrets.token_hex(32)
-                setattr(app_state, _DESKTOP_SCOPE_NONCE_ATTR, nonce)
+            if _DESKTOP_SCOPE_NONCE is None:
+                _DESKTOP_SCOPE_NONCE = secrets.token_hex(32)
+            _DESKTOP_SCOPE_AUTH_STATE = app_state
+            nonce = _DESKTOP_SCOPE_NONCE
     except Exception:
         _fail("caller_identity_unavailable")
     if type(nonce) is not str or len(nonce) != 64:
@@ -243,7 +257,27 @@ def resolve_trusted_image_film_caller_scope(request: Any) -> TrustedImageFilmCal
             user_id=user_id,
         )
 
-    desktop_server_instance = _desktop_loopback_request_is_authenticated(request)
+    if _AGENT_CALL.get() is _AGENT_SENTINEL:
+        # A marker is not an identity: it can only reuse an established scope.
+        if os.environ.get("HERMES_DESKTOP") != "1":
+            _fail("caller_identity_unavailable")
+        if getattr(getattr(getattr(request, "app", None), "state", None), "auth_required", None) is True:
+            _fail("caller_identity_unavailable")
+        with _DESKTOP_SCOPE_NONCE_LOCK:
+            desktop_server_instance = _DESKTOP_SCOPE_NONCE
+            verified_state = _DESKTOP_SCOPE_AUTH_STATE
+        try:
+            bound_host = getattr(verified_state, "bound_host", None)
+            if type(bound_host) is not str or bound_host not in _LOOPBACK_HOSTS or getattr(verified_state, "auth_required", None) is not False:
+                _fail("caller_identity_unavailable")
+        except ImageFilmCallerScopeError:
+            raise
+        except Exception:
+            _fail("caller_identity_unavailable")
+        if type(desktop_server_instance) is not str or len(desktop_server_instance) != 64:
+            _fail("caller_identity_unavailable")
+    else:
+        desktop_server_instance = _desktop_loopback_request_is_authenticated(request)
     return _scope_from_projection(
         {
             "schema": _CALLER_SCOPE_SCHEMA,

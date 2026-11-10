@@ -311,28 +311,6 @@ def _app_for(api: Any) -> FastAPI:
 
 
 def _dispatch_target(api: Any, method: str, path: str, *, use_host: bool) -> tuple[Any, str, dict[str, str]]:
-    """Use the already-running authenticated Desktop app for caller-bound routes.
-
-    Never import/start the host, synthesize a Session, mint a token, accept a
-    principal/header from tool JSON, or fall back from a gated/remote host.
-    The host's operator-minted token passes its normal authentication verifier.
-    CLI-only calls still reach the existing route, which fails closed if it
-    needs a verified caller.
-    """
-    if use_host and path.startswith("/projects/film-image/"):
-        host = sys.modules.get("hermes_cli.web_server")
-        app = getattr(host, "app", None)
-        state = getattr(app, "state", None)
-        full_path = "/api/plugins/film-suite" + path
-        token = getattr(host, "_SESSION_TOKEN", None)
-        if (
-            sys.modules.get("hermes_dashboard_plugin_film-suite") is api
-            and getattr(state, "bound_host", None) in {"127.0.0.1", "localhost", "::1"}
-            and getattr(state, "auth_required", None) is False
-            and type(token) is str and token
-            and any(getattr(route, "path", None) == full_path and method in (getattr(route, "methods", None) or ()) for route in getattr(app, "routes", ()))
-        ):
-            return app, full_path, {"X-Hermes-Session-Token": token}
     return _app_for(api), path, {}
 
 
@@ -377,12 +355,16 @@ def handlers_for(api: Any = None) -> dict[str, Any]:
                     caller = getattr(target_api, "_FILM_CALLER", None)
                     token = caller.set("hermes") if caller is not None else None
                     try:
-                        transport = httpx.ASGITransport(app=app, raise_app_exceptions=False)
-                        async with httpx.AsyncClient(transport=transport, base_url="http://127.0.0.1", trust_env=False, follow_redirects=False) as client:
-                            response = await client.request(
-                                method, request_path, headers=headers, params=args if method == "GET" else None,
-                                json=args if method != "GET" else None,
-                            )
+                        from contextlib import nullcontext
+                        scope_module = getattr(target_api, "_image_film_caller_scope_module", None)
+                        marker = scope_module.trusted_agent_call() if scope_module is not None else nullcontext()
+                        with marker:
+                            transport = httpx.ASGITransport(app=app, raise_app_exceptions=False)
+                            async with httpx.AsyncClient(transport=transport, base_url="http://127.0.0.1", trust_env=False, follow_redirects=False) as client:
+                                response = await client.request(
+                                    method, request_path, headers=headers, params=args if method == "GET" else None,
+                                    json=args if method != "GET" else None,
+                                )
                     finally:
                         if token is not None:
                             caller.reset(token)

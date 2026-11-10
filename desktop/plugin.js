@@ -87985,7 +87985,7 @@ import { cn as cn31, useQuery as useQuery5, useValue as useValue16 } from "@herm
 import { jsx as jsx85, jsxs as jsxs71 } from "react/jsx-runtime";
 
 // desktop/film-suite/src/shared/api/dependencies.js
-var WAITING = /^(Preparing the Audio engine|Preparing picture import|Audio engine installed \u00b7 active after a Hermes restart|Picture import installed \u00b7 active after a Hermes restart)$/;
+var WAITING = /^(Preparing the Audio engine, or restart Hermes|Preparing picture import, or restart Hermes|Preparing the Audio engine|Preparing picture import|Audio engine installed \u00b7 active after a Hermes restart|Picture import installed \u00b7 active after a Hermes restart)$/;
 function dependencyWaiting(text2) {
   return WAITING.test(String(text2 || ""));
 }
@@ -125268,6 +125268,8 @@ var runtime_default = {
   description: "Continuo film suite: Script, Image, Video, Cut, Audio and Deliver",
   register(ctx) {
     rest = ctx.rest;
+    Promise.resolve().then(() => rest("/projects/image-producer/session", { method: "POST" })).catch(() => {
+    });
     os = ctx.os || null;
     contributeFn = typeof ctx.registerMany === "function" ? (list) => ctx.registerMany(list) : null;
     appActionFn = typeof ctx.runAction === "function" ? (id) => ctx.runAction(id) : null;
