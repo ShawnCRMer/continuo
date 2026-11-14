@@ -249,10 +249,16 @@ def _posix_renameat2(parent_fd: int, source_name: str, target_name: str, flags: 
     """Perform one same-parent atomic rename operation or fail closed."""
     if os.name == "nt":
         raise RuntimeError("POSIX renameat2 requested on Windows")
+    native_flags = int(flags)
     try:
         libc = ctypes.CDLL(None, use_errno=True)
-        renameat2 = libc.renameat2
-    except (AttributeError, OSError) as exc:
+        if os.uname().sysname == "Darwin":
+            # macOS: renameatx_np with RENAME_EXCL (0x4) / RENAME_SWAP (0x2).
+            renameat2 = libc.renameatx_np
+            native_flags = {0: 0, _RENAME_NOREPLACE: 0x4, _RENAME_EXCHANGE: 0x2}[int(flags)]
+        else:
+            renameat2 = libc.renameat2
+    except (AttributeError, OSError, KeyError) as exc:
         raise OSError(errno.ENOSYS, "renameat2 is unavailable") from exc
     renameat2.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
     renameat2.restype = ctypes.c_int
@@ -261,7 +267,7 @@ def _posix_renameat2(parent_fd: int, source_name: str, target_name: str, flags: 
         os.fsencode(source_name),
         int(parent_fd),
         os.fsencode(target_name),
-        int(flags),
+        native_flags,
     )
     if result == 0:
         return

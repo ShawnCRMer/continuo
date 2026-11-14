@@ -44,6 +44,10 @@ _OPERATION_RE = re.compile(r"^imgop_[0-9a-f]{32}$")
 _ENROLLMENT_RE = re.compile(r"^imgkey_[0-9a-f]{32}$")
 _HEX64_RE = re.compile(r"^[0-9a-f]{64}$")
 _STATE_FILE_RE = re.compile(r"^r([0-9]{20})-(imgop_[0-9a-f]{32})\.json$")
+# POSIX safe deletes quarantine the removed object under a private tombstone name
+# in the same directory (path_boundary._posix_unlink_exact); they are not state.
+# Same pattern as generation/legacy_plugin_migration.TOMBSTONE_PATTERN.
+_TOMBSTONE_RE = re.compile(r"^\.(?:film-suite|flux3-console)-tombstone-[0-9a-f]{32}\.bin$")
 _CLAIM_FIELDS = frozenset(
     {
         "schema",
@@ -458,6 +462,8 @@ class ImageStateStore:
         seen_revisions: set[int] = set()
         total_bytes = 0
         for name, enumerated_identity in entries:
+            if os.name != "nt" and _TOMBSTONE_RE.fullmatch(name) is not None:
+                continue
             match = _STATE_FILE_RE.fullmatch(name)
             if match is None:
                 raise ImageStateError("state-unknown-child")

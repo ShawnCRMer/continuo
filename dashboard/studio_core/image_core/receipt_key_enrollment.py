@@ -574,38 +574,20 @@ def _posix_rename_between(
     target_name: str,
     flags: int,
 ) -> None:
-    """Use Linux renameat2 across pinned same-filesystem directories only."""
+    """Use renameat2 (Linux) or renameatx_np (macOS) across pinned same-filesystem directories only."""
 
     if os.name == "nt":
         raise RuntimeError("cross-directory POSIX rename requested on Windows")
     try:
-        libc = ctypes.CDLL(None, use_errno=True)
-        renameat2 = libc.renameat2
-    except (AttributeError, OSError) as exc:
-        raise OSError(errno.ENOSYS, "renameat2 is unavailable") from exc
-    renameat2.argtypes = [
-        ctypes.c_int,
-        ctypes.c_char_p,
-        ctypes.c_int,
-        ctypes.c_char_p,
-        ctypes.c_uint,
-    ]
-    renameat2.restype = ctypes.c_int
-    result = renameat2(
-        int(source_parent.raw),
-        ctypes.c_char_p(os.fsencode(source_name)),
-        int(target_parent.raw),
-        ctypes.c_char_p(os.fsencode(target_name)),
-        flags,
-    )
-    if result == 0:
-        return
-    error = ctypes.get_errno() or errno.EIO
-    if error == errno.EEXIST and flags == 0x1:
-        raise FileExistsError(error, "rename target already exists", target_name)
-    if error in {errno.ENOSYS, errno.EINVAL, errno.EOPNOTSUPP}:
-        raise OSError(errno.ENOSYS, "requested cross-directory rename is unavailable")
-    raise OSError(error, "cross-directory rename failed", source_name)
+        path_boundary.posix_rename_between_fds(
+            int(source_parent.raw), source_name, int(target_parent.raw), target_name, flags
+        )
+    except FileExistsError:
+        raise
+    except OSError as exc:
+        if exc.errno == errno.ENOSYS:
+            raise OSError(errno.ENOSYS, "requested cross-directory rename is unavailable") from None
+        raise OSError(exc.errno or errno.EIO, "cross-directory rename failed", source_name) from None
 
 
 def _descriptor_identity(fd: int, fallback: Path) -> Any:

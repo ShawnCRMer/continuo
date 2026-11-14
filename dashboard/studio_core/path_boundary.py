@@ -1045,6 +1045,115 @@ _AT_EMPTY_PATH = 0x1000
 _RENAME_NOREPLACE = 0x1
 _RENAME_EXCHANGE = 0x2
 
+# macOS has neither renameat2 nor linkat(AT_EMPTY_PATH) nor /proc/self/fd.  Its
+# equivalents are renameatx_np(RENAME_EXCL | RENAME_SWAP), which give the same
+# atomic no-replace / exchange guarantees, and fcntl(F_GETPATH) for the open
+# descriptor's current name.  The Linux constants above are never passed to
+# Darwin syscalls (AT_FDCWD is -2 there, 0x1000 is not a linkat flag).
+_DARWIN = os.name != "nt" and os.uname().sysname == "Darwin"
+_DARWIN_AT_FDCWD = -2
+_DARWIN_RENAME_SWAP = 0x2
+_DARWIN_RENAME_EXCL = 0x4
+_DARWIN_F_GETPATH = 50
+_DARWIN_MAXPATHLEN = 1024
+
+
+def posix_rename_between_fds(
+    source_parent_fd: int,
+    source_name: str,
+    target_parent_fd: int,
+    target_name: str,
+    flags: int,
+) -> None:
+    """One atomic rename below pinned parent fds, with Linux renameat2 flags.
+
+    ``flags`` is 0, ``_RENAME_NOREPLACE`` or ``_RENAME_EXCHANGE``.  Linux uses
+    renameat2; macOS uses renameatx_np with RENAME_EXCL / RENAME_SWAP.  Any
+    other platform, or an unsupported filesystem, fails closed with ENOSYS.
+    """
+
+    if os.name == "nt":
+        raise RuntimeError("POSIX renameat2 requested on Windows")
+    if flags not in (0, _RENAME_NOREPLACE, _RENAME_EXCHANGE):
+        raise ValueError("unsupported rename flags")
+    try:
+        libc = ctypes.CDLL(None, use_errno=True)
+        if _DARWIN:
+            function = libc.renameatx_np
+            native_flags = {0: 0, _RENAME_NOREPLACE: _DARWIN_RENAME_EXCL, _RENAME_EXCHANGE: _DARWIN_RENAME_SWAP}[flags]
+        else:
+            function = libc.renameat2
+            native_flags = flags
+    except (AttributeError, OSError) as exc:
+        raise OSError(errno.ENOSYS, "renameat2 is unavailable") from exc
+    function.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+    function.restype = ctypes.c_int
+    result = function(
+        int(source_parent_fd),
+        ctypes.c_char_p(os.fsencode(source_name)),
+        int(target_parent_fd),
+        ctypes.c_char_p(os.fsencode(target_name)),
+        int(native_flags),
+    )
+    if result == 0:
+        return
+    error = ctypes.get_errno() or errno.EIO
+    if error == errno.EEXIST and flags == _RENAME_NOREPLACE:
+        raise FileExistsError(error, "rename target already exists", target_name)
+    if error in {errno.ENOSYS, errno.EINVAL, errno.EOPNOTSUPP, getattr(errno, "ENOTSUP", errno.EOPNOTSUPP)}:
+        raise OSError(errno.ENOSYS, "requested renameat2 operation is unavailable")
+    raise OSError(error, "renameat2 failed", source_name)
+
+
+def _darwin_linkat_descriptor(source_fd: int, parent_fd: int, name: str) -> None:
+    """macOS: link an opened regular file into a pinned parent, fail closed.
+
+    Darwin cannot link a descriptor directly.  The descriptor's current name
+    comes from F_GETPATH; it must still be the same regular object (no-follow)
+    before the link, and the new name must be that object after it, otherwise
+    the new name is removed and the call fails.  This mirrors the Linux
+    /proc/self/fd fallback: identity is proven on both sides of the link.
+    """
+
+    source_info = os.fstat(int(source_fd))
+    if not stat.S_ISREG(source_info.st_mode):
+        raise OSError(errno.EIO, "descriptor source is not a regular file")
+    try:
+        raw = fcntl.fcntl(int(source_fd), _DARWIN_F_GETPATH, b"\0" * _DARWIN_MAXPATHLEN)
+    except OSError as exc:
+        raise OSError(errno.EIO, "descriptor source path is unavailable") from exc
+    source_path = raw.split(b"\0", 1)[0]
+    if not source_path.startswith(b"/"):
+        raise OSError(errno.EIO, "descriptor source path is unavailable")
+    try:
+        named = os.lstat(source_path)
+    except OSError as exc:
+        raise OSError(errno.EIO, "descriptor source is unavailable") from exc
+    if (
+        not stat.S_ISREG(named.st_mode)
+        or (named.st_dev, named.st_ino) != (source_info.st_dev, source_info.st_ino)
+    ):
+        raise OSError(errno.EIO, "descriptor source identity changed")
+    libc = ctypes.CDLL(None, use_errno=True)
+    linkat = libc.linkat
+    linkat.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_int]
+    linkat.restype = ctypes.c_int
+    encoded_name = os.fsencode(name)
+    if linkat(_DARWIN_AT_FDCWD, source_path, int(parent_fd), encoded_name, 0) != 0:
+        error = ctypes.get_errno() or errno.EIO
+        if error == errno.EEXIST:
+            raise FileExistsError(error, "link target already exists", name)
+        raise OSError(error, "descriptor linkat failed", name)
+    try:
+        linked = os.stat(name, dir_fd=int(parent_fd), follow_symlinks=False)
+        same = (linked.st_dev, linked.st_ino) == (source_info.st_dev, source_info.st_ino)
+    except OSError:
+        same = False
+    if not same:
+        with contextlib.suppress(OSError):
+            os.unlink(name, dir_fd=int(parent_fd))
+        raise OSError(errno.EIO, "linked object is not the descriptor source")
+
 
 def _posix_proc_fd_matches_source(source_fd: int, proc_path: bytes) -> None:
     """Prove that ``/proc/self/fd/<fd>`` still names the opened regular object."""
@@ -1075,6 +1184,9 @@ def _posix_linkat_empty_path(source_fd: int, parent_fd: int, name: str) -> None:
 
     if os.name == "nt":
         raise RuntimeError("POSIX linkat requested on Windows")
+    if _DARWIN:
+        _darwin_linkat_descriptor(int(source_fd), int(parent_fd), name)
+        return
     try:
         libc = ctypes.CDLL(None, use_errno=True)
         linkat = libc.linkat
@@ -1118,29 +1230,7 @@ def _posix_linkat_empty_path(source_fd: int, parent_fd: int, name: str) -> None:
 def _posix_renameat2(parent_fd: int, source_name: str, target_name: str, flags: int) -> None:
     """Apply one renameat2 operation to names below a pinned parent fd."""
 
-    if os.name == "nt":
-        raise RuntimeError("POSIX renameat2 requested on Windows")
-    try:
-        libc = ctypes.CDLL(None, use_errno=True)
-        renameat2 = libc.renameat2
-    except (AttributeError, OSError) as exc:
-        raise OSError(errno.ENOSYS, "renameat2 is unavailable") from exc
-    renameat2.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
-    renameat2.restype = ctypes.c_int
-    result = renameat2(
-        int(parent_fd),
-        ctypes.c_char_p(os.fsencode(source_name)),
-        int(parent_fd),
-        ctypes.c_char_p(os.fsencode(target_name)),
-        int(flags),
-    )
-    if result != 0:
-        error = ctypes.get_errno() or errno.EIO
-        if error == errno.EEXIST and flags == _RENAME_NOREPLACE:
-            raise FileExistsError(error, "rename target already exists", target_name)
-        if error in {errno.ENOSYS, errno.EINVAL, errno.EOPNOTSUPP}:
-            raise OSError(errno.ENOSYS, "requested renameat2 operation is unavailable")
-        raise OSError(error, "renameat2 failed", source_name)
+    posix_rename_between_fds(parent_fd, source_name, parent_fd, target_name, flags)
 
 
 def _posix_rename_noreplace(parent_fd: int, source_name: str, target_name: str) -> None:
