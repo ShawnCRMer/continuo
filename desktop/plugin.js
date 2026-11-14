@@ -50711,7 +50711,7 @@ function editorExtensions({ onDocChange = () => {
           event.preventDefault();
           return toggleDual(view);
         }
-        if (event.ctrlKey && event.shiftKey && !event.altKey && event.code === "KeyV") {
+        if ((IS_MAC ? event.metaKey : event.ctrlKey) && event.shiftKey && !event.altKey && event.code === "KeyV") {
           fountainPaste.armed = Date.now();
           return false;
         }
@@ -71762,7 +71762,7 @@ function addOps(model, sources, place2) {
   const what = sources.length === 1 ? sources[0].label || (sources[0].kind === "picture" ? "picture" : sources[0].kind === "media" ? "clip" : "take") : `${sources.length} clips`;
   const label2 = place2.where === "playhead" ? `Insert ${what} at ${formatTimecode(model.startTc + place2.frame, model.rate)}` : `Add ${what} to the end of ${place2.track}`;
   const n = sources.length, clips = `${n} clip${n === 1 ? "" : "s"}`;
-  const note = place2.where === "playhead" ? `Inserted ${clips} at ${formatTimecode(model.startTc + place2.frame, model.rate)} on ${place2.track} · Ctrl+Z undoes` : `Added ${clips} to ${place2.track} · Ctrl+Z undoes`;
+  const note = place2.where === "playhead" ? `Inserted ${clips} at ${formatTimecode(model.startTc + place2.frame, model.rate)} on ${place2.track} · ${IS_MAC ? "⌘Z" : "Ctrl+Z"} undoes` : `Added ${clips} to ${place2.track} · ${IS_MAC ? "⌘Z" : "Ctrl+Z"} undoes`;
   return { ops, label: label2.slice(0, 120), note };
 }
 async function registerFootage(sources, register) {
@@ -81859,7 +81859,7 @@ function useImageOutpaint({ doc: doc2, dev = null, crop = null, shown = null, or
     jsxs47("div", { className: "fw-prow", children: [jsx55("span", { className: "fw-lbl", children: "Seed" }, "l"), jsx55("div", { className: "fw-pctl", children: jsx55(FwNumber, { label: "Seed", testid: "fw-op-seed", value: seed, min: 0, max: 2 ** 31 - 1, integer: true, onCommit: (v) => setSeed(Math.max(0, Math.round(v))) }) }, "c")] }, "sd"),
     jsxs47("div", { className: "fw-btnrow fw-btnrow2", children: [
       jsx55(FwButton, { "data-testid": "fw-op-reset", disabled: !SIDES.some((k) => margins[k]), title: "No added canvas", onClick: () => setMargins(ZERO), children: "Reset" }, "r"),
-      jsx55(FwButton, { variant: "primary", "data-testid": "fw-op-run", disabled: Boolean(why), title: why || "Outpaint (Ctrl+Enter in the prompt)", onClick: () => run(), children: "Outpaint" }, "run")
+      jsx55(FwButton, { variant: "primary", "data-testid": "fw-op-run", disabled: Boolean(why), title: why || (IS_MAC ? "Outpaint (⌘↵ in the prompt)" : "Outpaint (Ctrl+Enter in the prompt)"), onClick: () => run(), children: "Outpaint" }, "run")
     ] }, "b"),
     statusEl,
     resultEl
@@ -82480,9 +82480,9 @@ function useImageDevelopPresets({ doc: doc2, dev, commit, gestureRef, endBefore,
     ] }, "presets"),
     jsxs49(FieldRow, { className: "fw-presetrow is-copy has-sel", children: [
       jsx57("span", { className: "fw-lbl", children: "Settings" }, "l"),
-      jsx57(FwButton, { "data-testid": "fw-dev-copy", title: "Copy every adjustment group of this picture (Ctrl+Shift+C); masks, layers and the crop stay", onClick: () => copy(), children: "Copy" }, "c"),
+      jsx57(FwButton, { "data-testid": "fw-dev-copy", title: "Copy every adjustment group of this picture (" + (IS_MAC ? "⇧⌘C" : "Ctrl+Shift+C") + "); masks, layers and the crop stay", onClick: () => copy(), children: "Copy" }, "c"),
       jsx57(FwButton, { variant: "ghost", icon: "chev", "data-testid": "fw-dev-copysel", "aria-expanded": picking !== null, "aria-label": "Copy…", title: "Copy chosen groups… (Ctrl+Alt+Shift+C copies the last choice)", onClick: () => setPicking(picking ? null : copyGroupsRead()) }, "cs"),
-      jsx57(FwButton, { "data-testid": "fw-dev-paste", title: clip3 ? "Paste the copied adjustments onto this picture (Ctrl+Shift+V, one undo step)" : "No settings copied", disabled: !clip3, onClick: paste, children: "Paste" }, "v")
+      jsx57(FwButton, { "data-testid": "fw-dev-paste", title: clip3 ? "Paste the copied adjustments onto this picture (" + (IS_MAC ? "⇧⌘V" : "Ctrl+Shift+V") + ", one undo step)" : "No settings copied", disabled: !clip3, onClick: paste, children: "Paste" }, "v")
     ] }, "copy"),
     picking ? copyGroupsPanel() : null,
     ...fileRows2
@@ -84693,7 +84693,7 @@ function useImageBox(ctx) {
   const foot = on ? [
     jsx62("span", { className: "fw-grow" }, "g"),
     jsx62("span", { className: "fw-faint fw-box-local", "data-testid": "fw-box-local", children: "Local" }, "loc"),
-    jsx62(FwButton, { variant: "primary", large: true, "data-testid": "fw-box-apply", disabled: Boolean(runWhy), title: runWhy || "Apply (Ctrl+Enter)", onClick: () => apply(), children: "Apply" }, "run"),
+    jsx62(FwButton, { variant: "primary", large: true, "data-testid": "fw-box-apply", disabled: Boolean(runWhy), title: runWhy || (IS_MAC ? "Apply (⌘↵)" : "Apply (Ctrl+Enter)"), onClick: () => apply(), children: "Apply" }, "run"),
     jsx62("div", { className: "fw-box-n-sel", title: "Variants", children: jsx62(FwSelect, { label: "Variants", value: String(Math.min(variants, variantsMax)), options: Array.from({ length: variantsMax }, (_, i2) => String(i2 + 1)), labels: Object.fromEntries(Array.from({ length: variantsMax }, (_, i2) => [String(i2 + 1), `× ${i2 + 1}`])), onChange: (v) => setVariants(Number(v)) }) }, "n")
   ] : null;
   const agentState = () => ({
@@ -98948,16 +98948,16 @@ function scriptCommands() {
     { id: "previous_scene", label: "Previous scene", keys: "Alt+↑", run: () => after(ed().actions.previousScene()) },
     { id: "next_scene", label: "Next scene", keys: "Alt+↓", run: () => after(ed().actions.nextScene()) },
     { id: "find", label: "Find and replace", keys: "Ctrl+H", run: () => after(ed().actions.find()) },
-    { id: "undo", label: "Undo", keys: "Ctrl+Z", run: () => after(ed().actions.undo()) },
+    { id: "undo", label: "Undo", keys: IS_MAC ? "⌘Z" : "Ctrl+Z", run: () => after(ed().actions.undo()) },
     { id: "redo", label: "Redo", keys: "Ctrl+Y", run: () => after(ed().actions.redo()) },
-    { id: "paste_fountain", label: "Paste Fountain as elements", keys: "Ctrl+Shift+V", palette: async () => {
+    { id: "paste_fountain", label: "Paste Fountain as elements", keys: IS_MAC ? "⇧⌘V" : "Ctrl+Shift+V", palette: async () => {
       const clip3 = typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.readText ? await navigator.clipboard.readText().catch(() => "") : "";
       return clip3 ? after(ed().actions.pasteFountain(clip3)) : refuse3("script_clipboard_empty", "The clipboard holds no text.");
     }, run: (p) => {
       const t2 = text2(p.text, 65536);
       return t2 ? after(ed().actions.pasteFountain(t2)) : refuse3("script_bad_payload", "text: Fountain, up to 65536 characters.");
     } },
-    { id: "focus_mode", label: "Focus mode", keys: "Ctrl+Shift+D", run: (p) => {
+    { id: "focus_mode", label: "Focus mode", keys: IS_MAC ? "⇧⌘D" : "Ctrl+Shift+D", run: (p) => {
       const on = typeof p.on === "boolean" ? p.on : !live.focus;
       live.setFocus(on);
       return ok3({ focus_mode: on });
@@ -99256,7 +99256,7 @@ function SceneTab({ data, sid, ownerScope, items, onSynopsis, onJumpShot, onName
             e.stopPropagation();
             setDraft(scene.synopsis);
           }
-          if (e.key === "Enter" && e.ctrlKey) {
+          if (e.key === "Enter" && (IS_MAC ? e.metaKey : e.ctrlKey)) {
             e.preventDefault();
             save();
           }
@@ -99637,12 +99637,12 @@ function ScriptWrite({ project, projectRef, query, title, titleSource = "", visi
   }, [visible]);
   useEffect(() => visible ? contribute(paletteRows()) || void 0 : void 0, [visible]);
   const onKeyDown = (event) => {
-    if (event.ctrlKey && event.shiftKey && !event.altKey && event.code === "KeyD") {
+    if ((IS_MAC ? event.metaKey : event.ctrlKey) && event.shiftKey && !event.altKey && event.code === "KeyD") {
       event.preventDefault();
       setFocus((f2) => !f2);
       return;
     }
-    if (event.ctrlKey && !event.shiftKey && !event.altKey && event.code === "KeyZ" && !event.defaultPrevented && moveLive) {
+    if ((IS_MAC ? event.metaKey : event.ctrlKey) && !event.shiftKey && !event.altKey && event.code === "KeyZ" && !event.defaultPrevented && moveLive) {
       event.preventDefault();
       void undoMove();
       return;
@@ -99841,7 +99841,7 @@ function ScriptWrite({ project, projectRef, query, title, titleSource = "", visi
           if (moveLive) void undoMove();
           else editorRef.current.actions.undo();
           editorRef.current.view.focus();
-        }, "data-testid": "script-undo", "aria-label": "Undo", title: "Undo (Ctrl+Z)" }, "u"),
+        }, "data-testid": "script-undo", "aria-label": "Undo", title: IS_MAC ? "Undo (⌘Z)" : "Undo (Ctrl+Z)" }, "u"),
         jsx105(FwButton, { variant: "ghost", icon: "redo", className: "fw-btn-icon", disabled: !canRedo, disabledReason: canRedo ? "" : !editorOn ? "Redo · The script is not open for writing" : "Redo · Nothing to redo", onClick: () => {
           if (editorRef.current) {
             editorRef.current.actions.redo();
@@ -99888,7 +99888,7 @@ function ScriptWrite({ project, projectRef, query, title, titleSource = "", visi
           jsxs86("button", { type: "button", role: "menuitem", className: "fss2-item fss2-item-row fw-b", "data-testid": "script-more-focus", onClick: () => {
             setMenu(null);
             setFocus(true);
-          }, children: [jsx105("span", { children: "Focus" }, "l"), jsx105("span", { className: "fss2-key", children: "Ctrl+Shift+D" }, "k")] }, "f")
+          }, children: [jsx105("span", { children: "Focus" }, "l"), jsx105("span", { className: "fss2-key", children: IS_MAC ? "⇧⌘D" : "Ctrl+Shift+D" }, "k")] }, "f")
         ] }, "m") : null
       ] }, "more"),
       jsx105("button", { type: "button", className: "fw-btn fw-btn-ghost fw-btn-icon fss2-narrow fss2-insp-btn", "aria-pressed": inspShown, onClick: () => setInspector(!inspShown), "data-testid": "script-show-scene", "aria-label": "Scene inspector", title: "Scene inspector: Scene · History (Ctrl+[)", children: jsx105(FwIcon, { name: "panel-r" }) }, "ss")
@@ -100984,7 +100984,7 @@ function ConfirmDelete({ at: at2, cut: cut2, onYes, onClose }) {
   }, []);
   return jsxs92("div", { ref, className: "fmc-menu fmc-confirm", role: "alertdialog", "aria-label": `Delete ${cut2.name}`, "data-testid": "media-cut-delete", style: { left: pos2.x, top: pos2.y }, children: [
     jsx111("p", { className: "fmc-confirm-t", children: `Delete ${cut2.name}?` }, "t"),
-    jsx111("p", { className: "fmc-confirm-m", children: `${lengthText(cut2)} · ${cut2.clips} clip${cut2.clips === 1 ? "" : "s"} · Undo with Ctrl+Z in Cut` }, "m"),
+    jsx111("p", { className: "fmc-confirm-m", children: `${lengthText(cut2)} · ${cut2.clips} clip${cut2.clips === 1 ? "" : "s"} · Undo with ${IS_MAC ? "⌘Z" : "Ctrl+Z"} in Cut` }, "m"),
     jsxs92("div", { className: "fmc-confirm-b", children: [
       jsx111("button", { type: "button", className: "fmc-btn fw-b", "data-testid": "media-cut-delete-no", onClick: onClose, children: "Cancel" }, "n"),
       jsx111("button", { type: "button", className: "fmc-btn fw-b is-danger", "data-testid": "media-cut-delete-yes", onClick: () => {
@@ -112450,7 +112450,7 @@ function useTimelineEditSession(project, doc2, refetch) {
       if (!h.stack.length || !(h.own.has(current2.revision) || h.stack[h.stack.length - 1] === current2.revision)) h.stack = [current2.revision];
       h.stack.push(written.revision);
       h.redo = [];
-      setNote({ kind: "info", text: `${label2} · Ctrl+Z undoes` });
+      setNote({ kind: "info", text: `${label2} · ${IS_MAC ? "⌘Z" : "Ctrl+Z"} undoes` });
     });
   });
   const undo2 = () => enqueue(async (current2) => {
@@ -113909,7 +113909,7 @@ function continueNote(model, request, results) {
   const last2 = Array.isArray(results) && results.length ? results[results.length - 1] : null;
   const joins = last2 && Array.isArray(last2.joins) ? last2.joins : [];
   const at2 = joins.map((f2) => formatTimecode(model.startTc + f2, model.rate)).join(" and ");
-  return `Placed ${RELATION_WORD[request.relation]} its parent${at2 ? ` · joins at ${at2}` : ""} · Ctrl+Z undoes`;
+  return `Placed ${RELATION_WORD[request.relation]} its parent${at2 ? ` · joins at ${at2}` : ""} · ${IS_MAC ? "⌘Z" : "Ctrl+Z"} undoes`;
 }
 
 // desktop/film-suite/src/timeline/view/timeline-toolrow.js
