@@ -83,12 +83,29 @@ you changed the scene or the cut since then, the edit is refused and nothing is 
 
 | Part | Requirement | Notes |
 |:---|:---|:---|
-| Platform | Windows 11 | Tested on Windows 11. The code is written to run on Linux too, not yet tested; reports are welcome, see [Feedback](#feedback). macOS is on the roadmap. |
+| Platform | Windows 11, macOS (Apple Silicon) | Tested on Windows 11 and on macOS 26 (M4 Pro); see [macOS](#macos). The code is written to run on Linux too, not yet tested; reports are welcome, see [Feedback](#feedback). |
 | Hermes&nbsp;Agent | `>=0.22.7` | With the Hermes desktop app. |
-| ffmpeg | Required | For Cut, Deliver and Audio; tested with 7.1.1. Looked up in `FFMPEG_PATH`, then `PATH`, then `C:\ffmpeg\bin`. |
+| ffmpeg | Required | For Cut, Deliver and Audio; tested with 7.1.1. Looked up in `FFMPEG_PATH`, then `PATH`, then `C:\ffmpeg\bin`. macOS: `brew install ffmpeg`. |
 | ComfyUI | For generation | Generates pictures, video, music and voice on your machine: Continuo asks `http://127.0.0.1:8188`, then `http://127.0.0.1:8000` (the ComfyUI desktop app). Another address: set `FILM_SUITE_COMFY_URL` (for example `http://127.0.0.1:8189`). |
 | GPU | For generation | Script, Cut, Audio analysis and Deliver run on the CPU, so a GPU is optional for them. Generation uses your GPU. |
 | Disk | 22&nbsp;MB&nbsp;+&nbsp;511&nbsp;MB | Measured: the plugin 22 MB; its Python packages 511 MB, set up by Hermes. Models need extra space, see [Models](#models-optional). |
+
+
+### macOS
+
+Apple Silicon Macs run the whole suite: Script, Cut, Audio, Deliver and the Sample film need only ffmpeg
+(`brew install ffmpeg`).
+
+- **Machine-local records** (approved folders, analysis caches, job records) live in
+  `~/Library/Application Support/hermes/film-suite/`, not in the temp folder macOS empties.
+- **ComfyUI** is found at ComfyUI Desktop's install folder, `~/Documents/ComfyUI`, `~/ComfyUI` or `~/comfy/ComfyUI`;
+  set `FILM_SUITE_COMFY_ROOT` for another one. Generation runs on the Mac's GPU (Metal) through ComfyUI.
+- **Engines** install from their own macOS hash locks (`scripts/engine-locks/<engine>.macos.txt`: the same package
+  versions, torch without the CUDA tag). `--cpu-only` is ignored on macOS. The engines use the GPU (`mps`) when
+  ComfyUI's queue is empty, except Beat This!, which stays on the CPU (measured: no faster on Metal, identical beats);
+  `FILM_SUITE_<ENGINE>_DEVICE=mps|cpu` overrides.
+- **GPU status** in Jobs shows the Apple GPU and the unified memory in use.
+- Keyboard shortcuts use ⌘ where Windows uses Ctrl.
 
 ### Steps
 
@@ -272,7 +289,7 @@ Silero installs the model only; dialogue ducking also needs `onnxruntime` import
 
 **Transcription:** `faster-whisper` is provided by Hermes' local speech-to-text (voice) option. Continuo uses `large-v3` offline only: cache `Systran/faster-whisper-large-v3` beforehand, for example by running `python -c "from huggingface_hub import snapshot_download; snapshot_download('Systran/faster-whisper-large-v3')"` in the same user/cache environment. Without the package or cached model, transcription shows as unavailable.
 
-On Linux/macOS the default engine location is `~/AppData/Local/hermes/film-suite/engines/` unless `LOCALAPPDATA` or the engine lookup override `FILM_SUITE_BEAT_ENGINE_DIR`, `FILM_SUITE_SONG_ENGINE_DIR`, `FILM_SUITE_SCENE_ENGINE_DIR`, or `FILM_SUITE_INPAINT_ENGINE_DIR` is set; the installers do not read these engine-specific overrides, so use their `--engine-dir` flag to match one.
+On macOS the default engine location is `~/Library/Application Support/hermes/film-suite/engines/`; on Linux it is `~/AppData/Local/hermes/film-suite/engines/`, unless `LOCALAPPDATA` or the engine lookup override `FILM_SUITE_BEAT_ENGINE_DIR`, `FILM_SUITE_SONG_ENGINE_DIR`, `FILM_SUITE_SCENE_ENGINE_DIR`, or `FILM_SUITE_INPAINT_ENGINE_DIR` is set; the installers do not read these engine-specific overrides, so use their `--engine-dir` flag to match one.
 
 Thanks to @ShawnCRMer for reporting the missing installer (#1).
 
