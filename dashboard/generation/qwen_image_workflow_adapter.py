@@ -22,6 +22,19 @@ _TOKEN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$")
 _CATALOG_MODULE = None
 
 
+
+def _slot_value(graph: Mapping[str, Any], pointer: Any) -> Any:
+    """The compiled graph's value at a manifest slot pointer "/<node>/inputs/<name>", or None."""
+    if not isinstance(pointer, str):
+        return None
+    parts = pointer.strip("/").split("/")
+    if len(parts) != 3 or parts[1] != "inputs":
+        return None
+    node = graph.get(parts[0])
+    inputs = node.get("inputs") if isinstance(node, Mapping) else None
+    value = inputs.get(parts[2]) if isinstance(inputs, Mapping) else None
+    return value if isinstance(value, (str, int, float)) else None
+
 class WorkflowRequestError(ValueError):
     """A finite refusal before any transport I/O."""
 
@@ -245,7 +258,11 @@ class QwenImageWorkflowAdapter:
             compatible = isinstance(live, list) and bool(live)
             if compatible:
                 if isinstance(expected[0], list):
-                    compatible = isinstance(live[0], list) and all(v in live[0] for v in expected[0])
+                    # The value this run uses must exist live; the author's full option list is not required
+                    # (sampler packs and ComfyUI versions differ between installs).
+                    chosen = _slot_value(graph, slot.get("pointer"))
+                    compatible = isinstance(live[0], list) and (
+                        chosen in live[0] if chosen is not None else all(v in live[0] for v in expected[0]))
                 else:
                     compatible = live == expected
             if not compatible:

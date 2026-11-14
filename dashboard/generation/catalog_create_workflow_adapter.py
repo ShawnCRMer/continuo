@@ -36,6 +36,19 @@ REQUEST_SCHEMA = _shared().REQUEST_SCHEMA
 FAMILIES = frozenset({"anima", "flux2_klein", "ideogram4", "moss_image", "flux3_klein", "p_h3_image"})
 
 
+
+def _slot_value(graph: Mapping[str, Any], pointer: Any) -> Any:
+    """The compiled graph's value at a manifest slot pointer "/<node>/inputs/<name>", or None."""
+    if not isinstance(pointer, str):
+        return None
+    parts = pointer.strip("/").split("/")
+    if len(parts) != 3 or parts[1] != "inputs":
+        return None
+    node = graph.get(parts[0])
+    inputs = node.get("inputs") if isinstance(node, Mapping) else None
+    value = inputs.get(parts[2]) if isinstance(inputs, Mapping) else None
+    return value if isinstance(value, (str, int, float)) else None
+
 class CatalogCreateWorkflowAdapter:
     """Create-only, zero-reference compilation; transport is the generic runtime's."""
 
@@ -157,8 +170,12 @@ class CatalogCreateWorkflowAdapter:
             compatible = isinstance(live, list) and bool(live)
             if compatible:
                 if isinstance(expected[0], list):
-                    # A file picker: every offered option must still exist.
-                    compatible = isinstance(live[0], list) and all(v in live[0] for v in expected[0])
+                    # A choice list (sampler, scheduler, file): the value this run uses must exist in the live
+                    # ComfyUI.  The author's full list is not required: sampler packs (RES4LYF ...) and ComfyUI
+                    # versions differ, and a missing unused option must not block a run on another install.
+                    chosen = _slot_value(graph, slot.get("pointer"))
+                    compatible = isinstance(live[0], list) and (
+                        chosen in live[0] if chosen is not None else all(v in live[0] for v in expected[0]))
                 else:
                     compatible = live == expected
             if not compatible:

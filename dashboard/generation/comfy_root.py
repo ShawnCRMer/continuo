@@ -15,8 +15,29 @@ from pathlib import Path
 ENV = "FILM_SUITE_COMFY_ROOT"
 
 
+def _desktop_app_base_path() -> Path | None:
+    """macOS ComfyUI Desktop: its chosen install folder, from ~/Library/Application Support/ComfyUI/config.json."""
+    import json
+    try:
+        data = json.loads((Path.home() / "Library" / "Application Support" / "ComfyUI" / "config.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    base = data.get("basePath") if isinstance(data, dict) else None
+    return Path(base) if isinstance(base, str) and base.strip() else None
+
+
 def default_comfy_root() -> Path:
-    return Path.home() / "Documents" / "ComfyUI-Easy-Install" / "ComfyUI"
+    """ComfyUI-Easy-Install's folder in Documents (the Windows default).  Elsewhere the first existing root of the
+    usual installs: ComfyUI Desktop's base path, ~/Documents/ComfyUI, ~/ComfyUI, ~/comfy/ComfyUI (comfy-cli)."""
+    easy_install = Path.home() / "Documents" / "ComfyUI-Easy-Install" / "ComfyUI"
+    if os.name == "nt" or easy_install.is_dir():
+        return easy_install
+    candidates = [_desktop_app_base_path(), Path.home() / "Documents" / "ComfyUI", Path.home() / "ComfyUI",
+                  Path.home() / "comfy" / "ComfyUI"]
+    for candidate in candidates:
+        if candidate is not None and (candidate / "models").is_dir():
+            return candidate
+    return easy_install
 
 
 def comfy_root(fallback: str | os.PathLike[str] | None = None) -> Path:
