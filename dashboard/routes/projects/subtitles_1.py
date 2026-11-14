@@ -166,7 +166,7 @@ async def projects_subtitles_apply(request: SubtitlesApplyRequest) -> dict[str, 
 # --- Create subtitles from audio ------------------------------------------------------------------------------------
 
 def _subtitles_asr_cache() -> Path:
-    base = os.environ.get("LOCALAPPDATA") or tempfile.gettempdir()
+    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support") if os.name == "posix" and os.uname().sysname == "Darwin" else tempfile.gettempdir())
     return state_root(Path(base) / "hermes") / "subtitles-asr"
 
 

@@ -89,7 +89,7 @@ def _music_open_paths(source: Path) -> tuple[str, Path, Path]:
     with open(source, "rb") as handle:
         for block in iter(lambda: handle.read(1 << 20), b""):
             digest.update(block)
-    directory = Path(state_root(Path(_os.environ.get("LOCALAPPDATA") or _tempfile.gettempdir()) / "hermes")) / "analysis"
+    directory = Path(state_root(Path(_os.environ.get("LOCALAPPDATA") or (_os.path.join(_os.path.expanduser("~"), "Library", "Application Support") if _os.name == "posix" and _os.uname().sysname == "Darwin" else _tempfile.gettempdir())) / "hermes")) / "analysis"
     directory.mkdir(parents=True, exist_ok=True)
     hexdigest = digest.hexdigest()
     return hexdigest, directory / f"{hexdigest}.json", directory / f"{hexdigest}.wav"

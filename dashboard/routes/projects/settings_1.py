@@ -412,7 +412,7 @@ class _OutputConsents:
 
 
 def _output_consents() -> _OutputConsents:
-    base = os.environ.get("LOCALAPPDATA") or tempfile.gettempdir()
+    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support") if os.name == "posix" and os.uname().sysname == "Darwin" else tempfile.gettempdir())
     return _OutputConsents(state_root(Path(base) / "hermes") / "output-folder-consents.json")
 
 

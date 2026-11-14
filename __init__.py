@@ -671,7 +671,7 @@ def _note_hermes_image_jobs(action: str, applied: Any) -> None:
         import os
         import sqlite3
         import tempfile
-        base = os.environ.get("LOCALAPPDATA") or tempfile.gettempdir()
+        base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support") if os.name == "posix" and os.uname().sysname == "Darwin" else tempfile.gettempdir())
         path = Path(state_root(Path(base) / "hermes")) / "job-authors.sqlite3"
         path.parent.mkdir(parents=True, exist_ok=True)
         connection = sqlite3.connect(str(path), timeout=5)

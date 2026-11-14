@@ -660,7 +660,7 @@ MEDIA_POSTER_AT = 0.10
 
 
 def _media_poster_dir() -> Path:
-    base = os.environ.get("LOCALAPPDATA") or tempfile.gettempdir()
+    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support") if os.name == "posix" and os.uname().sysname == "Darwin" else tempfile.gettempdir())
     return Path(state_root(Path(base) / "hermes")) / "media-posters"
 
 

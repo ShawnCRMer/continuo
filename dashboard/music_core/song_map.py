@@ -100,7 +100,7 @@ def engine_dir() -> Path:
     override = os.environ.get("FILM_SUITE_SONG_ENGINE_DIR")
     if override:
         return Path(override)
-    base = os.environ.get("LOCALAPPDATA") or str(Path.home() / "AppData" / "Local")
+    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support") if os.name == "posix" and os.uname().sysname == "Darwin" else str(Path.home() / "AppData" / "Local"))
     return Path(base) / "hermes" / "film-suite" / "engines" / "song-analysis"
 
 

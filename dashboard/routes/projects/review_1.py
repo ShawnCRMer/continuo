@@ -24,7 +24,7 @@ def _review_module() -> Any:
 
 
 def _review_store() -> Any:
-    base = os.environ.get("LOCALAPPDATA") or tempfile.gettempdir()
+    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support") if os.name == "posix" and os.uname().sysname == "Darwin" else tempfile.gettempdir())
     return _review_module().ReviewStore(Path(state_root(Path(base) / "hermes")) / "review")
 
 

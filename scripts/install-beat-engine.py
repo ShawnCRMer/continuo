@@ -41,7 +41,7 @@ CHECKPOINT_SHA256 = "8c328b45f59d8dd3dff219253ff6a8d6482be57d0133a29140e2febbf8e
 
 
 def default_engine_dir() -> Path:
-    base = os.environ.get("LOCALAPPDATA") or str(Path.home() / "AppData" / "Local")
+    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support") if os.name == "posix" and os.uname().sysname == "Darwin" else str(Path.home() / "AppData" / "Local"))
     return Path(base) / "hermes" / "film-suite" / "engines" / "beat-this"
 
 

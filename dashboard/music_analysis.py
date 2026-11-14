@@ -232,6 +232,9 @@ def _engine_beats(y: np.ndarray, sr: int, duration: float, engine: str | None = 
 
 def _cache_dir() -> Path:
     base = os.environ.get("LOCALAPPDATA")
+    if not base and os.name == "posix" and os.uname().sysname == "Darwin":
+        # macOS empties its per-user temp folder; keep the cache with the other machine-local records.
+        base = os.path.join(os.path.expanduser("~"), "Library", "Application Support")
     if not base:
         base = tempfile.gettempdir()
     d = state_root(Path(base) / "hermes") / "analysis"
@@ -1925,7 +1928,7 @@ def analyze_cached(path: str | Path, engine: str | None = None, progress: Any = 
     """Same as analyze(), but cached to disk keyed by the file's SHA-256.
 
     Cache location: %LOCALAPPDATA%/hermes/film-suite/analysis/<hash>.json
-    (falls back to tempfile.gettempdir() if LOCALAPPDATA is unset).
+    (macOS: ~/Library/Application Support; elsewhere tempfile.gettempdir() if LOCALAPPDATA is unset).
     Entries are validated two ways before being trusted: the "schema"
     string must match the current SCHEMA, AND the entry must structurally
     contain every top-level key analyze() currently produces. The schema

@@ -11,7 +11,7 @@ from __future__ import annotations
 # Answers never carry a path.
 
 def _timeline_speech_cache_dir() -> Path:
-    base = os.environ.get("LOCALAPPDATA") or tempfile.gettempdir()
+    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support") if os.name == "posix" and os.uname().sysname == "Darwin" else tempfile.gettempdir())
     return state_root(Path(base) / "hermes") / "speech"
 
 

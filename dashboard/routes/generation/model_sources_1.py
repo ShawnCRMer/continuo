@@ -114,7 +114,7 @@ def _model_file_path(models_root: Path, folder: str, name: str) -> Path:
 
 
 def _model_hash_cache_path() -> Path:
-    base = os.environ.get("LOCALAPPDATA") or tempfile.gettempdir()
+    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support") if os.name == "posix" and os.uname().sysname == "Darwin" else tempfile.gettempdir())
     return Path(state_root(Path(base) / "hermes")) / "model-hashes.json"
 
 

@@ -25,7 +25,7 @@ class JobsDismissRequest(BaseModel):
 
 
 def _jobs_dismissed_path(owner_scope: str) -> Path:
-    base = os.environ.get("LOCALAPPDATA") or tempfile.gettempdir()
+    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support") if os.name == "posix" and os.uname().sysname == "Darwin" else tempfile.gettempdir())
     leaf = owner_scope[len("film_owner:"):]
     return Path(state_root(Path(base) / "hermes")) / "jobs-dismissed" / f"jobs-dismissed-{leaf}.json"
 

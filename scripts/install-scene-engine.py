@@ -72,7 +72,7 @@ MEDIAPIPE = Path("models/detection/mediapipe_face_fp32.safetensors")
 
 
 def hermes_dir() -> Path:
-    base = os.environ.get("LOCALAPPDATA") or str(Path.home() / "AppData" / "Local")
+    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support") if os.name == "posix" and os.uname().sysname == "Darwin" else str(Path.home() / "AppData" / "Local"))
     return Path(base) / "hermes"
 
 
