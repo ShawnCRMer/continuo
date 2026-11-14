@@ -174,7 +174,7 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--candidates-dir", type=Path, default=default_candidates_dir())
     ap.add_argument("--source-root", type=Path, default=None,
                     help="offline: folder of local clones (one per SOURCES name); default is each pinned URL")
-    ap.add_argument("--cpu-only", action="store_true", help="CPU torch wheels (no CUDA)")
+    ap.add_argument("--cpu-only", action="store_true", help="CPU torch wheels (no CUDA); ignored on macOS (one lock, MPS or CPU)")
     ap.add_argument("--smoke", help="run every task once on this audio file after installing (CPU)")
     args = ap.parse_args(argv)
     uv = shutil.which("uv")
@@ -195,7 +195,7 @@ def main(argv: list[str]) -> int:
     shutil.copyfile(RUNNER_SRC, edir / "runner.py")
     probe = subprocess.run([py, "-c", "import importlib.metadata as m, sys, torch, adtof_pytorch, muq; "
                                       "print(torch.__version__, torch.cuda.is_available(), sys.version.split()[0], "
-                                      "m.version('transformers'), m.version('librosa'), m.version('onnxruntime'), m.version('muq'))"],
+                                      "m.version('transformers'), m.version('librosa'), m.version('onnxruntime'), m.version('muq'), bool(getattr(torch.backends, 'mps', None) and torch.backends.mps.is_available()))"],
                            capture_output=True, text=True, check=True,
                            env=engine_env.engine_process.engine_env({"HF_HUB_OFFLINE": "1"})).stdout.split()
     record = {
@@ -212,6 +212,7 @@ def main(argv: list[str]) -> int:
                      "onnxruntime": probe[5], "muq": probe[6],
                      "adtof_pytorch": sources["ADTOF-pytorch"]["commit"][:7]},
         "cuda_available": probe[1] == "True",
+        "mps_available": probe[7] == "True",  # Apple Silicon GPU (Metal)
         "pins": [f"{n}=={v}" for n, v in sorted(engine_env.lock_pins(engine_env.lock_path(ENGINE, args.cpu_only)).items())],
     }
     record["env"] = env_receipt  # lock sha256, python, uv, exclude-newer, sha256 of the post-install freeze

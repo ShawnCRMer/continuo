@@ -496,15 +496,41 @@ def parse_nvidia_smi(text: str) -> list[dict[str, Any]]:
     return gpus
 
 
+def parse_apple_gpu(ioreg_text: str | None, memsize_text: str | None) -> list[dict[str, Any]]:
+    """Apple Silicon: ``ioreg -r -d1 -c IOAccelerator`` + ``sysctl -n hw.memsize`` -> one GPU in MiB.
+
+    The GPU shares the machine's unified memory, so the total is the RAM size and the used figure is the
+    accelerator's "In use system memory" (what Metal has resident, ComfyUI included).
+    """
+    text = str(ioreg_text or "")
+    name_match = re.search(r'"model"\s*=\s*"([^"]{1,120})"', text)
+    used_match = re.search(r'"In use system memory"\s*=\s*(\d+)', text)
+    try:
+        total_mb = int(str(memsize_text or "").strip()) // 2**20
+    except ValueError:
+        return []
+    if not name_match or not used_match or total_mb <= 0:
+        return []
+    used_mb = int(used_match.group(1)) // 2**20
+    return [{"name": name_match.group(1), "memory_used_mb": min(used_mb, total_mb), "memory_total_mb": total_mb,
+             "unified": True}]
+
+
 def gpu_status(run: Callable[[list[str], float], str | None], clock: Callable[[], float] = time.monotonic) -> dict[str, Any]:
     """The VRAM line, cached 2 s. ``run(argv, timeout)`` returns stdout or None (missing/failed)."""
     now = clock()
     cached_at = _GPU_CACHE["at"]
     if cached_at is not None and 0 <= now - cached_at < GPU_CACHE_SECONDS and _GPU_CACHE["value"] is not None:
         return _GPU_CACHE["value"]
-    out = run(["nvidia-smi", "--query-gpu=name,memory.used,memory.total", "--format=csv,noheader,nounits"], GPU_TIMEOUT_SECONDS)
-    gpus = parse_nvidia_smi(out) if out else []
-    value = {"schema": GPU_SCHEMA, "available": bool(gpus), "gpus": gpus, "source": "nvidia-smi", "cached_seconds": GPU_CACHE_SECONDS}
+    if os.name == "posix" and os.uname().sysname == "Darwin":
+        gpus = parse_apple_gpu(run(["/usr/sbin/ioreg", "-r", "-d1", "-c", "IOAccelerator"], GPU_TIMEOUT_SECONDS),
+                               run(["/usr/sbin/sysctl", "-n", "hw.memsize"], GPU_TIMEOUT_SECONDS))
+        source = "ioreg"
+    else:
+        out = run(["nvidia-smi", "--query-gpu=name,memory.used,memory.total", "--format=csv,noheader,nounits"], GPU_TIMEOUT_SECONDS)
+        gpus = parse_nvidia_smi(out) if out else []
+        source = "nvidia-smi"
+    value = {"schema": GPU_SCHEMA, "available": bool(gpus), "gpus": gpus, "source": source, "cached_seconds": GPU_CACHE_SECONDS}
     _GPU_CACHE["at"], _GPU_CACHE["value"] = now, value
     return value
 

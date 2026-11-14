@@ -69,7 +69,7 @@ def venv_python(venv: Path) -> Path:
 
 
 def probe(py: Path) -> dict:
-    code = "import json, torch, numpy, PIL; print(json.dumps({'torch': torch.__version__, 'numpy': numpy.__version__, 'pillow': PIL.__version__, 'cuda': torch.cuda.is_available()}))"
+    code = "import json, torch, numpy, PIL; print(json.dumps({'torch': torch.__version__, 'numpy': numpy.__version__, 'pillow': PIL.__version__, 'cuda': torch.cuda.is_available(), 'mps': bool(getattr(torch.backends, 'mps', None) and torch.backends.mps.is_available())}))"
     out = subprocess.run([str(py), "-c", code], capture_output=True, text=True, timeout=300, env=engine_process.engine_env())
     if out.returncode != 0:
         raise SystemExit(f"the venv python cannot import torch/numpy/PIL: {out.stderr.strip()[-300:]}")

@@ -152,9 +152,11 @@ def gpu_memory_used_mb() -> int | None:
 
 def choose_device(queue: str) -> str:
     forced = os.environ.get("FILM_SUITE_SONG_DEVICE")
-    if forced in {"cuda", "cpu"}:
+    if forced in {"cuda", "mps", "cpu"}:
         return forced
-    return "cuda" if queue == "empty" else "cpu"
+    # Apple Silicon has no CUDA; its GPU is Metal (torch "mps"), shared with ComfyUI the same way.
+    gpu = "mps" if os.name == "posix" and os.uname().sysname == "Darwin" else "cuda"
+    return gpu if queue == "empty" else "cpu"
 
 
 def _weights(record: dict[str, Any]) -> dict[str, str]:
@@ -169,7 +171,7 @@ def _weights(record: dict[str, Any]) -> dict[str, str]:
 def run_engine(record: dict[str, Any], *, audio_path: str, beats: list[float], stems: dict[str, str | None],
                lyrics: str | None, tasks: tuple[str, ...] = TASKS, device: str | None = None) -> dict[str, Any]:
     """One runner subprocess.  Never raises: {'ok': False, 'reason', 'job'} on failure."""
-    forced = os.environ.get("FILM_SUITE_SONG_DEVICE") if os.environ.get("FILM_SUITE_SONG_DEVICE") in {"cuda", "cpu"} else None
+    forced = os.environ.get("FILM_SUITE_SONG_DEVICE") if os.environ.get("FILM_SUITE_SONG_DEVICE") in {"cuda", "mps", "cpu"} else None
     queue = comfy_queue_state() if device is None and forced is None else "not_checked"
     requested = device or forced or choose_device(queue)
     request = {"schema": REQUEST_SCHEMA, "audio_path": str(audio_path), "device": requested, "tasks": list(tasks),

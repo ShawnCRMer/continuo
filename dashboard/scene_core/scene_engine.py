@@ -94,9 +94,11 @@ def gpu_memory_used_mb() -> int | None:
 
 def choose_device(queue: str) -> str:
     forced = os.environ.get("FILM_SUITE_SCENE_DEVICE")
-    if forced in {"cuda", "cpu"}:
+    if forced in {"cuda", "mps", "cpu"}:
         return forced
-    return "cuda" if queue == "empty" else "cpu"
+    # Apple Silicon has no CUDA; its GPU is Metal (torch "mps"), shared with ComfyUI the same way.
+    gpu = "mps" if os.name == "posix" and os.uname().sysname == "Darwin" else "cuda"
+    return gpu if queue == "empty" else "cpu"
 
 
 class _Lock:

@@ -38,9 +38,13 @@ ROOT = Path(__file__).resolve().parents[1]
 LOCK_DIR = ROOT / "scripts" / "engine-locks"
 ENGINES = ("song-analysis", "scene-analysis", "beat-this")
 PYPI = "https://pypi.org/simple"
-TORCH_INDEX = {"cuda": "https://download.pytorch.org/whl/cu128", "cpu": "https://download.pytorch.org/whl/cpu"}
+TORCH_INDEX = {"cuda": "https://download.pytorch.org/whl/cu128", "cpu": "https://download.pytorch.org/whl/cpu",
+               "macos": "https://download.pytorch.org/whl/cpu"}
 INDEX_STRATEGY = "unsafe-best-match"  # as the installers have always resolved: torch from the PyTorch index
 PLATFORM = "x86_64-pc-windows-msvc"
+# macOS (Apple Silicon): the same versions, torch family without a local tag (the macOS wheels carry Metal/MPS).
+PLATFORMS = {"cuda": PLATFORM, "cpu": PLATFORM, "macos": "aarch64-apple-darwin"}
+IS_MACOS = sys.platform == "darwin"
 TORCH_FAMILY = ("torch", "torchaudio", "torchvision")
 HEADER_KEYS = ("engine", "python", "uv", "index-url", "extra-index-url", "index-strategy", "exclude-newer",
                "platform", "source", "exceptions")
@@ -155,9 +159,13 @@ def uv_version(uv: str = "uv", runner: Runner = _run) -> str:
 
 
 # ---------------------------------------------------------------- lock files
-def lock_path(engine: str, cpu_only: bool = False, lock_dir: Path = LOCK_DIR) -> Path:
+def lock_path(engine: str, cpu_only: bool = False, lock_dir: Path = LOCK_DIR, *, macos: bool | None = None) -> Path:
+    """The lock for this machine: ``<engine>.macos.txt`` on macOS (one flavour, MPS or CPU at run time),
+    else ``<engine>.cpu.txt`` / ``<engine>.txt``."""
     if engine not in ENGINES:
         raise EnvError(f"unknown engine {engine!r} (one of {', '.join(ENGINES)})")
+    if IS_MACOS if macos is None else macos:
+        return Path(lock_dir) / f"{engine}.macos.txt"
     return Path(lock_dir) / (f"{engine}.cpu.txt" if cpu_only else f"{engine}.txt")
 
 
@@ -202,6 +210,11 @@ def lock_pins(path: Path) -> dict:
     return {name: version for name, (version, _h) in read_lock(path)[1].items()}
 
 
+def macos_twin(pins: dict) -> dict:
+    """The macOS flavour of a CUDA set: the torch family without its local version tag (PyPI/macOS wheels)."""
+    return {name: (re.sub(r"\+(cu\d+|cpu)$", "", v) if name in TORCH_FAMILY else v) for name, v in pins.items()}
+
+
 def cpu_twin(pins: dict) -> dict:
     """The CPU flavour of a CUDA set: only the torch family's local version tag changes."""
     return {name: (re.sub(r"\+cu\d+$", "+cpu", v) if name in TORCH_FAMILY else v) for name, v in pins.items()}
@@ -216,15 +229,16 @@ def compile_lock(engine: str, pins: dict, exceptions: list, out: Path, *, flavou
         dst = Path(tmp) / "out.txt"
         src.write_text("\n".join(freeze_lines(pins)) + "\n", encoding="utf-8")
         _checked(runner, [uv, "pip", "compile", str(src), "-o", str(dst), "--generate-hashes", "--no-header",
-                          "--no-annotate", "--python-version", python, "--python-platform", PLATFORM,
+                          "--no-annotate", "--python-version", python, "--python-platform", PLATFORMS[flavour],
                           "--index-url", PYPI, "--extra-index-url", TORCH_INDEX[flavour],
                           "--index-strategy", INDEX_STRATEGY, "--exclude-newer", exclude_newer],
                  f"uv pip compile ({engine}, {flavour})")
         body = dst.read_text(encoding="utf-8")
     header = {
         "engine": engine, "python": python, "uv": uv_ver, "index-url": PYPI, "extra-index-url": TORCH_INDEX[flavour],
-        "index-strategy": INDEX_STRATEGY, "exclude-newer": exclude_newer, "platform": PLATFORM,
-        "source": f"live venv freeze ({engine}.freeze.txt)" + ("; torch family +cu128 -> +cpu" if flavour == "cpu" else ""),
+        "index-strategy": INDEX_STRATEGY, "exclude-newer": exclude_newer, "platform": PLATFORMS[flavour],
+        "source": f"live venv freeze ({engine}.freeze.txt)" + {"cpu": "; torch family +cu128 -> +cpu",
+                                                               "macos": "; torch family +cu128 -> no local tag"}.get(flavour, ""),
         "exceptions": "; ".join(exceptions) if exceptions else "none",
     }
     lines = ["# Film Suite engine lock: install ONLY with scripts/engine_env.py install_argv (--require-hashes).",
@@ -253,8 +267,9 @@ def write_locks(engine: str, engine_dir: Path, *, exclude_newer: str | None = No
                       + "\n".join(freeze_lines(pins) + [f"# exception: {e}" for e in exceptions]) + "\n",
                       encoding="utf-8", newline="\n")
     out = [freeze]
-    for flavour, set_ in (("cuda", pins), ("cpu", cpu_twin(pins))):
-        out.append(compile_lock(engine, set_, exceptions, lock_path(engine, flavour == "cpu", lock_dir), flavour=flavour,
+    for flavour, set_ in (("cuda", pins), ("cpu", cpu_twin(pins)), ("macos", macos_twin(pins))):
+        out.append(compile_lock(engine, set_, exceptions, lock_path(engine, flavour == "cpu", lock_dir, macos=flavour == "macos"),
+                                flavour=flavour,
                                 python=pyver, uv_ver=uvver, exclude_newer=stamp, uv=uv, runner=runner))
     return out
 

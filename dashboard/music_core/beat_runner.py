@@ -14,6 +14,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os as _os_mps
+# Apple Silicon: an op Metal (MPS) lacks runs on the CPU instead of failing the job (no effect elsewhere).
+_os_mps.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
 import sys
 import time
 
@@ -53,6 +56,8 @@ def main() -> int:
     device = req.get("device", "cpu")
     if device == "cuda" and not torch.cuda.is_available():
         device = "cpu"
+    if device == "mps" and not (getattr(torch.backends, "mps", None) is not None and torch.backends.mps.is_available()):
+        device = "cpu"
     if device == "cpu":
         torch.set_num_threads(max(1, min(8, torch.get_num_threads())))
     t0 = time.perf_counter()
@@ -67,6 +72,8 @@ def main() -> int:
         beats, downs = post(beat_logits, down_logits)
     if device == "cuda":
         torch.cuda.synchronize()
+    elif device == "mps":
+        torch.mps.synchronize()
     t2 = time.perf_counter()
     bp = torch.sigmoid(beat_logits.float()).cpu().numpy()
     dp = torch.sigmoid(down_logits.float()).cpu().numpy()

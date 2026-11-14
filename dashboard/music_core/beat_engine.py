@@ -109,8 +109,12 @@ def choose_device(queue: str) -> str:
     """GPU only when the artist's ComfyUI queue is empty; CPU Beat This! otherwise.
     Measured: CPU 0.70-0.89 s per minute of audio (8 threads), identical beats."""
     forced = os.environ.get("FILM_SUITE_BEAT_DEVICE")
-    if forced in {"cuda", "cpu"}:
+    if forced in {"cuda", "mps", "cpu"}:
         return forced
+    if os.name == "posix" and os.uname().sysname == "Darwin":
+        # Apple Silicon (M4 Pro, 4-minute song): MPS 1.8-3.3 s, CPU 2.1-3.6 s, identical beats; Metal's warm-up
+        # costs ~6 s on short songs and its memory is ComfyUI's.  CPU by default; FILM_SUITE_BEAT_DEVICE=mps opts in.
+        return "cpu"
     return "cuda" if queue == "empty" else "cpu"
 
 
