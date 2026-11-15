@@ -86,12 +86,12 @@ ENGINE_IDS = {"drums": "adtof-frame-rnn", "melody": "rmvpe-onnx", "words": "qwen
 
 
 def default_engine_dir() -> Path:
-    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support") if os.name == "posix" and os.uname().sysname == "Darwin" else str(Path.home() / "AppData" / "Local"))
+    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support", "Continuo") if os.name == "posix" and os.uname().sysname == "Darwin" else str(Path.home() / "AppData" / "Local"))
     return Path(base) / "hermes" / "film-suite" / "engines" / "song-analysis"
 
 
 def default_candidates_dir() -> Path:
-    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support") if os.name == "posix" and os.uname().sysname == "Darwin" else str(Path.home() / "AppData" / "Local"))
+    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support", "Continuo") if os.name == "posix" and os.uname().sysname == "Darwin" else str(Path.home() / "AppData" / "Local"))
     return Path(base) / "hermes" / "film-suite" / "engines" / "candidates"
 
 

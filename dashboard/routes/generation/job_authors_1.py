@@ -30,7 +30,7 @@ def _caller_by(by: Any) -> str:
 
 
 def _job_authors_path() -> Path:
-    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support") if os.name == "posix" and os.uname().sysname == "Darwin" else tempfile.gettempdir())
+    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support", "Continuo") if os.name == "posix" and os.uname().sysname == "Darwin" else tempfile.gettempdir())
     return Path(state_root(Path(base) / "hermes")) / "job-authors.sqlite3"
 
 

@@ -97,7 +97,8 @@ Apple Silicon Macs run the whole suite: Script, Cut, Audio, Deliver and the Samp
 (`brew install ffmpeg`).
 
 - **Machine-local records** (approved folders, analysis caches, job records) live in
-  `~/Library/Application Support/hermes/film-suite/`, not in the temp folder macOS empties.
+  `~/Library/Application Support/Continuo/hermes/film-suite/` (not in the temp folder macOS empties, and not in
+  `~/Library/Application Support/hermes`, which is Hermes Desktop's own data).
 - **ComfyUI** is found at ComfyUI Desktop's install folder, `~/Documents/ComfyUI`, `~/ComfyUI` or `~/comfy/ComfyUI`;
   set `FILM_SUITE_COMFY_ROOT` for another one. Generation runs on the Mac's GPU (Metal) through ComfyUI.
 - **Engines** install from their own macOS hash locks (`scripts/engine-locks/<engine>.macos.txt`: the same package
@@ -289,7 +290,7 @@ Silero installs the model only; dialogue ducking also needs `onnxruntime` import
 
 **Transcription:** `faster-whisper` is provided by Hermes' local speech-to-text (voice) option. Continuo uses `large-v3` offline only: cache `Systran/faster-whisper-large-v3` beforehand, for example by running `python -c "from huggingface_hub import snapshot_download; snapshot_download('Systran/faster-whisper-large-v3')"` in the same user/cache environment. Without the package or cached model, transcription shows as unavailable.
 
-On macOS the default engine location is `~/Library/Application Support/hermes/film-suite/engines/`; on Linux it is `~/AppData/Local/hermes/film-suite/engines/`, unless `LOCALAPPDATA` or the engine lookup override `FILM_SUITE_BEAT_ENGINE_DIR`, `FILM_SUITE_SONG_ENGINE_DIR`, `FILM_SUITE_SCENE_ENGINE_DIR`, or `FILM_SUITE_INPAINT_ENGINE_DIR` is set; the installers do not read these engine-specific overrides, so use their `--engine-dir` flag to match one.
+On macOS the default engine location is `~/Library/Application Support/Continuo/hermes/film-suite/engines/`; on Linux it is `~/AppData/Local/hermes/film-suite/engines/`, unless `LOCALAPPDATA` or the engine lookup override `FILM_SUITE_BEAT_ENGINE_DIR`, `FILM_SUITE_SONG_ENGINE_DIR`, `FILM_SUITE_SCENE_ENGINE_DIR`, or `FILM_SUITE_INPAINT_ENGINE_DIR` is set; the installers do not read these engine-specific overrides, so use their `--engine-dir` flag to match one.
 
 Thanks to @ShawnCRMer for reporting the missing installer (#1).
 

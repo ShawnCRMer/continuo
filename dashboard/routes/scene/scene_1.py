@@ -59,7 +59,7 @@ class _SceneError(Exception):
 
 
 def _scene_cache_dir() -> Path:
-    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support") if os.name == "posix" and os.uname().sysname == "Darwin" else tempfile.gettempdir())
+    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support", "Continuo") if os.name == "posix" and os.uname().sysname == "Darwin" else tempfile.gettempdir())
     return Path(state_root(Path(base) / "hermes")) / "scene"
 
 

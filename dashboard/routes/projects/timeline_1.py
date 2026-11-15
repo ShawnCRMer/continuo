@@ -127,7 +127,7 @@ def _timeline_song_or_footage(footage: Any) -> Any:
 def _timeline_music_file(track_sha256: str) -> Path | None:
     """The pinned song's playback file: the Music analysis cache's WAV proxy, named by the
     recording's sha256 (routes/music/cache_1.py). The engine itself is not loaded."""
-    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support") if os.name == "posix" and os.uname().sysname == "Darwin" else tempfile.gettempdir())
+    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support", "Continuo") if os.name == "posix" and os.uname().sysname == "Darwin" else tempfile.gettempdir())
     proxy = state_root(Path(base) / "hermes") / "analysis" / f"{track_sha256}.wav"
     return proxy if proxy.is_file() and proxy.stat().st_size >= 44 else None
 

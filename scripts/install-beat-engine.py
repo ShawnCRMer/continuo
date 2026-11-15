@@ -45,7 +45,7 @@ CHECKPOINT_MIRRORS = (
 
 
 def default_engine_dir() -> Path:
-    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support") if os.name == "posix" and os.uname().sysname == "Darwin" else str(Path.home() / "AppData" / "Local"))
+    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support", "Continuo") if os.name == "posix" and os.uname().sysname == "Darwin" else str(Path.home() / "AppData" / "Local"))
     return Path(base) / "hermes" / "film-suite" / "engines" / "beat-this"
 
 

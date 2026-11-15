@@ -77,7 +77,7 @@ def _folder_refusal() -> dict[str, Any]:
 
 
 def _loose_work_folders() -> Any:
-    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support") if os.name == "posix" and os.uname().sysname == "Darwin" else tempfile.gettempdir())
+    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support", "Continuo") if os.name == "posix" and os.uname().sysname == "Darwin" else tempfile.gettempdir())
     return _approved_roots_module.LooseWorkFolders(
         state_root(Path(base) / "hermes") / _approved_roots_module.LOOSE_FILE_NAME)
 

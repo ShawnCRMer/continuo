@@ -116,7 +116,7 @@ def _music_root_preflight(root: Path) -> str | None:
 
 
 def _music_legacy_cache_file(track_sha256: str, engine: str | None = None) -> Path | None:
-    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support") if os.name == "posix" and os.uname().sysname == "Darwin" else tempfile.gettempdir())
+    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support", "Continuo") if os.name == "posix" and os.uname().sysname == "Darwin" else tempfile.gettempdir())
     directory = state_root(Path(base) / "hermes") / "analysis"
     # Lane p13b-aud item 2: the named engine's stored result (<sha>.<engine>.json) when there is one, else the last run.
     named = directory / f"{track_sha256}.{engine}.json" if engine in ("beat_this", "librosa") else None

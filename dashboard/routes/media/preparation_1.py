@@ -2,7 +2,7 @@ from __future__ import annotations
 
 
 def prepared_cache_dir() -> Path:
-    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support") if os.name == "posix" and os.uname().sysname == "Darwin" else tempfile.gettempdir())
+    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support", "Continuo") if os.name == "posix" and os.uname().sysname == "Darwin" else tempfile.gettempdir())
     directory = state_root(Path(base) / "hermes") / "prepared"
     directory.mkdir(parents=True, exist_ok=True)
     return directory

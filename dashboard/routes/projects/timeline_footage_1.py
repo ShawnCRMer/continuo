@@ -22,7 +22,7 @@ class TimelineFootageAddRequest(_ProjectRequest):
 
 def _timeline_footage_index(project_id: str) -> Any:
     footage = _timeline_module("footage")
-    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support") if os.name == "posix" and os.uname().sysname == "Darwin" else tempfile.gettempdir())
+    base = os.environ.get("LOCALAPPDATA") or (os.path.join(os.path.expanduser("~"), "Library", "Application Support", "Continuo") if os.name == "posix" and os.uname().sysname == "Darwin" else tempfile.gettempdir())
     path = state_root(Path(base) / "hermes") / "timeline-footage" / f"{project_id}.json"
     # relink_probe: a relinked file (a project from another home) may be a picture, clip or sound.
     return footage.FootageIndex(path, project_id, probe=lambda file: footage.probe_footage(file, ffprobe=FFPROBE_PATH),
